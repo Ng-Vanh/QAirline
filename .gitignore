@@ -1,0 +1,32 @@
+# Node.js dependencies
+node_modules/
+
+# Environment variables
+.env
+
+# Logs
+logs/
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# Editor và hệ điều hành
+.DS_Store
+Thumbs.db
+.idea/
+.vscode/
+*.swp
+
+# Frontend build files
+frontend/build/
+
+# Backend build files
+backend/dist/
+
+# Coverage files (nếu dùng test)
+coverage/
+
+# Temp files
+*.tmp
+*.cache
