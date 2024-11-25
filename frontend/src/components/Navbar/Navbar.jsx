@@ -8,7 +8,6 @@ const Navbar = () => {
             <Link to="/flights" style={styles.link}>Flights</Link>
             <Link to="/booking" style={styles.link}>Booking</Link>
             <Link to="/login" style={styles.link}>Login</Link>
-            <Link to="/admin" style={styles.link}>Admin Dashboard</Link>
         </nav>
     );
 };
