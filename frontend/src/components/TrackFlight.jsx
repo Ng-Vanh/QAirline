@@ -2,8 +2,8 @@
 
 import { useState, useEffect } from 'react';
 import { AlertTriangle, MapPin, ArrowRight } from 'lucide-react';
-import { Progress } from '@/components/ui/progress';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Progress } from './ui/progress';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from './ui/card';
 
 export default function TrackFlight({ flightNumber, departureCity, arrivalCity, departureTime, arrivalTime, status }) {
     const [progress, setProgress] = useState(0);
