@@ -6,8 +6,6 @@ import Flights from './pages/Flights/Flights';
 import Booking from './pages/Booking/Booking';
 import Login from './pages/Login/Login';
 import AdminDashboard from './pages/Admin/AdminDashboard';
-import Navbar from './components/Navbar/Navbar'
-import Modal from './components/Modal/Modal';
 
 const App = () => {
 
