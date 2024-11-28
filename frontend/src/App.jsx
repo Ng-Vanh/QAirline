@@ -1,11 +1,11 @@
-import React, { useState } from 'react';
+import React from 'react';
 
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import Home from './pages/Home/Home';
 import Flights from './pages/Flights/Flights';
 import Booking from './pages/Booking/Booking';
 import Login from './pages/Login/Login';
-import AdminDashboard from './pages/Admin/AdminDashboard';
+import AdminDashboard from './pages/Admin/dashboard/AdminDashboard';
 
 const App = () => {
 
