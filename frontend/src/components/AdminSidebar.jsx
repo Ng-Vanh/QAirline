@@ -1,4 +1,5 @@
-import Link from "next/link";
+import { Link } from "react-router-dom";
+
 import { Home, Users, PlaneTakeoff, BarChart2, Bell, FileText } from "lucide-react";
 
 export default function AdminSidebar() {
