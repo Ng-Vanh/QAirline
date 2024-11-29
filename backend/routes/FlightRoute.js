@@ -1,20 +1,35 @@
+// routes/FlightRoute.js
 const express = require('express');
+const FlightController = require('../controllers/FlightController'); // Import the flight controller
 const router = express.Router();
-const FlightController = require('../controllers/FlightController');
 
-// POST: Create a new flight
-router.post('/create', FlightController.createFlight);
 
-// GET: Get all flights
-router.get('/', FlightController.getAllFlights);  // Add this route to get all flights
+// POST route for searching flights based on criteria
+router.post('/search', FlightController.searchFlights);
 
-// GET: Get a flight by ID
-router.get('/:flightId', FlightController.getFlightById);
+router.post('/', FlightController.createFlight);
 
-// PUT: Update flight by ID
-router.put('/:flightId', FlightController.updateFlight);
+// PUT route for updating a flight by ID
+router.put('/:id', FlightController.updateFlight);
 
-// DELETE: Delete flight by ID
-router.delete('/:flightId', FlightController.deleteFlight);
+// GET route for getting a flight by ID
+router.get('/:id', FlightController.getFlightById);
 
+/**
+ * @swagger
+ * /api/flights:
+ *   get:
+ *     summary: Get all flights
+ *     description: Retrieves all available flights
+ *     responses:
+ *       200:
+ *         description: A list of flights
+ */
+// GET route for getting all flights
+router.get('/', FlightController.getAllFlights);
+
+// DELETE route for deleting a flight by ID
+router.delete('/:id', FlightController.deleteFlight);
+
+// Export the router to be used in the main app
 module.exports = router;
