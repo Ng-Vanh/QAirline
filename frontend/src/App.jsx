@@ -5,8 +5,13 @@ import Home from './pages/Home/Home';
 import Flights from './pages/Flights/Flights';
 import Booking from './pages/Booking/Booking';
 import Login from './pages/Login/Login';
-import AdminDashboard from './pages/Admin/dashboard/AdminDashboard';
-
+import AdminDashboard from './pages/Admin/dashboard/page';
+import Reports from './pages/Admin/report/page';
+import ContentManagement from './pages/Admin/content/page';
+import CMSPage from './pages/Admin/cms/page';
+import UserManagement from './pages/Admin/user/page';
+import ManageAircraft from './pages/Admin/aircraft/page';
+import ManageFlights from './pages/Admin/flights/page';
 const App = () => {
 
     return (
@@ -19,6 +24,13 @@ const App = () => {
                     <Route path="/booking" element={<Booking />} />
                     <Route path="/login" element={<Login />} />
                     <Route path="/admin" element={<AdminDashboard />} />
+                    <Route path="/admin/reports" element={<Reports />} />
+                    <Route path="/admin/content" element={<ContentManagement />} />
+                    <Route path="/admin/cms" element={<CMSPage />} />
+                    <Route path="/admin/user" element={<UserManagement />} />
+                    <Route path="/admin/aircraft" element={<ManageAircraft />} />
+                    <Route path="/admin/flights" element={<ManageFlights />} />
+
                 </Routes>
 
             </div>

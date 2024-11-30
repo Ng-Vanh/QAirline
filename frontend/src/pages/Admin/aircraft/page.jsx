@@ -1,0 +1,463 @@
+'use client';
+
+import { useState } from 'react';
+import { Plane, Edit, Trash2, Plus, Info } from 'lucide-react';
+import { Button } from "../../../components/ui/button";
+import { Input } from "../../../components/ui/input";
+import { Label } from "../../../components/ui/label";
+import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from "../../../components/ui/dialog";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "../../../components/ui/select";
+import { Textarea } from "../../../components/ui/textarea";
+import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "../../../components/ui/card";
+import { Badge } from "../../../components/ui/badge";
+import { Popover, PopoverContent, PopoverTrigger } from "../../../components/ui/popover";
+import { toast } from "../../../hooks/use-toast";
+import "./styles.css"
+
+// Sample Aircraft Data
+const AircraftData = [
+    {
+        id: 1,
+        code: 'A320',
+        manufacturer: 'Airbus',
+        model: 'A320-200',
+        seats: 180,
+        type: 'Narrow Body',
+        range: 6100,
+        cruiseSpeed: 828,
+        engineType: 'Turbofan',
+        inService: true,
+        lastMaintenance: '2023-05-15',
+        nextMaintenance: '2023-11-15',
+    },
+    // Add more aircraft as needed
+];
+
+export default function ManageAircraft() {
+    const [aircraft, setAircraft] = useState([
+        {
+            id: 1,
+            code: 'B787',
+            manufacturer: 'Boeing',
+            model: '787 Dreamliner',
+            seats: 330,
+            type: 'Wide Body',
+            range: 14140,
+            cruiseSpeed: 903,
+            engineType: 'Turbofan',
+            inService: true,
+            lastMaintenance: '2023-05-15',
+            nextMaintenance: '2023-11-15',
+        },
+        {
+            id: 2,
+            code: 'A350',
+            manufacturer: 'Airbus',
+            model: 'A350',
+            seats: 350,
+            type: 'Wide Body',
+            range: 15000,
+            cruiseSpeed: 903,
+            engineType: 'Turbofan',
+            inService: true,
+            lastMaintenance: '2023-04-20',
+            nextMaintenance: '2023-10-20',
+        },
+        {
+            id: 3,
+            code: 'B737',
+            manufacturer: 'Boeing',
+            model: '737 MAX',
+            seats: 230,
+            type: 'Narrow Body',
+            range: 6570,
+            cruiseSpeed: 839,
+            engineType: 'Turbofan',
+            inService: true,
+            lastMaintenance: '2023-06-01',
+            nextMaintenance: '2023-12-01',
+        },
+    ]);
+
+    const [newAircraft, setNewAircraft] = useState({
+        code: '',
+        manufacturer: '',
+        model: '',
+        seats: 0,
+        type: 'Narrow Body',
+        range: 0,
+        cruiseSpeed: 0,
+        engineType: '',
+        inService: true,
+        lastMaintenance: '',
+        nextMaintenance: '',
+    });
+
+    const [editingAircraft, setEditingAircraft] = useState(null);
+    const [isDialogOpen, setIsDialogOpen] = useState(false);
+
+    const handleInputChange = (e) => {
+        const { name, value } = e.target;
+        setNewAircraft({
+            ...newAircraft,
+            [name]: ['seats', 'range', 'cruiseSpeed'].includes(name)
+                ? parseInt(value, 10)
+                : value,
+        });
+    };
+
+    const handleTypeChange = (value) => {
+        setNewAircraft({ ...newAircraft, type: value });
+    };
+
+    const handleInServiceChange = (value) => {
+        setNewAircraft({ ...newAircraft, inService: value === 'true' });
+    };
+
+    const handleSubmit = (e) => {
+        e.preventDefault();
+        if (editingAircraft) {
+            setAircraft(
+                aircraft.map((a) =>
+                    a.id === editingAircraft.id
+                        ? { ...editingAircraft, ...newAircraft }
+                        : a
+                )
+            );
+            toast({
+                title: 'Aircraft Updated',
+                description: `Aircraft ${newAircraft.code} has been successfully updated.`,
+            });
+        } else {
+            setAircraft([
+                ...aircraft,
+                { ...newAircraft, id: aircraft.length + 1 },
+            ]);
+            toast({
+                title: 'Aircraft Added',
+                description: `New aircraft ${newAircraft.code} has been successfully added to the fleet.`,
+            });
+        }
+        setNewAircraft({
+            code: '',
+            manufacturer: '',
+            model: '',
+            seats: 0,
+            type: 'Narrow Body',
+            range: 0,
+            cruiseSpeed: 0,
+            engineType: '',
+            inService: true,
+            lastMaintenance: '',
+            nextMaintenance: '',
+        });
+        setEditingAircraft(null);
+        setIsDialogOpen(false);
+    };
+
+    const handleEdit = (aircraft) => {
+        setEditingAircraft(aircraft);
+        setNewAircraft({
+            code: aircraft.code,
+            manufacturer: aircraft.manufacturer,
+            model: aircraft.model,
+            seats: aircraft.seats,
+            type: aircraft.type,
+            range: aircraft.range,
+            cruiseSpeed: aircraft.cruiseSpeed,
+            engineType: aircraft.engineType,
+            inService: aircraft.inService,
+            lastMaintenance: aircraft.lastMaintenance,
+            nextMaintenance: aircraft.nextMaintenance,
+        });
+        setIsDialogOpen(true);
+    };
+
+    const handleDelete = (id) => {
+        setAircraft(aircraft.filter((a) => a.id !== id));
+        toast({
+            title: 'Aircraft Deleted',
+            description: 'The aircraft has been successfully removed from the fleet.',
+            variant: 'destructive',
+        });
+    };
+    return (
+        <div className="outer-container">
+            <div className="container">
+                <div className="button-container">
+                    <button
+                        className="add-button"
+                        onClick={() => {
+                            setEditingAircraft(null);
+                            setNewAircraft({
+                                code: '',
+                                manufacturer: '',
+                                model: '',
+                                seats: 0,
+                                type: 'Narrow Body',
+                                range: 0,
+                                cruiseSpeed: 0,
+                                engineType: '',
+                                inService: true,
+                                lastMaintenance: '',
+                                nextMaintenance: '',
+                            });
+                            setIsDialogOpen(true);
+                        }}
+                    >
+                        <Plus className="button-icon" size={16} />
+                        Add New
+                    </button>
+                </div>
+
+                <div className="grid-container">
+                    {aircraft.map((a) => (
+                        <Card key={a.id} className="card">
+                            <CardHeader className="card-header">
+                                <CardTitle className="card-title">
+                                    <span>{a.manufacturer} {a.model}</span>
+                                    <span className={`badge ${a.inService ? 'badge-default' : 'badge-secondary'}`}>
+                                        {a.inService ? "In Service" : "Out of Service"}
+                                    </span>
+                                </CardTitle>
+                                <CardDescription className="card-description">Code: {a.code}</CardDescription>
+                            </CardHeader>
+                            <CardContent className="card-content" style={{
+                                display: "flex",
+                                flexDirection: "column",
+                                alignItems: "flex-start",
+                                textAlign: "left",
+                                lineHeight: "0.6", // Tăng khoảng cách dòng nếu cần (tùy chỉnh)
+                            }} >
+                                <p style={{ fontSize: "18px", marginLeft: "12px" }}><strong>Type:</strong> {a.type}</p>
+                                <p style={{ fontSize: "18px", marginLeft: "12px" }}><strong>Seats:</strong> {a.seats}</p>
+                                <p style={{ fontSize: "18px", marginLeft: "12px" }}><strong>Range:</strong> {a.range} km</p>
+                                <p style={{ fontSize: "18px", marginLeft: "12px" }}><strong>Cruise Speed:</strong> {a.cruiseSpeed} km/h</p>
+                                <p style={{ fontSize: "18px", marginLeft: "12px" }}><strong>Engine Type:</strong> {a.engineType}</p>
+                                <p style={{ fontSize: "18px", marginLeft: "12px" }}><strong>Last Maintenance:</strong> {a.lastMaintenance}</p>
+                                <p style={{ fontSize: "18px", marginLeft: "12px" }}><strong>Next Maintenance:</strong> {a.nextMaintenance}</p>
+                            </CardContent>
+                            <CardFooter className="card-footer">
+                                <button className="button" onClick={() => handleEdit(a)}>
+                                    <Edit size={16} className="button-icon" />
+                                    Edit
+                                </button>
+                                <button className="button destructive" onClick={() => handleDelete(a.id)}>
+                                    <Trash2 size={16} className="button-icon" />
+                                    Delete
+                                </button>
+                            </CardFooter>
+                        </Card>
+                    ))}
+                </div>
+                {aircraft.length === 0 && (
+                    <Card
+                        style={{
+                            border: '1px solid #e5e7eb',
+                            borderRadius: '0.5rem',
+                            backgroundColor: '#fff',
+                            boxShadow: '0 4px 6px rgba(0, 0, 0, 0.1)',
+                            display: 'flex',
+                            alignItems: 'center',
+                            justifyContent: 'center',
+                            padding: '1rem',
+                            height: '16rem', // Matches h-64 from Tailwind
+                        }}
+                    >
+                        <CardContent
+                            style={{
+                                display: 'flex',
+                                flexDirection: 'column',
+                                alignItems: 'center',
+                                justifyContent: 'center',
+                                height: '100%',
+                                textAlign: 'center',
+                            }}
+                        >
+                            <Plane
+                                style={{
+                                    height: '4rem', // Matches h-16 from Tailwind
+                                    width: '4rem', // Matches w-16 from Tailwind
+                                    color: '#9ca3af', // Matches text-gray-400
+                                    marginBottom: '1rem', // Matches mb-4
+                                }}
+                            />
+                            <p
+                                style={{
+                                    fontSize: '1.25rem', // Matches text-xl
+                                    fontWeight: '600', // Matches font-semibold
+                                    color: '#4b5563', // Matches text-gray-600
+                                    marginBottom: '0.5rem',
+                                }}
+                            >
+                                No aircraft added yet
+                            </p>
+                            <p
+                                style={{
+                                    fontSize: '1rem', // Matches default text size
+                                    color: '#6b7280', // Matches text-gray-500
+                                }}
+                            >
+                                Add your first aircraft to start managing your fleet.
+                            </p>
+                        </CardContent>
+                    </Card>
+                )}
+                <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
+                    <DialogContent className="dialog-content">
+                        <form onSubmit={handleSubmit}>
+                            <DialogHeader>
+                                <DialogTitle className="dialog-title">
+                                    {editingAircraft ? 'Edit Aircraft' : 'Add New Aircraft'}
+                                </DialogTitle>
+                                <DialogDescription className="dialog-description">
+                                    {editingAircraft
+                                        ? 'Edit the details of the aircraft below.'
+                                        : 'Fill in the details for the new aircraft.'}
+                                </DialogDescription>
+                            </DialogHeader>
+                            <div className="form-grid">
+                                <div className="form-group">
+                                    <Label htmlFor="code">Aircraft Code</Label>
+                                    <Input
+                                        id="code"
+                                        name="code"
+                                        value={newAircraft.code}
+                                        onChange={handleInputChange}
+                                        placeholder="e.g., B787"
+                                        required
+                                    />
+                                </div>
+                                <div className="form-group">
+                                    <Label htmlFor="manufacturer">Manufacturer</Label>
+                                    <Input
+                                        id="manufacturer"
+                                        name="manufacturer"
+                                        value={newAircraft.manufacturer}
+                                        onChange={handleInputChange}
+                                        placeholder="e.g., Boeing"
+                                        required
+                                    />
+                                </div>
+                                <div className="form-group">
+                                    <Label htmlFor="model">Model</Label>
+                                    <Input
+                                        id="model"
+                                        name="model"
+                                        value={newAircraft.model}
+                                        onChange={handleInputChange}
+                                        placeholder="e.g., 787 Dreamliner"
+                                        required
+                                    />
+                                </div>
+                                <div className="form-group">
+                                    <Label htmlFor="seats">Number of Seats</Label>
+                                    <Input
+                                        id="seats"
+                                        name="seats"
+                                        type="number"
+                                        value={newAircraft.seats}
+                                        onChange={handleInputChange}
+                                        placeholder="e.g., 330"
+                                        required
+                                    />
+                                </div>
+                                <div className="form-group">
+                                    <Label htmlFor="type">Aircraft Type</Label>
+                                    <Select value={newAircraft.type} onValueChange={handleTypeChange}>
+                                        <SelectTrigger>
+                                            <SelectValue placeholder="Select aircraft type" />
+                                        </SelectTrigger>
+                                        <SelectContent>
+                                            <SelectItem value="Narrow Body">Narrow Body</SelectItem>
+                                            <SelectItem value="Wide Body">Wide Body</SelectItem>
+                                            <SelectItem value="Regional Jet">Regional Jet</SelectItem>
+                                        </SelectContent>
+                                    </Select>
+                                </div>
+                                <div className="form-group">
+                                    <Label htmlFor="range">Range (km)</Label>
+                                    <Input
+                                        id="range"
+                                        name="range"
+                                        type="number"
+                                        value={newAircraft.range}
+                                        onChange={handleInputChange}
+                                        placeholder="e.g., 14140"
+                                        required
+                                    />
+                                </div>
+                                <div className="form-group">
+                                    <Label htmlFor="cruiseSpeed">Cruise Speed (km/h)</Label>
+                                    <Input
+                                        id="cruiseSpeed"
+                                        name="cruiseSpeed"
+                                        type="number"
+                                        value={newAircraft.cruiseSpeed}
+                                        onChange={handleInputChange}
+                                        placeholder="e.g., 903"
+                                        required
+                                    />
+                                </div>
+                                <div className="form-group">
+                                    <Label htmlFor="engineType">Engine Type</Label>
+                                    <Input
+                                        id="engineType"
+                                        name="engineType"
+                                        value={newAircraft.engineType}
+                                        onChange={handleInputChange}
+                                        placeholder="e.g., Turbofan"
+                                        required
+                                    />
+                                </div>
+                                <div className="form-group">
+                                    <Label htmlFor="inService">In Service</Label>
+                                    <Select value={newAircraft.inService.toString()} onValueChange={handleInServiceChange}>
+                                        <SelectTrigger>
+                                            <SelectValue placeholder="Select service status" />
+                                        </SelectTrigger>
+                                        <SelectContent>
+                                            <SelectItem value="true">Yes</SelectItem>
+                                            <SelectItem value="false">No</SelectItem>
+                                        </SelectContent>
+                                    </Select>
+                                </div>
+                                <div className="form-group">
+                                    <Label htmlFor="lastMaintenance">Last Maintenance</Label>
+                                    <Input
+                                        id="lastMaintenance"
+                                        name="lastMaintenance"
+                                        type="date"
+                                        value={newAircraft.lastMaintenance}
+                                        onChange={handleInputChange}
+                                        required
+                                    />
+                                </div>
+                                <div className="form-group">
+                                    <Label htmlFor="nextMaintenance">Next Maintenance</Label>
+                                    <Input
+                                        id="nextMaintenance"
+                                        name="nextMaintenance"
+                                        type="date"
+                                        value={newAircraft.nextMaintenance}
+                                        onChange={handleInputChange}
+                                        required
+                                    />
+                                </div>
+                            </div>
+                            <DialogFooter>
+                                <Button type="submit">{editingAircraft ? 'Update' : 'Add'} Aircraft</Button>
+                            </DialogFooter>
+                        </form>
+                    </DialogContent>
+                </Dialog>
+
+
+
+            </div>
+        </div>
+
+
+
+    )
+}
