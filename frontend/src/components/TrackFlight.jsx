@@ -14,7 +14,7 @@ export default function TrackFlight({ flightNumber, departureCity, arrivalCity, 
 
     useEffect(() => {
         const departure = new Date(departureTime).getTime();
-        const arrival = new Date(arrivalTime).getTime();
+        const arrival = new Date(arrivalTpime).getTime();
 
         const updateFlight = () => {
             const now = new Date().getTime();
