@@ -5,12 +5,10 @@ exports.createAirport = async (req, res) => {
   try {
     const { code, name, city } = req.body;
 
-    // Ensure all required fields are provided
     if (!code || !name || !city) {
       return res.status(400).json({ message: 'Code, name, and city are required fields.' });
     }
 
-    // Check if the airport already exists
     const existingAirport = await Airport.findOne({ code });
     if (existingAirport) {
       return res.status(400).json({ message: `Airport with code ${code} already exists.` });
@@ -69,12 +67,10 @@ exports.updateAirport = async (req, res) => {
     const { id } = req.params;
     const { code, name, city } = req.body;
 
-    // Ensure at least one field is provided
     if (!code && !name && !city) {
       return res.status(400).json({ message: 'At least one field (code, name, or city) must be provided to update.' });
     }
 
-    // Find the airport and update
     const updatedAirport = await Airport.findByIdAndUpdate(
       id,
       { code, name, city },
@@ -100,7 +96,6 @@ exports.deleteAirport = async (req, res) => {
   try {
     const { id } = req.params;
 
-    // Find the airport and delete
     const deletedAirport = await Airport.findByIdAndDelete(id);
     if (!deletedAirport) {
       return res.status(404).json({ message: 'Airport not found' });
