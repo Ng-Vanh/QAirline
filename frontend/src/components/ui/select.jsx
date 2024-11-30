@@ -9,7 +9,7 @@ const styles = {
         display: "flex",
         alignItems: "center",
         justifyContent: "space-between",
-        height: "2.25rem", // h-9
+        height: "2.5rem", // h-9
         width: "100%", // w-full
         borderRadius: "0.375rem", // rounded-md
         border: "1px solid #d1d5db", // border-input

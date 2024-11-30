@@ -1,0 +1,304 @@
+/* Outer Container (Centers content horizontally) */
+.outer-container {
+    display: flex;
+    justify-content: center;
+    align-items: flex-start;
+    padding: 2rem 1rem;
+    /* Space around the content */
+}
+
+/* Inner Container (Sets max-width and keeps it centered) */
+.container {
+    max-width: 90vw;
+    /* Limits the container width */
+    width: 100%;
+    /* Ensures it spans the screen width up to max-width */
+    margin: 0 auto;
+    /* Centers the container horizontally */
+}
+
+/* Button Container */
+.button-container {
+    margin-bottom: 1rem;
+}
+
+.add-button {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 8px 12px;
+    /* Shorter height */
+    font-size: 0.875rem;
+    font-weight: 600;
+    margin-left: 27px;
+
+    height: 36px;
+    color: #ffffff;
+    background-color: #2563eb;
+    border: none;
+    border-radius: 0.375rem;
+    cursor: pointer;
+    transition: background-color 0.2s ease;
+}
+
+.add-button:hover {
+    background-color: #1e3a8a;
+}
+
+.button-icon {
+    margin-right: 0.25rem;
+    /* Adjust icon spacing */
+}
+
+/* Grid Container */
+.grid-container {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    /* 3 cards per row */
+    gap: 1.5rem;
+    /* Space between rows and columns */
+}
+
+/* Card */
+.card {
+    margin-left: 24px;
+    /* Adds space between cards */
+    border: 1px solid #e5e7eb;
+    border-radius: 0.5rem;
+    background-color: #fff;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    display: flex;
+    flex-direction: column;
+    padding: 1rem;
+}
+
+/* Card Header */
+.card-header {
+    margin-bottom: 1rem;
+}
+
+.card-title {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-size: 1rem;
+    font-weight: bold;
+}
+
+.card-title>span {
+    font-size: 24px;
+}
+
+.card-description {
+    font-size: 0.875rem;
+    color: #6b7280;
+}
+
+/* Card Content */
+.card-content {
+    display: flex !important;
+    flex-direction: row;
+    align-items: center;
+}
+
+.card-content p {
+    margin: 0.5rem 0;
+    font-size: 0.875rem;
+}
+
+/* Card Footer */
+.card-footer {
+    display: flex;
+    justify-content: space-between;
+    gap: 0.5rem;
+}
+
+/* Badge */
+.badge {
+    padding: 0.25rem 0.5rem;
+    border-radius: 0.375rem;
+    font-size: 0.75rem;
+    font-weight: bold;
+}
+
+.badge-default {
+    background-color: #d1fae5;
+    color: #065f46;
+}
+
+.badge-secondary {
+    background-color: #fde68a;
+    color: #92400e;
+}
+
+/* Buttons */
+.button {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.25rem;
+    padding: 0.25rem 0.5rem;
+    font-size: 0.875rem;
+    font-weight: 600;
+    color: #2563eb;
+    border: 1px solid #2563eb;
+    border-radius: 0.375rem;
+    background-color: transparent;
+    cursor: pointer;
+    transition: background-color 0.2s ease, color 0.2s ease;
+}
+
+.button:hover {
+    background-color: #2563eb;
+    color: #fff;
+}
+
+.button.destructive {
+    color: #dc2626;
+    border-color: #dc2626;
+}
+
+.button.destructive:hover {
+    background-color: #dc2626;
+    color: #fff;
+}
+
+/* Empty Card Styling */
+.empty-card {
+    border: 1px solid #e5e7eb;
+    border-radius: 0.5rem;
+    background-color: #fff;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 1rem;
+    height: 16rem;
+    /* Matches h-64 from Tailwind */
+}
+
+.empty-card-content {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    height: 100%;
+    text-align: center;
+}
+
+.empty-card-icon {
+    height: 4rem;
+    /* Matches h-16 from Tailwind */
+    width: 4rem;
+    /* Matches w-16 from Tailwind */
+    color: #9ca3af;
+    /* Matches text-gray-400 */
+    margin-bottom: 1rem;
+    /* Matches mb-4 */
+}
+
+.empty-card-title {
+    font-size: 1.25rem;
+    /* Matches text-xl */
+    font-weight: 600;
+    /* Matches font-semibold */
+    color: #4b5563;
+    /* Matches text-gray-600 */
+    margin-bottom: 0.5rem;
+}
+
+.empty-card-subtitle {
+    font-size: 1rem;
+    /* Matches default text size */
+    color: #6b7280;
+    /* Matches text-gray-500 */
+}
+
+
+/* Dialog Content */
+.dialog-content {
+    background-color: #ffffff;
+    border-radius: 0.5rem;
+    padding: 2rem;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    max-width: 600px;
+    margin: 2rem auto;
+}
+
+/* Dialog Title and Description */
+.dialog-title {
+    font-size: 1.5rem;
+    font-weight: 600;
+    margin-bottom: 1rem;
+}
+
+.dialog-description {
+    font-size: 1rem;
+    color: #6b7280;
+    margin-bottom: 1.5rem;
+}
+
+/* Form Grid */
+.form-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1rem;
+    margin-bottom: 1rem;
+}
+
+.form-group {
+    display: flex;
+    flex-direction: column;
+}
+
+.form-group label {
+    margin-bottom: 0.5rem;
+    font-size: 1rem;
+    font-weight: 500;
+}
+
+.form-group input {
+    width: 100%;
+    padding: 0.5rem;
+    border: 1px solid #d1d5db;
+    border-radius: 0.375rem;
+    font-size: 1rem;
+}
+
+.form-group input:focus {
+    outline: 2px solid #2563eb;
+    outline-offset: 2px;
+}
+
+.form-group select {
+    padding: 0.5rem;
+    border: 1px solid #d1d5db;
+    border-radius: 0.375rem;
+    font-size: 1rem;
+}
+
+/* Dialog Footer */
+.dialog-footer {
+    display: flex;
+    justify-content: flex-end;
+    margin-top: 1.5rem;
+}
+
+/* Input Fields */
+.form-group input,
+.form-group select {
+    width: 100%;
+    /* Ensure inputs stretch to match their container */
+    max-width: 400px;
+    /* Set a consistent maximum width for all inputs */
+    padding: 0.5rem;
+    border: 1px solid #d1d5db;
+    border-radius: 0.375rem;
+    font-size: 1rem;
+}
+
+.form-group input:focus,
+.form-group select:focus {
+    outline: 2px solid #2563eb;
+    outline-offset: 2px;
+}
