@@ -1,6 +1,7 @@
 'use client';
 
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
+import axios from 'axios';
 import { Plane, Edit, Trash2, Plus, Info } from 'lucide-react';
 import { Button } from "../../../components/ui/button";
 import { Input } from "../../../components/ui/input";
@@ -34,51 +35,10 @@ const AircraftData = [
 ];
 
 export default function ManageAircraft() {
-    const [aircraft, setAircraft] = useState([
-        {
-            id: 1,
-            code: 'B787',
-            manufacturer: 'Boeing',
-            model: '787 Dreamliner',
-            seats: 330,
-            type: 'Wide Body',
-            range: 14140,
-            cruiseSpeed: 903,
-            engineType: 'Turbofan',
-            inService: true,
-            lastMaintenance: '2023-05-15',
-            nextMaintenance: '2023-11-15',
-        },
-        {
-            id: 2,
-            code: 'A350',
-            manufacturer: 'Airbus',
-            model: 'A350',
-            seats: 350,
-            type: 'Wide Body',
-            range: 15000,
-            cruiseSpeed: 903,
-            engineType: 'Turbofan',
-            inService: true,
-            lastMaintenance: '2023-04-20',
-            nextMaintenance: '2023-10-20',
-        },
-        {
-            id: 3,
-            code: 'B737',
-            manufacturer: 'Boeing',
-            model: '737 MAX',
-            seats: 230,
-            type: 'Narrow Body',
-            range: 6570,
-            cruiseSpeed: 839,
-            engineType: 'Turbofan',
-            inService: true,
-            lastMaintenance: '2023-06-01',
-            nextMaintenance: '2023-12-01',
-        },
-    ]);
-
+    const [aircrafts, setAircrafts] = useState([]);
+    const [loading, setLoading] = useState(true);
+    const [error, setError] = useState(null);
+    const [filterType, setFilterType] = useState('All');
     const [newAircraft, setNewAircraft] = useState({
         code: '',
         manufacturer: '',
@@ -92,9 +52,24 @@ export default function ManageAircraft() {
         lastMaintenance: '',
         nextMaintenance: '',
     });
-
     const [editingAircraft, setEditingAircraft] = useState(null);
     const [isDialogOpen, setIsDialogOpen] = useState(false);
+
+    const fetchAircrafts = async () => {
+        try {
+            const response = await axios.get('/api/aircrafts');
+            setAircrafts(response.data);
+            setLoading(false);
+        } catch (err) {
+            console.error('Error fetching aircrafts:', err);
+            setError('Failed to fetch aircrafts.');
+            setLoading(false);
+        }
+    };
+    useEffect(() => {
+        fetchAircrafts();
+    }, []);
+
 
     const handleInputChange = (e) => {
         const { name, value } = e.target;
@@ -114,30 +89,26 @@ export default function ManageAircraft() {
         setNewAircraft({ ...newAircraft, inService: value === 'true' });
     };
 
-    const handleSubmit = (e) => {
+    const handleSubmit = async (e) => {
         e.preventDefault();
-        if (editingAircraft) {
-            setAircraft(
-                aircraft.map((a) =>
-                    a.id === editingAircraft.id
-                        ? { ...editingAircraft, ...newAircraft }
-                        : a
-                )
-            );
-            toast({
-                title: 'Aircraft Updated',
-                description: `Aircraft ${newAircraft.code} has been successfully updated.`,
-            });
-        } else {
-            setAircraft([
-                ...aircraft,
-                { ...newAircraft, id: aircraft.length + 1 },
-            ]);
-            toast({
-                title: 'Aircraft Added',
-                description: `New aircraft ${newAircraft.code} has been successfully added to the fleet.`,
-            });
+        try {
+            if (editingAircraft) {
+                // Update existing aircraft
+                await axios.put(`/api/aircrafts/${editingAircraft._id}`, newAircraft);
+                toast({ title: 'Aircraft Updated', description: `Aircraft ${newAircraft.code} has been updated.` });
+            } else {
+                // Add new aircraft
+                await axios.post('/api/aircrafts', newAircraft);
+                toast({ title: 'Aircraft Added', description: `Aircraft ${newAircraft.code} has been added.` });
+            }
+            fetchAircrafts();
+            resetForm();
+        } catch (err) {
+            console.error('Error saving aircraft:', err);
+            toast({ title: 'Error', description: 'Failed to save aircraft.', variant: 'destructive' });
         }
+    };
+    const resetForm = () => {
         setNewAircraft({
             code: '',
             manufacturer: '',
@@ -154,33 +125,47 @@ export default function ManageAircraft() {
         setEditingAircraft(null);
         setIsDialogOpen(false);
     };
-
     const handleEdit = (aircraft) => {
         setEditingAircraft(aircraft);
-        setNewAircraft({
-            code: aircraft.code,
-            manufacturer: aircraft.manufacturer,
-            model: aircraft.model,
-            seats: aircraft.seats,
-            type: aircraft.type,
-            range: aircraft.range,
-            cruiseSpeed: aircraft.cruiseSpeed,
-            engineType: aircraft.engineType,
-            inService: aircraft.inService,
-            lastMaintenance: aircraft.lastMaintenance,
-            nextMaintenance: aircraft.nextMaintenance,
-        });
+        setNewAircraft(aircraft);
         setIsDialogOpen(true);
     };
 
-    const handleDelete = (id) => {
-        setAircraft(aircraft.filter((a) => a.id !== id));
-        toast({
-            title: 'Aircraft Deleted',
-            description: 'The aircraft has been successfully removed from the fleet.',
-            variant: 'destructive',
-        });
+    const handleDelete = async (id) => {
+        console.log('Deleting aircraft with ID:', id);
+        try {
+            const response = await axios.delete(`/api/aircrafts/${id}`);
+            console.log('Delete response:', response.data);
+
+            toast({ title: 'Aircraft Deleted', description: 'Aircraft has been removed.', variant: 'destructive' });
+
+            // Update the state to remove the deleted aircraft
+            setAircrafts(aircrafts.filter((a) => a._id !== id));
+        } catch (err) {
+            console.error('Error deleting aircraft:', err);
+            toast({ title: 'Error', description: 'Failed to delete aircraft.', variant: 'destructive' });
+        }
     };
+
+
+
+    const handleFilter = async (type) => {
+        setFilterType(type);
+        if (type === 'All') {
+            fetchAircrafts();
+        } else {
+            try {
+                const response = await axios.get(`/api/aircrafts/type/${type}`);
+                setAircrafts(response.data);
+            } catch (err) {
+                console.error('Error filtering aircrafts:', err);
+                toast({ title: 'Error', description: `Failed to filter aircrafts by type: ${type}.`, variant: 'destructive' });
+            }
+        }
+    };
+
+    if (loading) return <p>Loading...</p>;
+    if (error) return <p>{error}</p>;
     return (
         <div className="outer-container">
             <div className="container">
@@ -211,7 +196,7 @@ export default function ManageAircraft() {
                 </div>
 
                 <div className="grid-container">
-                    {aircraft.map((a) => (
+                    {aircrafts.map((a) => (
                         <Card key={a.id} className="card">
                             <CardHeader className="card-header">
                                 <CardTitle className="card-title">
@@ -250,7 +235,7 @@ export default function ManageAircraft() {
                         </Card>
                     ))}
                 </div>
-                {aircraft.length === 0 && (
+                {aircrafts.length === 0 && (
                     <Card
                         style={{
                             border: '1px solid #e5e7eb',
