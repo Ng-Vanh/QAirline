@@ -1,6 +1,7 @@
 {
   "name": "frontend",
   "version": "0.1.0",
+  "proxy": "http://localhost:5000",
   "private": true,
   "dependencies": {
     "@radix-ui/react-accordion": "^1.2.1",
@@ -17,6 +18,7 @@
     "@testing-library/jest-dom": "^5.17.0",
     "@testing-library/react": "^13.4.0",
     "@testing-library/user-event": "^13.5.0",
+    "cross-env": "^7.0.3",
     "lucide-react": "^0.462.0",
     "next": "^15.0.3",
     "react": "^18.3.1",
@@ -32,6 +34,7 @@
   },
   "scripts": {
     "start": "react-app-rewired start",
+    "start_port": "cross-env PORT=3000 react-app-rewired start",
     "build": "react-app-rewired build",
     "test": "react-app-rewired test",
     "eject": "react-app-rewired eject"
