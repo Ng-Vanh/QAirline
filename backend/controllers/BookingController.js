@@ -1,7 +1,7 @@
 const Booking = require('../models/BookingModel');
 const Passenger = require('../models/PassengerModel');
 const User = require('../models/UserModel');
-const Flight = require('../models/FlightModel');  // Assuming you need the Flight model to get flight info
+const Flight = require('../models/FlightModel');
 
 // Controller for creating a booking
 exports.createBooking = async (req, res) => {

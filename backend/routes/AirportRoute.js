@@ -1,20 +1,20 @@
 const express = require('express');
 const router = express.Router();
-const airportController = require('../controllers/AirportController');
+const AirportController = require('../controllers/AirportController');
 
-// POST /api/airport: Create an airport
-router.post('/', airportController.createAirport);
+// POST /api/airports: Create an airport
+router.post('/', AirportController.createAirport);
 
-// GET /api/airport/:id: Get an airport by ID
-router.get('/:id', airportController.getAirportById);
+// GET /api/airports/:id: Get an airport by ID
+router.get('/:id', AirportController.getAirportById);
 
-// GET /api/airport: Get all airports
-router.get('/', airportController.getAllAirports);
+// GET /api/airports: Get all airports
+router.get('/', AirportController.getAllAirports);
 
-// PUT /api/airport/:id: Update an airport
-router.put('/:id', airportController.updateAirport);
+// PUT /api/airports/:id: Update an airport
+router.put('/:id', AirportController.updateAirport);
 
-// DELETE /api/airport/:id: Delete an airport
-router.delete('/:id', airportController.deleteAirport);
+// DELETE /api/airports/:id: Delete an airport
+router.delete('/:id', AirportController.deleteAirport);
 
 module.exports = router;

@@ -19,16 +19,9 @@ const FlightSchema = new Schema({
       price: { type: Number, required: true },  // Price for business class
       seatsAvailable: { type: Number, required: true }  // Available seats for business class
     }
-  }
+  },
+
+  aircraft: { type: Schema.Types.ObjectId, ref: 'Aircraft', required: true }  // Aircraft reference
 });
-
-
-
-// // Create indexes on `departureAirport` and `arrivalAirport`
-// FlightSchema.index({ departureAirport: 1 });
-// FlightSchema.index({ arrivalAirport: 1 });
-
-// // Create a compound index on `departureTime` and `seatsAvailable`
-// FlightSchema.index({ departureTime: 1, seatsAvailable: 1 });
 
 module.exports = mongoose.model('Flight', FlightSchema);

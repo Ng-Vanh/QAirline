@@ -9,7 +9,7 @@ const AirportRoute = require('./routes/AirportRoute');
 const BookingRoutes = require('./routes/BookingRoute');
 const UserRoutes = require('./routes/UserRoute');
 const PassengerRoutes = require('./routes/PassengerRoute');
-
+const AircraftRoute = require('./routes/AircraftRoute');
 
 const swaggerOptions = {
   swaggerDefinition: {
@@ -38,6 +38,7 @@ app.use('/api/airports', AirportRoute)
 app.use('/api/bookings', BookingRoutes);
 app.use('/api/users', UserRoutes);
 app.use('/api/passengers', PassengerRoutes);
+app.use('/api/aircrafts', AircraftRoute);
 
 app.use((req, res, next) => {
   console.log('Incoming request body:', req.body);

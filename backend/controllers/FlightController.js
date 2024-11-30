@@ -1,5 +1,6 @@
 const Flight = require('../models/FlightModel');
 const Airport = require('../models/AirportModel');
+const Aircraft = require('../models/AircraftModel'); // Import Aircraft model
 
 // Helper function to check if airports exist
 const checkAirportsExist = async (departureAirportId, arrivalAirportId) => {
@@ -11,6 +12,14 @@ const checkAirportsExist = async (departureAirportId, arrivalAirportId) => {
   }
   if (!arrivalAirport) {
     throw new Error('Arrival airport does not exist');
+  }
+};
+
+// Helper function to check if aircraft exists
+const checkAircraftExist = async (aircraftId) => {
+  const aircraft = await Aircraft.findById(aircraftId);
+  if (!aircraft) {
+    throw new Error('Aircraft does not exist');
   }
 };
 
@@ -31,31 +40,42 @@ exports.searchFlights = async (req, res) => {
     const flights = await Flight.aggregate([
       {
         $lookup: {
-          from: 'airports',  // the collection for airports
+          from: 'airports', 
           localField: 'departureAirport',
           foreignField: '_id',
-          as: 'departureAirportDetails'  // alias to hold the departure airport details
+          as: 'departureAirportDetails'  
         }
       },
       {
         $lookup: {
-          from: 'airports',  // the collection for airports
+          from: 'airports',  
           localField: 'arrivalAirport',
           foreignField: '_id',
-          as: 'arrivalAirportDetails'  // alias to hold the arrival airport details
+          as: 'arrivalAirportDetails'
         }
       },
       {
-        $unwind: '$departureAirportDetails'  // Flatten the departure airport array
+        $lookup: {
+          from: 'aircrafts',  
+          localField: 'aircraft',
+          foreignField: '_id',
+          as: 'aircraftDetails'
+        }
       },
       {
-        $unwind: '$arrivalAirportDetails'  // Flatten the arrival airport array
+        $unwind: '$departureAirportDetails'  
+      },
+      {
+        $unwind: '$arrivalAirportDetails' 
+      },
+      {
+        $unwind: '$aircraftDetails'
       },
       {
         $match: {
-          'departureAirportDetails.city': departureCity,  // Match departure city
-          'arrivalAirportDetails.city': destinationCity,  // Match arrival city
-          departureTime: { $gte: departureDateObj },  // Match departure date
+          'departureAirportDetails.city': departureCity,  
+          'arrivalAirportDetails.city': destinationCity,
+          departureTime: { $gte: departureDateObj },  
         }
       },
       {
@@ -66,18 +86,19 @@ exports.searchFlights = async (req, res) => {
           departureTime: 1,
           arrivalTime: 1,
           flightClass: 1,
-          // Calculate the max available seats between economy and business
-          availableSeats: { $max: ['$flightClass.economy.seatsAvailable', '$flightClass.business.seatsAvailable'] }
+          aircraft: '$aircraftDetails.model',
+          availableSeats: { 
+            $max: ['$flightClass.economy.seatsAvailable', '$flightClass.business.seatsAvailable']
+          }
         }
       },
       {
         $match: {
-          availableSeats: { $gte: passengerCount }  // Only return flights with enough available seats
+          availableSeats: { $gte: passengerCount } 
         }
       }
     ]);
 
-    // Send the response back to the client
     return res.status(200).json(flights);
   } catch (error) {
     console.error('Error searching for flights:', error);
@@ -88,15 +109,18 @@ exports.searchFlights = async (req, res) => {
 // Controller for creating a flight
 exports.createFlight = async (req, res) => {
   try {
-    const { departureAirport, arrivalAirport, departureTime, arrivalTime, flightDuration, flightClass } = req.body;
+    const { departureAirport, arrivalAirport, departureTime, arrivalTime, flightDuration, flightClass, aircraft } = req.body;
 
     // Validate the data
-    if (!departureAirport || !arrivalAirport || !departureTime || !arrivalTime || !flightDuration || !flightClass) {
+    if (!departureAirport || !arrivalAirport || !departureTime || !arrivalTime || !flightDuration || !flightClass || !aircraft) {
       return res.status(400).json({ message: 'Missing required fields' });
     }
 
     // Ensure the airports exist before creating the flight
     await checkAirportsExist(departureAirport, arrivalAirport);
+
+    // Ensure the aircraft exists before creating the flight
+    await checkAircraftExist(aircraft);
 
     // Create a new flight document
     const newFlight = new Flight({
@@ -105,7 +129,8 @@ exports.createFlight = async (req, res) => {
       departureTime,
       arrivalTime,
       flightDuration,
-      flightClass
+      flightClass,
+      aircraft
     });
 
     // Save the new flight to the database
@@ -113,7 +138,6 @@ exports.createFlight = async (req, res) => {
 
     // Respond with the created flight
     return res.status(201).json({ message: 'Flight created successfully', flight: newFlight });
-
   } catch (error) {
     console.error('Error creating flight:', error);
     return res.status(500).json({ message: error.message });
@@ -124,7 +148,7 @@ exports.createFlight = async (req, res) => {
 exports.updateFlight = async (req, res) => {
   try {
     const flightId = req.params.id;
-    const { departureAirport, arrivalAirport, departureTime, arrivalTime, flightDuration, flightClass } = req.body;
+    const { departureAirport, arrivalAirport, departureTime, arrivalTime, flightDuration, flightClass, aircraft } = req.body;
 
     // Find the flight by ID
     const flight = await Flight.findById(flightId);
@@ -132,12 +156,15 @@ exports.updateFlight = async (req, res) => {
       return res.status(404).json({ message: 'Flight not found' });
     }
 
-    // If airports are being updated, ensure they exist
+    // If airports or aircraft are being updated, ensure they exist
     if (departureAirport && departureAirport !== flight.departureAirport) {
       await checkAirportsExist(departureAirport, arrivalAirport || flight.arrivalAirport);
     }
     if (arrivalAirport && arrivalAirport !== flight.arrivalAirport) {
       await checkAirportsExist(departureAirport || flight.departureAirport, arrivalAirport);
+    }
+    if (aircraft && aircraft !== flight.aircraft) {
+      await checkAircraftExist(aircraft);
     }
 
     // Update the flight's fields if provided, else retain existing values
@@ -147,6 +174,7 @@ exports.updateFlight = async (req, res) => {
     flight.arrivalTime = arrivalTime || flight.arrivalTime;
     flight.flightDuration = flightDuration || flight.flightDuration;
     flight.flightClass = flightClass || flight.flightClass;
+    flight.aircraft = aircraft || flight.aircraft;
 
     // Save the updated flight to the database
     await flight.save();
@@ -162,7 +190,9 @@ exports.updateFlight = async (req, res) => {
 exports.getFlightById = async (req, res) => {
   try {
     const flightId = req.params.id;
-    const flight = await Flight.findById(flightId).populate('departureAirport arrivalAirport');
+    const flight = await Flight.findById(flightId)
+      .populate('departureAirport arrivalAirport aircraft');  // added aircraft
+
     if (!flight) {
       return res.status(404).json({ message: 'Flight not found' });
     }
@@ -177,7 +207,7 @@ exports.getFlightById = async (req, res) => {
 // Controller for getting all flights
 exports.getAllFlights = async (req, res) => {
   try {
-    const flights = await Flight.find().populate('departureAirport arrivalAirport');
+    const flights = await Flight.find().populate('departureAirport arrivalAirport aircraft'); 
     return res.status(200).json(flights);
   } catch (error) {
     console.error('Error fetching all flights:', error);
