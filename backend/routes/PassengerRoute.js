@@ -1,6 +1,6 @@
 const express = require('express');
 const router = express.Router();
-const passengerController = require('../controllers/passengerController');  // Import the controller
+const passengerController = require('../controllers/PassengerController');  // Import the controller
 
 // Route for creating a new passenger
 router.post('/', passengerController.createPassenger);
