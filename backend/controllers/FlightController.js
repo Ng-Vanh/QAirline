@@ -109,10 +109,10 @@ exports.searchFlights = async (req, res) => {
 // Controller for creating a flight
 exports.createFlight = async (req, res) => {
   try {
-    const { departureAirport, arrivalAirport, departureTime, arrivalTime, flightDuration, flightClass, aircraft } = req.body;
+    const { departureAirport, arrivalAirport, departureTime, arrivalTime, flightDuration, flightClass, aircraft, flightStatus} = req.body;
 
     // Validate the data
-    if (!departureAirport || !arrivalAirport || !departureTime || !arrivalTime || !flightDuration || !flightClass || !aircraft) {
+    if (!departureAirport || !arrivalAirport || !departureTime || !arrivalTime || !flightDuration || !flightClass || !aircraft || !flightStatus) {
       return res.status(400).json({ message: 'Missing required fields' });
     }
 
@@ -130,7 +130,8 @@ exports.createFlight = async (req, res) => {
       arrivalTime,
       flightDuration,
       flightClass,
-      aircraft
+      aircraft,
+      flightStatus
     });
 
     // Save the new flight to the database
@@ -148,7 +149,7 @@ exports.createFlight = async (req, res) => {
 exports.updateFlight = async (req, res) => {
   try {
     const flightId = req.params.id;
-    const { departureAirport, arrivalAirport, departureTime, arrivalTime, flightDuration, flightClass, aircraft } = req.body;
+    const { departureAirport, arrivalAirport, departureTime, arrivalTime, flightDuration, flightClass, aircraft, flightStatus} = req.body;
 
     // Find the flight by ID
     const flight = await Flight.findById(flightId);
@@ -175,6 +176,7 @@ exports.updateFlight = async (req, res) => {
     flight.flightDuration = flightDuration || flight.flightDuration;
     flight.flightClass = flightClass || flight.flightClass;
     flight.aircraft = aircraft || flight.aircraft;
+    flight.flightStatus = flightStatus || flight.flightStatus;
 
     // Save the updated flight to the database
     await flight.save();

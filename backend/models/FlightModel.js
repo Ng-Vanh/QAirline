@@ -1,6 +1,5 @@
 const mongoose = require('mongoose');
 const Schema = mongoose.Schema;
-// Import Airport model for reference
 
 const FlightSchema = new Schema({
   departureAirport: { type: Schema.Types.ObjectId, ref: 'Airport', required: true },
@@ -9,19 +8,26 @@ const FlightSchema = new Schema({
   arrivalTime: { type: Date, required: true },
   flightDuration: { type: Number, required: true },
 
-  // Flight classes with price and available seats
   flightClass: {
     economy: {
-      price: { type: Number, required: true },  // Price for economy class
-      seatsAvailable: { type: Number, required: true }  // Available seats for economy class
+      price: { type: Number, required: true },  
+      seatsAvailable: { type: Number, required: true }  
     },
     business: {
-      price: { type: Number, required: true },  // Price for business class
-      seatsAvailable: { type: Number, required: true }  // Available seats for business class
+      price: { type: Number, required: true },  
+      seatsAvailable: { type: Number, required: true }  
     }
   },
 
-  aircraft: { type: Schema.Types.ObjectId, ref: 'Aircraft', required: true }  // Aircraft reference
+  aircraft: { type: Schema.Types.ObjectId, ref: 'Aircraft', required: true },
+
+  flightStatus: {
+    type: String,
+    enum: ['Scheduled', 'On time', 'Delayed', 'Landed'],
+    required: true,
+    default: 'Scheduled' 
+  }
+
 });
 
 module.exports = mongoose.model('Flight', FlightSchema);
