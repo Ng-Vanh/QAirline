@@ -8,7 +8,8 @@ const bookingSchema = new Schema({
   flightClass: { type: String, enum: ['economy', 'business'], required: true },
   passengerCount: { type: Number, required: true },
   passengers: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Passenger' }],
-  bookingDate: { type: Date, default: Date.now }
+  bookingDate: { type: Date, default: Date.now },
+  totalPrice: { type: Number, required: true }
 });
 
 const Booking = mongoose.model('Booking', bookingSchema);
