@@ -1,8 +1,7 @@
 const Flight = require('../models/FlightModel');
 const Airport = require('../models/AirportModel');
-const Aircraft = require('../models/AircraftModel'); // Import Aircraft model
+const Aircraft = require('../models/AircraftModel');
 
-// Helper function to check if airports exist
 const checkAirportsExist = async (departureAirportId, arrivalAirportId) => {
   const departureAirport = await Airport.findById(departureAirportId);
   const arrivalAirport = await Airport.findById(arrivalAirportId);
@@ -15,7 +14,7 @@ const checkAirportsExist = async (departureAirportId, arrivalAirportId) => {
   }
 };
 
-// Helper function to check if aircraft exists
+
 const checkAircraftExist = async (aircraftId) => {
   const aircraft = await Aircraft.findById(aircraftId);
   if (!aircraft) {
@@ -23,20 +22,17 @@ const checkAircraftExist = async (aircraftId) => {
   }
 };
 
-// Controller to search for flights based on criteria
+
 exports.searchFlights = async (req, res) => {
   try {
     const { departureCity, destinationCity, departureDate, passengerCount } = req.body;
 
-    // Validate input data
     if (!departureCity || !destinationCity || !departureDate || !passengerCount) {
       return res.status(400).json({ message: 'Missing required fields' });
     }
 
-    // Convert departureDate to a Date object
     const departureDateObj = new Date(departureDate);
 
-    // Use aggregation to perform the query with the city matching
     const flights = await Flight.aggregate([
       {
         $lookup: {
@@ -111,18 +107,14 @@ exports.createFlight = async (req, res) => {
   try {
     const { departureAirport, arrivalAirport, departureTime, arrivalTime, flightDuration, flightClass, aircraft, flightStatus} = req.body;
 
-    // Validate the data
     if (!departureAirport || !arrivalAirport || !departureTime || !arrivalTime || !flightDuration || !flightClass || !aircraft || !flightStatus) {
       return res.status(400).json({ message: 'Missing required fields' });
     }
 
-    // Ensure the airports exist before creating the flight
     await checkAirportsExist(departureAirport, arrivalAirport);
 
-    // Ensure the aircraft exists before creating the flight
     await checkAircraftExist(aircraft);
 
-    // Create a new flight document
     const newFlight = new Flight({
       departureAirport,
       arrivalAirport,
@@ -134,10 +126,8 @@ exports.createFlight = async (req, res) => {
       flightStatus
     });
 
-    // Save the new flight to the database
     await newFlight.save();
 
-    // Respond with the created flight
     return res.status(201).json({ message: 'Flight created successfully', flight: newFlight });
   } catch (error) {
     console.error('Error creating flight:', error);
@@ -151,13 +141,11 @@ exports.updateFlight = async (req, res) => {
     const flightId = req.params.id;
     const { departureAirport, arrivalAirport, departureTime, arrivalTime, flightDuration, flightClass, aircraft, flightStatus} = req.body;
 
-    // Find the flight by ID
     const flight = await Flight.findById(flightId);
     if (!flight) {
       return res.status(404).json({ message: 'Flight not found' });
     }
 
-    // If airports or aircraft are being updated, ensure they exist
     if (departureAirport && departureAirport !== flight.departureAirport) {
       await checkAirportsExist(departureAirport, arrivalAirport || flight.arrivalAirport);
     }
@@ -168,7 +156,6 @@ exports.updateFlight = async (req, res) => {
       await checkAircraftExist(aircraft);
     }
 
-    // Update the flight's fields if provided, else retain existing values
     flight.departureAirport = departureAirport || flight.departureAirport;
     flight.arrivalAirport = arrivalAirport || flight.arrivalAirport;
     flight.departureTime = departureTime || flight.departureTime;
@@ -178,7 +165,6 @@ exports.updateFlight = async (req, res) => {
     flight.aircraft = aircraft || flight.aircraft;
     flight.flightStatus = flightStatus || flight.flightStatus;
 
-    // Save the updated flight to the database
     await flight.save();
 
     return res.status(200).json({ message: 'Flight updated successfully', flight });
@@ -193,7 +179,7 @@ exports.getFlightById = async (req, res) => {
   try {
     const flightId = req.params.id;
     const flight = await Flight.findById(flightId)
-      .populate('departureAirport arrivalAirport aircraft');  // added aircraft
+      .populate('departureAirport arrivalAirport aircraft'); 
 
     if (!flight) {
       return res.status(404).json({ message: 'Flight not found' });

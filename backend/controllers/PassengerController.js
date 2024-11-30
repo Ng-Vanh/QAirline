@@ -44,13 +44,13 @@ exports.getPassengerById = async (req, res) => {
 // Controller for getting all passengers
 exports.getAllPassengers = async (req, res) => {
   try {
-    const passengers = await Passenger.find();  // Fetch all passengers from the database
+    const passengers = await Passenger.find();
 
     if (!passengers.length) {
       return res.status(404).json({ message: 'No passengers found' });
     }
 
-    return res.status(200).json(passengers);  // Send the list of passengers as the response
+    return res.status(200).json(passengers);
   } catch (error) {
     console.error('Error fetching passengers:', error);
     return res.status(500).json({ message: 'Server error' });

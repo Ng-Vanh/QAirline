@@ -62,13 +62,12 @@ exports.getAircraftById = async (req, res) => {
   }
 };
 
-// Controller for updating an aircraft by ID (partial update)
+// Controller for updating an aircraft by ID
 exports.updateAircraft = async (req, res) => {
     try {
       const aircraftId = req.params.id;
-      const updates = req.body; // Get the fields from the request body
+      const updates = req.body;
   
-      // Find the aircraft by ID and update it with the provided fields
       const updatedAircraft = await Aircraft.findByIdAndUpdate(aircraftId, updates, { new: true });
   
       if (!updatedAircraft) {
@@ -87,7 +86,6 @@ exports.deleteAircraft = async (req, res) => {
   try {
     const aircraftId = req.params.id;
 
-    // Find the aircraft by ID and delete it
     const deletedAircraft = await Aircraft.findByIdAndDelete(aircraftId);
 
     if (!deletedAircraft) {
