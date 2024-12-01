@@ -16,65 +16,90 @@ import Link from 'next/link'
 import "./booking.css";
 
 export default function Bookings() {
-    const [bookings, setBookings] = useState([]);
-    const [flight, setFlight] = useState([]);
-    const [user, setUser] = useState([]);
+    const [upcomingBookings, setUpcomingBookings] = useState([]);
+    const [pastBookings, setPastBookings] = useState([]);
+    const [upcomingFlights, setUpcomingFlights] = useState({});
+    const [pastFlights, setPastFlights] = useState({});
+    const [bookingInfos, setBookingInfos] = useState({});
+    const [user, setUser] = useState({});
+    const [isLoading, setIsLoading] = useState(true);
 
     useEffect(() => {
-        const fetchBookings = async () => {
+        const fetchAllData = async () => {
             try {
-                const response = await fetch('https://qairline-t28f.onrender.com/api/bookings/user/6749fb9b6904a9ed9d4a4a56');
-                const data = await response.json();
-                setBookings(data);
-            } catch (error) {
-                console.error('Error fetching bookings:', error);
-            }
-        };
-        fetchBookings();
-    }, []);
+                setIsLoading(true);
+                const userId = '6749fb9b6904a9ed9d4a4a56';
+                const userEndpoint = `https://qairline-t28f.onrender.com/api/users/674b6d8245ff24b20112416a`
+                const upcomingBookingsEndpoint = `https://qairline-t28f.onrender.com/api/bookings/user/6749fb9b6904a9ed9d4a4a56?type=Upcoming`;
+                const pastBookingsEndpoint = `https://qairline-t28f.onrender.com/api/bookings/user/6749fb9b6904a9ed9d4a4a56?type=Past`;
 
-    // console.log("bookings:", bookings);
-    // console.log("bookings[0]:", bookings[0]);
-    // if (bookings && bookings[0]?.flightID) {
-    //     console.log("bookings[0] flight ID:", bookings[0].flightID._id);
-    // } else {
-    //     console.log("Dữ liệu chưa sẵn sàng hoặc flightID không tồn tại.");
-    // }
+                const [upcomingBookingResponse, pastBookingResponse, userResponse] = await Promise.all([
+                    fetch(upcomingBookingsEndpoint),
+                    fetch(pastBookingsEndpoint),
+                    fetch(userEndpoint)
+                ]);
 
-    useEffect(() => {
-        const fetchFlight = async () => {
-            try {
-                if (bookings.length > 0 && bookings[0]?.flightID?._id) {
-                    const flightId = bookings[0].flightID._id;
-                    console.log(flightId);
-                    const response = await fetch(`https://qairline-t28f.onrender.com/api/flights/${flightId}`);
-                    const data = await response.json();
-                    setFlight(data);
-                } else {
-                    console.warn('Bookings hoặc flightID chưa sẵn sàng.');
-                }
+                const upcomingBookingData = await upcomingBookingResponse.json();
+                const pastBookingData = await pastBookingResponse.json();
+                const userData = await userResponse.json();
+
+                setUpcomingBookings(upcomingBookingData);
+                setPastBookings(pastBookingData);
+                setUser(userData);
+
+                // console.log(upcomingBookingData);
+                // console.log(pastBookingData);
+
+                const upcomingFlightData = {};
+                await Promise.all(
+                    upcomingBookingData.map(async (booking) => {
+                        if (booking.flightID) {
+                            const flightEndpoint = `https://qairline-t28f.onrender.com/api/flights/${booking.flightID}`;
+                            const flightResponse = await fetch(flightEndpoint);
+                            const flightData = await flightResponse.json();
+                            upcomingFlightData[booking.flightID] = flightData;
+                        }
+                    })
+                );
+                setUpcomingFlights(upcomingFlightData);
+
+                const pastFlightData = {};
+                await Promise.all(
+                    pastBookingData.map(async (booking) => {
+                        if (booking.flightID) {
+                            const flightEndpoint = `https://qairline-t28f.onrender.com/api/flights/${booking.flightID}`;
+                            const flightResponse = await fetch(flightEndpoint);
+                            const flightData = await flightResponse.json();
+                            pastFlightData[booking.flightID] = flightData;
+                        }
+                    })
+                );
+                setPastFlights(pastFlightData);
+                const bookingInfoData = {};
+                await Promise.all(
+                    upcomingBookingData.map(async (booking) => {
+                        if (booking._id) {
+                            const bookingInfoEndpoint = `https://qairline-t28f.onrender.com/api/bookings/${booking._id}`;
+                            const bookingInfoResponse = await fetch(bookingInfoEndpoint);
+                            const bookingInfo = await bookingInfoResponse.json();
+                            bookingInfoData[booking._id] = bookingInfo;
+                        }
+                    })
+                );
+                setBookingInfos(bookingInfoData);
+
             } catch (error) {
-                console.error('Error fetching flight:', error);
+                console.error("Error fetching data:", error);
+            } finally {
+                setIsLoading(false);
             }
         };
-        fetchFlight();
-    }, [bookings]); // Thêm bookings vào dependencies
-    
-    useEffect(() => {
-        const fetchUser = async () => {
-            try {
-                const response = await fetch(`https://qairline-t28f.onrender.com/api/users/6749fb9b6904a9ed9d4a4a56`);
-                const data = await response.json();
-                setUser(data);
-            } catch (error) {
-                console.error('Error fetching bookings:', error);
-            }
-        };
-        fetchUser();
+
+        fetchAllData();
     }, []);
 
     const handleCancelBooking = (id) => {
-        const booking = bookings.find(b => b.id === id)
+        const booking = upcomingBookings.find(b => b.id === id)
         if (booking) {
             const departureDate = new Date(booking.departureTime)
             const now = new Date()
@@ -82,7 +107,7 @@ export default function Bookings() {
             const daysDiff = timeDiff / (1000 * 3600 * 24)
 
             if (daysDiff > 1) {
-                setBookings(bookings.map(b => b.id === id ? { ...b, status: 'Cancelled' } : b))
+                setUpcomingBookings(upcomingBookings.map(b => b.id === id ? { ...b, status: 'Cancelled' } : b))
                 toast({
                     title: "Booking Cancelled",
                     description: `Your booking for flight ${booking.flightNumber} has been cancelled.`,
@@ -97,28 +122,31 @@ export default function Bookings() {
         }
     }
 
-    const upcomingBookings = bookings.filter(booking => new Date(booking.flightID.departureTime) > new Date())
-    const pastBookings = bookings.filter(booking => new Date(booking.flightID.departureTime) <= new Date())
+    if (isLoading) {
+        return <div>Loading data, please wait...</div>;
+    }
 
     return (
         <div className="container">
             <h1 className="heading">My Bookings</h1>
 
             <Tabs defaultValue="upcoming" className="tabs">
-                <TabsList className="tabs-list">
+                <TabsList className="tabs-list" style={{ marginBottom: '1.5rem' }}>
                     <TabsTrigger value="upcoming">Upcoming Flights</TabsTrigger>
                     <TabsTrigger value="past">Past Flights</TabsTrigger>
                 </TabsList>
                 <TabsContent value="upcoming">
                     <div className="cards-container">
+                        {console.log(upcomingFlights)}
                         {upcomingBookings.map((booking) => (
                             <BookingCard
                                 key={booking.id}
                                 booking={booking}
                                 onCancel={handleCancelBooking}
                                 isPast={false}
-                                flight={flight}
+                                flight={upcomingFlights[booking.flightID]}
                                 user={user}
+                                bookingInfo={bookingInfos[booking._id]}
                             />
                         ))}
                         {upcomingBookings.length === 0 && (
@@ -142,8 +170,9 @@ export default function Bookings() {
                                 booking={booking}
                                 onCancel={handleCancelBooking}
                                 isPast={true}
-                                flight={flight}
+                                flight={pastFlights[booking.flightID]}
                                 user={user}
+                                bookingInfo={bookingInfos[booking._id]}
                             />
                         ))}
                         {pastBookings.length === 0 && (
@@ -167,10 +196,12 @@ export default function Bookings() {
 }
 
 
-function BookingCard({ booking, onCancel, isPast, flight, user }) {
+function BookingCard({ booking, onCancel, isPast, flight, user, bookingInfo }) {
     const [progress, setProgress] = useState(0)
     const [countdown, setCountdown] = useState('')
     const [showDetails, setShowDetails] = useState(false)
+
+    console.log(bookingInfo);
 
     useEffect(() => {
         const updateBooking = () => {
@@ -207,7 +238,7 @@ function BookingCard({ booking, onCancel, isPast, flight, user }) {
         const minutes = Math.floor((duration % (1000 * 60 * 60)) / (1000 * 60))
         return `${days}d ${hours}h ${minutes}m`
     }
-    
+
 
     const getStatusColor = (status) => {
         if (!status) return 'bg-gray-100 text-gray-800';
@@ -232,59 +263,64 @@ function BookingCard({ booking, onCancel, isPast, flight, user }) {
     }
 
     return (
-        <Card className="card">
-            <CardHeader className="card-header">
-                <CardTitle className="card-title">
-                    <div className="airline-info">
-                        <Image src={booking.airlineLogo} alt={flight.aircraft.manufacturer} width={30} height={30} className="airline-logo" />
+        <Card className="card-container">
+            <CardHeader className="booking-card-header">
+                <CardTitle className="booking-card-title">
+                    <div className="booking-airline-info">
+                        <Image src={booking.airlineLogo} alt={booking.airline} width={30} height={30} className="airline-logo" />
                         <span>{flight.aircraft.code} {flight.aircraft.manufacturer}</span>
                     </div>
                     <Badge variant="outline" className={`status-badge ${getStatusColor(booking.status)}`}>
                         {booking.status}
                     </Badge>
                 </CardTitle>
-                <CardDescription className="card-description">
+                <CardDescription className="booking-card-description">
                     Booking Reference: {booking.bookingReference} • Passenger: {user?.name || 'N/A'}
                 </CardDescription>
             </CardHeader>
-            <CardContent className="card-content">
-                <div className="flight-info">
+
+
+
+
+
+            <CardContent className="booking-card-content">
+                <div className="booking-flight-info">
                     <div className="departure-info">
                         <MapPin className="icon" size={18} />
                         <div>
-                            <p className="departure-city">{booking.departureCity}</p>
-                            <p className="departure-time">{new Date(booking.departureTime).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</p>
+                            <p className="city">{booking.departureAirport.city}</p>
+                            <p className="time">{new Date(booking.departureTime).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</p>
                         </div>
                     </div>
                     <Plane className="plane-icon" size={24} />
                     <div className="arrival-info">
                         <div>
-                            <p className="arrival-city">{booking.arrivalCity}</p>
-                            <p className="arrival-time">{new Date(booking.arrivalTime).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</p>
+                        <p className="city">{booking.arrivalAirport.city}</p>
+                        <p className="time">{new Date(booking.arrivalTime).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</p>
                         </div>
                     </div>
                 </div>
 
                 {!isPast && (
-                    <div className="status-box">
-                        <h3 className="status-title">
-                            <Clock className="status-icon" size={18} />
+                    <div className="progress-info">
+                        <h3 className="progress-title">
+                            <Clock className="clock-icon" size={18} />
                             {progress === 0 ? 'Time to Departure' : (progress === 100 ? 'Flight Status' : 'Time to Arrival')}
                         </h3>
-                        <p className="status-time">
+                        <p className="progress-text">
                             {progress === 100 ? `Arrived at ${new Date(booking.arrivalTime).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}` : countdown}
                         </p>
                     </div>
                 )}
 
-                <div className="details-grid">
+                <div className="flight-details">
                     <div>
                         <p className="detail-label">Seat</p>
                         <p className="detail-value">{booking.seat}</p>
                     </div>
                     <div>
                         <p className="detail-label">Class</p>
-                        <p className="detail-value">{booking.class}</p>
+                        <p className="detail-value">{bookingInfo.flightClass}</p>
                     </div>
                     <div>
                         <p className="detail-label">Gate</p>
@@ -296,9 +332,9 @@ function BookingCard({ booking, onCancel, isPast, flight, user }) {
                     </div>
                 </div>
 
-                <div className="services">
-                    <p className="services-title">In-flight Services</p>
-                    <div className="service-icons">
+                <div className="in-flight-services">
+                    <p className="services-label">In-flight Services</p>
+                    <div className="services-icons">
                         {/* {booking.inFlightServices.map((service) => (
                             <TooltipProvider key={service}>
                                 <Tooltip>
@@ -308,7 +344,7 @@ function BookingCard({ booking, onCancel, isPast, flight, user }) {
                                         </div>
                                     </TooltipTrigger>
                                     <TooltipContent>
-                                        <p className="service-name">{service}</p>
+                                        <p className="capitalize">{service}</p>
                                     </TooltipContent>
                                 </Tooltip>
                             </TooltipProvider>
@@ -317,35 +353,36 @@ function BookingCard({ booking, onCancel, isPast, flight, user }) {
                 </div>
 
                 {booking.status === 'Delayed' && (
-                    <div className="delay-alert">
+                    <div className="delay-warning">
                         <AlertTriangle className="alert-icon" size={20} />
                         <p className="alert-text">This flight is experiencing delays. Please check with the airline for more information.</p>
                     </div>
                 )}
 
                 <div className="weather-info">
-                    <div className="departure-weather">
+                    <div className="weather-card">
                         <h4 className="weather-title">
                             <CloudSun className="weather-icon" size={18} />
                             Departure Weather
                         </h4>
                         <div className="weather-details">
-                            {/* {booking.departureWeather.icon}
-                            <span>{booking.departureWeather.condition}, {booking.departureWeather.temperature}°C</span> */}
+                            {/* {booking.departureWeather.icon} */}
+                            {/* <span>{booking.departureWeather.condition}, {booking.departureWeather.temperature}°C</span> */}
                         </div>
                     </div>
-                    <div className="arrival-weather">
+                    <div className="weather-card">
                         <h4 className="weather-title">
                             <CloudSun className="weather-icon" size={18} />
                             Arrival Weather
                         </h4>
                         <div className="weather-details">
-                            {/* {booking.arrivalWeather.icon}
-                            <span>{booking.arrivalWeather.condition}, {booking.arrivalWeather.temperature}°C</span> */}
+                            {/* {booking.arrivalWeather.icon} */}
+                            {/* <span>{booking.arrivalWeather.condition}, {booking.arrivalWeather.temperature}°C</span> */}
                         </div>
                     </div>
                 </div>
             </CardContent>
+
 
             <CardFooter className="card-footer">
                 {!isPast && (
@@ -353,18 +390,17 @@ function BookingCard({ booking, onCancel, isPast, flight, user }) {
                         <div className="footer-top">
                             <div className="boarding-info">
                                 <QrCode className="icon" size={24} />
-                                <span>Scan for boarding pass</span>
+                                <span className="text">Scan for boarding pass</span>
                             </div>
                             <div className="support-info">
                                 <Phone className="icon" size={18} />
-                                <span>Support: +1 (800) 123-4567</span>
+                                <span className="text">Support: +1 (800) 123-4567</span>
                             </div>
                         </div>
-
                         <div className="footer-actions">
                             <Dialog>
                                 <DialogTrigger asChild>
-                                    <Button variant="outline" className="button">Change Flight</Button>
+                                    <Button variant="outline" className="button-outline">Change Flight</Button>
                                 </DialogTrigger>
                                 <DialogContent>
                                     <DialogHeader>
@@ -378,17 +414,15 @@ function BookingCard({ booking, onCancel, isPast, flight, user }) {
                                     </DialogFooter>
                                 </DialogContent>
                             </Dialog>
-
                             <Button
                                 variant="destructive"
-                                className="button"
+                                className="button-destructive"
                                 onClick={() => onCancel(booking.id)}
                             >
                                 <X className="icon" size={18} />
                                 Cancel Booking
                             </Button>
                         </div>
-
                         <div className="footer-policy">
                             <Link href="/terms" className="link">View change/cancel policy</Link>
                         </div>
@@ -402,7 +436,6 @@ function BookingCard({ booking, onCancel, isPast, flight, user }) {
                     {showDetails ? 'Hide Details' : 'Show Details'}
                     {showDetails ? <ChevronUp className="icon" size={18} /> : <ChevronDown className="icon" size={18} />}
                 </Button>
-
                 <AnimatePresence>
                     {showDetails && (
                         <motion.div
@@ -453,6 +486,8 @@ function BookingCard({ booking, onCancel, isPast, flight, user }) {
                     )}
                 </AnimatePresence>
             </CardFooter>
+
+
         </Card>
 
     )
