@@ -66,6 +66,7 @@ exports.createBooking = async (req, res) => {
   }
 };
 
+
 exports.getUserBookings = async (req, res) => {
   try {
     const userID = req.params.userID;
@@ -84,25 +85,25 @@ exports.getUserBookings = async (req, res) => {
     }
 
     /*xxxxxxxxxxxxxxxxxxxxxxx update status*/
-    const userBookings = await Booking.find({ userID: userID });
+    // const userBookings = await Booking.find({ userID: userID });
 
-    if (userBookings.length === 0) {
-      return res.status(404).json({ message: 'No bookings found for this user' });
-    }
+    // if (userBookings.length === 0) {
+    //   return res.status(404).json({ message: 'No bookings found for this user' });
+    // }
 
-    const flightIDs = userBookings.map(booking => booking.flightID);
+    // const flightIDs = userBookings.map(booking => booking.flightID);
 
-    const now = new Date();
-    await Flight.updateMany(
-      {
-        _id: { $in: flightIDs },
-        arrivalTime: { $lt: now },
-        flightStatus: { $ne: "Landed" }
-      },
-      {
-        $set: { flightStatus: "Landed" }
-      }
-    );
+    // const now = new Date();
+    // await Flight.updateMany(
+    //   {
+    //     _id: { $in: flightIDs },
+    //     arrivalTime: { $lt: now },
+    //     flightStatus: { $ne: "Landed" }
+    //   },
+    //   {
+    //     $set: { flightStatus: "Landed" }
+    //   }
+    // );
 
     /*xxxxxxxxxxxxxxxxxxxxxxx*/
     const bookings = await Booking.aggregate([
@@ -114,12 +115,24 @@ exports.getUserBookings = async (req, res) => {
           from: 'flights', 
           localField: 'flightID',
           foreignField: '_id',
-          as: 'flight'
+          as: 'flight',
+          // preserveNullAndEmptyArrays: true
         }
       },
       {
-        $unwind: '$flight'
+        $unwind: {
+          path: '$flight',             
+          preserveNullAndEmptyArrays: true 
+        }
       },
+  {
+    $lookup: {
+      from: 'passengers',             
+      localField: 'passengers',     
+      foreignField: '_id',           
+      as: 'passengerDetails'         
+    }
+  },
       {
         $lookup: {
           from: 'airports',
@@ -129,7 +142,10 @@ exports.getUserBookings = async (req, res) => {
         }
       },
       {
-        $unwind: '$departureAirport'
+        $unwind: {
+          path: '$departureAirport',
+          preserveNullAndEmptyArrays: true
+        }
       },
       {
         $lookup: {
@@ -140,7 +156,10 @@ exports.getUserBookings = async (req, res) => {
         }
       },
       {
-        $unwind: '$arrivalAirport'
+        $unwind: {
+          path: '$arrivalAirport',
+          preserveNullAndEmptyArrays: true,
+        }
       },
       {
         $lookup: {
@@ -151,7 +170,10 @@ exports.getUserBookings = async (req, res) => {
         }
       },
       {
-        $unwind: '$aircraft'
+        $unwind: {
+          path: '$aircraft',
+          preserveNullAndEmptyArrays: true,
+        }
       },
       {
         $project: {
@@ -163,8 +185,12 @@ exports.getUserBookings = async (req, res) => {
           departureTime: '$flight.departureTime',
           arrivalTime: '$flight.arrivalTime', 
           flightDuration: '$flight.flightDuration',
+          // aircraft: 1,
+          // aircraft: '$aircraft',
           aircraftID: '$aircraft._id',
-          aircraftModel: '$aircraft.model'
+          aircraftModel: '$aircraft.model',
+          passengerCount: 1,
+          passengerDetails: 1
         }
       }
     ]);
@@ -175,6 +201,32 @@ exports.getUserBookings = async (req, res) => {
     return res.status(500).json({ message: 'Server error' });
   }
 };
+
+
+// Controller for getting all bookings by userID
+// exports.getUserBookings = async (req, res) => {
+//   try {
+//     const userID = req.params.userID;
+
+//     const bookings = await Booking.find({ userID }).populate({
+//       path: 'flightID',
+//       select: 'departureAirport arrivalAirport aircraft',
+//       populate: {
+//         path: 'aircraft'
+
+//       }
+//     })
+
+//     if (!bookings || bookings.length === 0) {
+//       return res.status(404).json({ message: 'No bookings found for this user' });
+//     }
+
+//     return res.status(200).json(bookings);
+//   } catch (error) {
+//     console.error('Error fetching bookings:', error);
+//     return res.status(500).json({ message: 'Server error' });
+//   }
+// };
 
 // Controller for getting a booking by booking ID
 exports.getBookingById = async (req, res) => {
@@ -193,72 +245,87 @@ exports.getBookingById = async (req, res) => {
   }
 };
 
+
 // Controller for updating a booking by ID
 exports.updateBooking = async (req, res) => {
   try {
     const bookingId = req.params.id;
-    const { flightClass, passengerIDs } = req.body;
+    const { flightClass, passengerIDs, flightID } = req.body;
 
     const booking = await Booking.findById(bookingId);
     if (!booking) {
       return res.status(404).json({ message: 'Booking not found' });
     }
 
-    const flight = await Flight.findById(booking.flightID);
-    if (!flight) {
-      return res.status(404).json({ message: 'Flight not found' });
-    }
+    let oldFlight = await Flight.findById(booking.flightID);
+    let newFlight = null;
 
-    const oldPassengerCount = booking.passengerCount;
-    const oldFlightClass = booking.flightClass;
-
-    if (flightClass) booking.flightClass = flightClass;
-    if (passengerIDs) {
-      const passengers = await Passenger.find({ '_id': { $in: passengerIDs } });
-      if (passengers.length !== passengerIDs.length) {
-        return res.status(404).json({ message: 'One or more passengers not found' });
+    if (flightID) {
+      newFlight = await Flight.findById(flightID);
+      if (!newFlight) {
+        return res.status(404).json({ message: 'New flight not found' });
       }
-      booking.passengers = passengerIDs;
-      booking.passengerCount = passengerIDs.length;
-    }
 
-    const classPrice = flight.flightClass[booking.flightClass]?.price;
-    if (classPrice === undefined) {
-      return res.status(400).json({ message: `Price not available for class ${booking.flightClass}` });
-    }
+      if (booking.flightID.toString() !== flightID.toString()) {
+        if (oldFlight) {
+          oldFlight.flightClass[booking.flightClass].seatsAvailable += booking.passengerCount;
+          await oldFlight.save();
+        }
 
-    booking.totalPrice = booking.passengerCount * classPrice;
+        booking.flightID = flightID;
+
+        const newFlightClass = flightClass || booking.flightClass;
+
+        if (newFlight.flightClass[newFlightClass]) {
+          if (newFlight.flightClass[newFlightClass].seatsAvailable >= booking.passengerCount) {
+            newFlight.flightClass[newFlightClass].seatsAvailable -= booking.passengerCount;
+            await newFlight.save();
+          } else {
+            return res.status(400).json({ message: `Not enough seats available in ${newFlightClass} class for the new flight` });
+          }
+        } else {
+          return res.status(400).json({ message: `Invalid flight class for new flight` });
+        }
+        const classPrice = newFlight.flightClass[newFlightClass]?.price;
+        if (classPrice === undefined) {
+          return res.status(400).json({ message: `Price not available for class ${newFlightClass}` });
+        }
+        booking.flightClass = newFlightClass; 
+        booking.totalPrice = booking.passengerCount * classPrice;
+
+      }
+    } else {
+      if (!oldFlight) {
+        return res.status(404).json({ message: 'Current flight not found' });
+      }
+
+      if (flightClass) {
+        if (oldFlight.flightClass[booking.flightClass]) {
+          oldFlight.flightClass[booking.flightClass].seatsAvailable += booking.passengerCount; 
+
+          const newAvailableSeats = oldFlight.flightClass[flightClass]?.seatsAvailable;
+          if (newAvailableSeats === undefined) {
+            return res.status(400).json({ message: `Invalid flight class selected` });
+          }
+
+          if (newAvailableSeats < booking.passengerCount) {
+            return res.status(400).json({ message: `Not enough seats available in ${flightClass} class` });
+          }
+
+          oldFlight.flightClass[flightClass].seatsAvailable -= booking.passengerCount;
+          await oldFlight.save();
+        }
+        booking.flightClass = flightClass;
+      }
+
+      const classPrice = oldFlight.flightClass[booking.flightClass]?.price;
+      if (classPrice === undefined) {
+        return res.status(400).json({ message: `Price not available for class ${booking.flightClass}` });
+      }
+      booking.totalPrice = booking.passengerCount * classPrice;
+    }
 
     await booking.save();
-
-    const newPassengerCount = booking.passengerCount;
-    const passengerDifference = newPassengerCount - oldPassengerCount;
-
-    if (flightClass !== oldFlightClass) {
-      flight.flightClass[oldFlightClass].seatsAvailable += oldPassengerCount;
-
-      const newAvailableSeats = flight.flightClass[flightClass]?.seatsAvailable;
-      if (newAvailableSeats === undefined) {
-        return res.status(400).json({ message: 'Invalid flight class selected' });
-      }
-      if (newAvailableSeats < newPassengerCount) {
-        return res.status(400).json({ message: `Not enough seats available in ${flightClass} class` });
-      }
-
-      flight.flightClass[flightClass].seatsAvailable -= newPassengerCount;
-    } else {
-      if (passengerDifference > 0) {
-        const availableSeats = flight.flightClass[flightClass].seatsAvailable;
-        if (availableSeats < passengerDifference) {
-          return res.status(400).json({ message: `Not enough seats available in ${flightClass} class` });
-        }
-        flight.flightClass[flightClass].seatsAvailable -= passengerDifference;
-      } else if (passengerDifference < 0) {
-        flight.flightClass[flightClass].seatsAvailable += Math.abs(passengerDifference);
-      }
-    }
-
-    await flight.save();
 
     return res.status(200).json({ message: 'Booking updated successfully', booking });
 
@@ -267,6 +334,7 @@ exports.updateBooking = async (req, res) => {
     return res.status(500).json({ message: 'Server error' });
   }
 };
+
 
 // Controller for deleting a booking by ID
 exports.deleteBooking = async (req, res) => {
