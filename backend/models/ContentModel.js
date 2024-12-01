@@ -19,7 +19,7 @@ const ContentSchema = new mongoose.Schema({
   },
   contentType: {
     type: String,
-    enum: ['Introduction', 'Offers', 'Promotions', 'Alerts', 'News'],
+    enum: ['Introduction', 'Promotions', 'Alerts', 'News'],
     required: true,
   },
   createdAt: {
