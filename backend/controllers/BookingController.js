@@ -250,7 +250,7 @@ exports.getBookingById = async (req, res) => {
 exports.updateBooking = async (req, res) => {
   try {
     const bookingId = req.params.id;
-    const { flightClass, passengerIDs, flightID } = req.body;
+    const { flightClass, flightID } = req.body;
 
     const booking = await Booking.findById(bookingId);
     if (!booking) {
