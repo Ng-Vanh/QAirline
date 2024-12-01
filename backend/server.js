@@ -11,6 +11,7 @@ const UserRoutes = require('./routes/UserRoute');
 const PassengerRoutes = require('./routes/PassengerRoute');
 const AircraftRoute = require('./routes/AircraftRoute');
 const StatisticsRoute = require('./routes/StatisticsRoute')
+const ContentRoute = require('./routes/ContentRoute')
 
 const swaggerOptions = {
   swaggerDefinition: {
@@ -41,26 +42,26 @@ app.use('/api/users', UserRoutes);
 app.use('/api/passengers', PassengerRoutes);
 app.use('/api/aircrafts', AircraftRoute);
 app.use('/api/statistics', StatisticsRoute);
+app.use('/api/content', ContentRoute);
 
 app.use((req, res, next) => {
   console.log('Incoming request body:', req.body);
   next();
 });
 
-// Connect to MongoDB Atlas using Mongoose
 mongoose.connect(dbURI, {
   useNewUrlParser: true,
   useUnifiedTopology: true,
 })
-  .then(() => {
-    console.log('Connected to MongoDB');
-  })
-  .catch((err) => {
-    console.error('Error connecting to MongoDB Atlas:', err);
-  });
+.then(() => {
+  console.log('Connected to MongoDB');
+})
+.catch((err) => {
+  console.error('Error connecting to MongoDB Atlas:', err);
+});
 
 const PORT = process.env.PORT || 5000;
-// Your routes and server setup
+
 app.listen(PORT, () => {
   console.log(`Server is running on port ${PORT}`);
 });
