@@ -187,6 +187,7 @@ exports.getUserBookings = async (req, res) => {
           flightDuration: '$flight.flightDuration',
           // aircraft: 1,
           // aircraft: '$aircraft',
+          flightClass: 1,
           aircraftID: '$aircraft._id',
           aircraftModel: '$aircraft.model',
           passengerCount: 1,
