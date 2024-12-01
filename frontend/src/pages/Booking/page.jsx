@@ -30,8 +30,8 @@ export default function Bookings() {
                 setIsLoading(true);
                 const userId = '6749fb9b6904a9ed9d4a4a56';
                 const userEndpoint = `https://qairline-t28f.onrender.com/api/users/674b6d8245ff24b20112416a`
-                const upcomingBookingsEndpoint = `https://qairline-t28f.onrender.com/api/bookings/user/6749fb9b6904a9ed9d4a4a56?type=Upcoming`;
-                const pastBookingsEndpoint = `https://qairline-t28f.onrender.com/api/bookings/user/6749fb9b6904a9ed9d4a4a56?type=Past`;
+                const upcomingBookingsEndpoint = `https://qairline-t28f.onrender.com/api/bookings/user/674b6d8245ff24b20112416a?type=Upcoming`;
+                const pastBookingsEndpoint = `https://qairline-t28f.onrender.com/api/bookings/user/674b6d8245ff24b20112416a?type=Past`;
 
                 const [upcomingBookingResponse, pastBookingResponse, userResponse] = await Promise.all([
                     fetch(upcomingBookingsEndpoint),
@@ -98,29 +98,57 @@ export default function Bookings() {
         fetchAllData();
     }, []);
 
-    const handleCancelBooking = (id) => {
-        const booking = upcomingBookings.find(b => b.id === id)
+    const handleCancelBooking = async (id) => {
+        console.log(id);
+        const booking = upcomingBookings.find(b => b._id === id);
+        console.log(booking);
         if (booking) {
-            const departureDate = new Date(booking.departureTime)
-            const now = new Date()
-            const timeDiff = departureDate.getTime() - now.getTime()
-            const daysDiff = timeDiff / (1000 * 3600 * 24)
-
+            const departureDate = new Date(booking.departureTime);
+            const now = new Date();
+            const timeDiff = departureDate.getTime() - now.getTime();
+            const daysDiff = timeDiff / (1000 * 3600 * 24);
+    
             if (daysDiff > 1) {
-                setUpcomingBookings(upcomingBookings.map(b => b.id === id ? { ...b, status: 'Cancelled' } : b))
-                toast({
-                    title: "Booking Cancelled",
-                    description: `Your booking for flight ${booking.flightNumber} has been cancelled.`,
-                })
+                try {
+                    const response = await fetch(`https://qairline-t28f.onrender.com/api/bookings/${id}`, {
+                        method: 'DELETE',
+                    });
+    
+                    if (response.ok) {
+                        setUpcomingBookings(upcomingBookings.map(b =>
+                            b.id === id ? { ...b, status: 'Cancelled' } : b
+                        ));
+                        toast({
+                            title: "Booking Cancelled",
+                            description: `Your booking for flight ${booking.flightNumber} has been cancelled.`,
+                        });
+                    } else {
+                        console.log(id);
+                        console.error("Failed to cancel booking:", response.status, response.statusText);
+                        toast({
+                            title: "Cancellation Failed",
+                            description: "There was an issue cancelling your booking. Please try again later.",
+                            variant: "destructive",
+                        });
+                    }
+                } catch (error) {
+                    console.error("Error cancelling booking:", error);
+                    toast({
+                        title: "Error",
+                        description: "An unexpected error occurred while cancelling your booking.",
+                        variant: "destructive",
+                    });
+                }
             } else {
                 toast({
                     title: "Cancellation Not Allowed",
                     description: "Cancellation is not allowed within 24 hours of departure.",
                     variant: "destructive",
-                })
+                });
             }
         }
-    }
+    };
+    
 
     if (isLoading) {
         return <div>Loading data, please wait...</div>;
@@ -137,7 +165,6 @@ export default function Bookings() {
                 </TabsList>
                 <TabsContent value="upcoming">
                     <div className="cards-container">
-                        {console.log(upcomingFlights)}
                         {upcomingBookings.map((booking) => (
                             <BookingCard
                                 key={booking.id}
@@ -200,8 +227,6 @@ function BookingCard({ booking, onCancel, isPast, flight, user, bookingInfo }) {
     const [progress, setProgress] = useState(0)
     const [countdown, setCountdown] = useState('')
     const [showDetails, setShowDetails] = useState(false)
-
-    console.log(bookingInfo);
 
     useEffect(() => {
         const updateBooking = () => {
@@ -417,7 +442,7 @@ function BookingCard({ booking, onCancel, isPast, flight, user, bookingInfo }) {
                             <Button
                                 variant="destructive"
                                 className="button-destructive"
-                                onClick={() => onCancel(booking.id)}
+                                onClick={() => onCancel(booking._id)}
                             >
                                 <X className="icon" size={18} />
                                 Cancel Booking

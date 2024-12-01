@@ -18,153 +18,81 @@ import { toast } from "@/hooks/use-toast"
 import { ScrollArea } from "@/components/ui/scroll-area"
 import './flights.css';
 
-interface Flight {
-  id: string
-  flightNumber: string
-  airline: string
-  departureCity: string
-  arrivalCity: string
-  departureTime: string
-  arrivalTime: string
-  price: number
-  aircraft: string
-  availableSeats: number
-  flightDuration: string
-  stopover: string | null
-  class: 'Economy' | 'Business' | 'First'
-  amenities: string[]
-  gate: string
-  terminal: string
-}
-
-const mockFlights: Flight[] = [
-  {
-    id: '1',
-    flightNumber: 'QA101',
-    airline: 'QAirline',
-    departureCity: 'New York',
-    arrivalCity: 'London',
-    departureTime: '2023-07-15T10:00:00Z',
-    arrivalTime: '2023-07-15T22:00:00Z',
-    price: 500,
-    aircraft: 'Boeing 787 Dreamliner',
-    availableSeats: 150,
-    flightDuration: '7h 00m',
-    stopover: null,
-    class: 'Economy',
-    amenities: ['wifi', 'meal', 'entertainment'],
-    gate: 'A1',
-    terminal: 'T1'
-  },
-  {
-    id: '2',
-    flightNumber: 'QA202',
-    airline: 'QAirline',
-    departureCity: 'Paris',
-    arrivalCity: 'Tokyo',
-    departureTime: '2023-07-16T14:30:00Z',
-    arrivalTime: '2023-07-17T09:30:00Z',
-    price: 800,
-    aircraft: 'Airbus A350',
-    availableSeats: 100,
-    flightDuration: '12h 00m',
-    stopover: 'Dubai (2h)',
-    class: 'Business',
-    amenities: ['wifi', 'meal', 'entertainment', 'lounge', 'flatbed'],
-    gate: 'B3',
-    terminal: 'T2'
-  },
-  {
-    id: '3',
-    flightNumber: 'QA303',
-    airline: 'QAirline',
-    departureCity: 'London',
-    arrivalCity: 'New York',
-    departureTime: '2023-07-17T09:00:00Z',
-    arrivalTime: '2023-07-17T18:00:00Z',
-    price: 600,
-    aircraft: 'Boeing 777',
-    availableSeats: 80,
-    flightDuration: '8h 00m',
-    stopover: null,
-    class: 'Economy',
-    amenities: ['wifi', 'meal', 'entertainment'],
-    gate: 'C5',
-    terminal: 'T3'
-  },
-  {
-    id: '4',
-    flightNumber: 'QA404',
-    airline: 'QAirline',
-    departureCity: 'Tokyo',
-    arrivalCity: 'Sydney',
-    departureTime: '2023-07-18T23:00:00Z',
-    arrivalTime: '2023-07-19T10:00:00Z',
-    price: 750,
-    aircraft: 'Airbus A380',
-    availableSeats: 200,
-    flightDuration: '10h 00m',
-    stopover: 'Singapore (1h)',
-    class: 'Economy',
-    amenities: ['wifi', 'meal', 'entertainment'],
-    gate: 'D5',
-    terminal: 'T4'
-  },
-  {
-    id: '5',
-    flightNumber: 'QA505',
-    airline: 'QAirline',
-    departureCity: 'Dubai',
-    arrivalCity: 'Paris',
-    departureTime: '2023-07-19T12:00:00Z',
-    arrivalTime: '2023-07-19T17:00:00Z',
-    price: 550,
-    aircraft: 'Airbus A330',
-    availableSeats: 120,
-    flightDuration: '6h 00m',
-    stopover: null,
-    class: 'Business',
-    amenities: ['wifi', 'meal', 'entertainment', 'lounge'],
-    gate: 'E1',
-    terminal: 'T2'
-  },
-]
-
-interface CartItem {
-  flight: Flight
-  passengers: number
-}
-
 export default function Flights() {
-  const [flights, setFlights] = useState<Flight[]>(mockFlights)
-  const [filteredFlights, setFilteredFlights] = useState<Flight[]>(mockFlights)
-  const [searchType, setSearchType] = useState<'oneWay' | 'roundTrip' | 'multiCity'>('oneWay')
+  const [flights, setFlights] = useState([]);
+  const [filteredFlights, setFilteredFlights] = useState([]);
+  const [searchType, setSearchType] = useState('oneWay');
   const [searchCriteria, setSearchCriteria] = useState({
     departureCity: '',
     arrivalCity: '',
     departureDate: '',
     returnDate: '',
     passengers: 1,
-    class: 'Economy' as 'Economy' | 'Business' | 'First',
-  })
+    class: 'Economy',
+  });
   const [multiCityFlights, setMultiCityFlights] = useState([
     { departureCity: '', arrivalCity: '', departureDate: '' },
     { departureCity: '', arrivalCity: '', departureDate: '' },
-  ])
+  ]);
   const [filters, setFilters] = useState({
     minPrice: 0,
     maxPrice: 1000,
     directFlightsOnly: false,
-    amenities: [] as string[],
-  })
-  const [sortBy, setSortBy] = useState('price')
-  const [sortOrder, setSortOrder] = useState('asc')
-  const [cart, setCart] = useState<CartItem[]>([])
-  const [isCartOpen, setIsCartOpen] = useState(false)
+    amenities: [],
+  });
+  const [sortBy, setSortBy] = useState('price');
+  const [sortOrder, setSortOrder] = useState('asc');
+  const [cart, setCart] = useState([]);
+  const [isCartOpen, setIsCartOpen] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
-    applyFilters()
-  }, [flights, filters, sortBy, sortOrder, searchCriteria])
+    const fetchFlights = async () => {
+      try {
+        const response = await fetch('https://qairline-t28f.onrender.com/api/flights');
+        console.log(response);
+        if (!response.ok) {
+          throw new Error('Failed to fetch flights data');
+        }
+        const data = await response.json();
+        console.log('Fetched flights:', data);
+        const formattedData = data.map(flight => ({
+          id: flight._id,
+          departureCity: flight.departureAirport.city,
+          arrivalCity: flight.arrivalAirport.city,
+          departureTime: flight.departureTime,
+          arrivalTime: flight.arrivalTime,
+          flightDuration: flight.flightDuration,
+          price: flight.flightClass.economy.price, // Defaulting to Economy price
+          class: 'Economy',
+          stopover: false, // Assuming no stopover data in API
+          amenities: [], // Assuming no amenities data in API
+          flightNumber: flight.aircraft.code,
+          airline: flight.aircraft.manufacturer,
+          aircraft: flight.aircraft.model,
+          availableSeats: flight.flightClass.economy.seatsAvailable, // Defaulting to Economy available seats
+        }));
+        setFlights(formattedData);
+        setFilteredFlights(formattedData);
+      } catch (error) {
+        console.error('Error fetching flights:', error);
+        toast({
+          title: 'Error',
+          description: 'Failed to load flights data. Please try again later.',
+          variant: 'destructive',
+        });
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    fetchFlights();
+  }, []);
+
+
+  useEffect(() => {
+    applyFilters();
+  }, [flights, filters, sortBy, sortOrder, searchCriteria]);
 
   const applyFilters = () => {
     let filtered = flights.filter(flight =>
@@ -176,69 +104,111 @@ export default function Flights() {
       (searchCriteria.class === 'Economy' || flight.class === searchCriteria.class) &&
       (!filters.directFlightsOnly || !flight.stopover) &&
       (filters.amenities.length === 0 || filters.amenities.every(amenity => flight.amenities.includes(amenity)))
-    )
+    );
 
     // Apply sorting
     filtered.sort((a, b) => {
       if (sortBy === 'price') {
-        return sortOrder === 'asc' ? a.price - b.price : b.price - a.price
+        return sortOrder === 'asc' ? a.price - b.price : b.price - a.price;
       } else if (sortBy === 'duration') {
-        const durationA = parseInt(a.flightDuration.split('h')[0])
-        const durationB = parseInt(b.flightDuration.split('h')[0])
-        return sortOrder === 'asc' ? durationA - durationB : durationB - durationA
+        const durationA = parseInt(a.flightDuration.split('h')[0]);
+        const durationB = parseInt(b.flightDuration.split('h')[0]);
+        return sortOrder === 'asc' ? durationA - durationB : durationB - durationA;
       }
-      return 0
-    })
+      return 0;
+    });
 
-    setFilteredFlights(filtered)
-  }
+    setFilteredFlights(filtered);
+  };
 
   const handleSearch = () => {
-    // In a real application, this would make an API call with the search criteria
-    // For now, we'll just apply the filters to our mock data
-    applyFilters()
+    applyFilters();
     toast({
-      title: "Search Completed",
+      title: 'Search Completed',
       description: `Found ${filteredFlights.length} flights matching your criteria.`,
-    })
-  }
+    });
+  };
 
-  const handleAddToCart = (flight: Flight) => {
-    const existingItem = cart.find(item => item.flight.id === flight.id)
+  const handleAddToCart = async (flight, flightClass) => {
+    const existingItem = cart.find(item => item.flight.id === flight.id);
     if (existingItem) {
       setCart(cart.map(item =>
         item.flight.id === flight.id
           ? { ...item, passengers: item.passengers + searchCriteria.passengers }
           : item
-      ))
+      ));
     } else {
-      setCart([...cart, { flight, passengers: searchCriteria.passengers }])
+      setCart([...cart, { flight, passengers: searchCriteria.passengers }]);
     }
-    toast({
-      title: "Added to Cart",
-      description: `${searchCriteria.passengers} ticket(s) for flight ${flight.flightNumber} added to cart.`,
-    })
-  }
 
-  const handleRemoveFromCart = (flightId: string) => {
-    setCart(cart.filter(item => item.flight.id !== flightId))
+    // @todo: pass correct passenget IDs
+    const bookingData = {
+      userID: "674b6d8245ff24b20112416a", 
+      flightID: flight.id,
+      flightClass: flightClass || "Economy", 
+      passengerCount: searchCriteria.passengers || 1,
+      passengerIDs: ["6749fd7b6904a9ed9d4a4a59", "674a2003f51d087e0c39aebb"] 
+    };
+
+    try {
+      const response = await fetch("https://qairline-t28f.onrender.com/api/bookings", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify(bookingData)
+      });
+
+      if (response.ok) {
+        const result = await response.json();
+        console.log("Booking successful:", result);
+        toast({
+          title: 'Booking Created',
+          description: `Booking for flight ${flight.flightNumber} created successfully.`,
+        });
+      } else {
+        console.error("Failed to create booking:", response.status, response.statusText);
+        toast({
+          title: 'Booking Failed',
+          description: `Failed to create booking for flight ${flight.flightNumber}.`,
+          status: 'error',
+        });
+      }
+      
+    } catch (error) {
+      console.error("Error creating booking:", error);
+      toast({
+        title: 'Error',
+        description: `An error occurred while booking flight ${flight.flightNumber}.`,
+        status: 'error',
+      });
+
+    }
+  };
+
+  const handleRemoveFromCart = flightId => {
+    setCart(cart.filter(item => item.flight.id !== flightId));
     toast({
-      title: "Removed from Cart",
-      description: `Flight removed from cart.`,
-      variant: "destructive",
-    })
-  }
+      title: 'Removed from Cart',
+      description: 'Flight removed from cart.',
+      variant: 'destructive',
+    });
+  };
 
   const getTotalPrice = () => {
-    return cart.reduce((total, item) => total + item.flight.price * item.passengers, 0)
-  }
+    return cart.reduce((total, item) => total + item.flight.price * item.passengers, 0);
+  };
 
-  const amenityIcons: { [key: string]: JSX.Element } = {
+  const amenityIcons = {
     wifi: <Wifi className="h-4 w-4" />,
     meal: <Utensils className="h-4 w-4" />,
     entertainment: <Film className="h-4 w-4" />,
     lounge: <Users className="h-4 w-4" />,
     flatbed: <Moon className="h-4 w-4" />,
+  };
+
+  if (isLoading) {
+    return <div>Loading data, please wait...</div>;
   }
 
   return (
@@ -593,7 +563,7 @@ export default function Flights() {
 
 
         <div className="flight-results-container">
-          <Card className="flight-card bg-white/80 backdrop-blur-sm mb-6">
+          <Card className="flight-card">
             <CardHeader>
               <div className="header-container">
                 <CardTitle className="flight-card-title">Flight Results</CardTitle>
@@ -628,10 +598,17 @@ export default function Flights() {
                     exit={{ opacity: 0, y: -20 }}
                     transition={{ duration: 0.3 }}
                   >
-                    <Card className="flight-result-card mb-4 hover:shadow-lg transition-shadow duration-300">
+
+
+
+
+
+
+
+                    <Card className="flight-result-card">
                       <CardContent className="flight-result-card-content">
-                        <div className="flex flex-col md:flex-row justify-between items-start md:items-center">
-                          <div className="flight-info flex items-center space-x-4 mb-4 md:mb-0">
+                        <div className="flight-result-header">
+                          <div className="flight-info">
                             <div className="flight-icon">
                               <Plane className="plane-icon" />
                             </div>
@@ -640,49 +617,51 @@ export default function Flights() {
                               <p className="flight-aircraft">{flight.aircraft}</p>
                             </div>
                           </div>
-                          <div className="price-info text-right">
+                          <div className="price-info">
                             <p className="price">${flight.price}</p>
                             <Badge variant="secondary">{flight.class}</Badge>
                           </div>
                         </div>
-                        <div className="flex flex-col md:flex-row justify-between items-start md:items-center">
-                          <div className="flex-1">
-                            <p className="font-semibold">{flight.departureCity}</p>
-                            <p className="text-sm text-gray-500">{new Date(flight.departureTime).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</p>
+                        <div className="flight-details">
+                          <div className="departure-info">
+                            <p className="departure-city">{flight.departureCity}</p>
+                            <p className="departure-time">{new Date(flight.departureTime).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</p>
                           </div>
-                          <div className="flex flex-col items-center my-2 md:my-0">
+                          <div className="flight-duration">
                             <ArrowRight className="arrow-icon" />
-                            <p className="text-sm font-medium">{flight.flightDuration}</p>
+                            <p className="duration">
+                              {new Date(flight.flightDuration).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', hour12: false })}
+                            </p>
                             {flight.stopover && (
-                              <p className="text-xs text-gray-400">{flight.stopover}</p>
+                              <p className="stopover">{flight.stopover}</p>
                             )}
                           </div>
-                          <div className="flex-1 text-right">
-                            <p className="font-semibold">{flight.arrivalCity}</p>
-                            <p className="text-sm text-gray-500">{new Date(flight.arrivalTime).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</p>
+                          <div className="arrival-info">
+                            <div>
+                              <p className="arrival-city">{flight.arrivalCity}</p>
+                              <p className="arrival-time">{new Date(flight.arrivalTime).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</p>
+                            </div>
                           </div>
                         </div>
-                        <div className="flight-actions mt-4 flex flex-wrap justify-between items-center">
-                          <div className="amenities flex items-center space-x-2">
+                        <div className="flight-actions">
+                          <div className="amenities">
                             {flight.amenities.map((amenity) => (
                               <Popover key={amenity}>
                                 <PopoverTrigger>
-                                  <Button variant="outline" size="icon" className="h-8 w-8">
-                                    {amenityIcons[amenity]}
-                                  </Button>
+                                  <Button className="amenity-icon">{amenityIcons[amenity]}</Button>
                                 </PopoverTrigger>
-                                <PopoverContent className="w-auto">
-                                  <p className="capitalize">{amenity}</p>
+                                <PopoverContent className="amenity-tooltip">
+                                  <p>{amenity}</p>
                                 </PopoverContent>
                               </Popover>
                             ))}
                           </div>
-                          <p className="seats-left text-sm text-gray-500">{flight.availableSeats} seats left</p>
-                          <div className="flex space-x-2">
+                          <p className="seats-left">{flight.availableSeats} seats left</p>
+                          <div className="action-buttons">
                             <Dialog>
                               <DialogTrigger asChild>
-                                <Button variant="outline">
-                                  <Info className="mr-2 h-4 w-4" />
+                                <Button variant="outline" className="details-button">
+                                  <Info className="details-button-icon" />
                                   More Details
                                 </Button>
                               </DialogTrigger>
@@ -691,69 +670,25 @@ export default function Flights() {
                                   <DialogTitle>{flight.airline} {flight.flightNumber}</DialogTitle>
                                   <DialogDescription>Flight Details</DialogDescription>
                                 </DialogHeader>
-                                <div className="grid gap-4 py-4">
-                                  <div className="grid grid-cols-2 items-center gap-4">
-                                    <Label htmlFor="departure">Departure</Label>
-                                    <div>
-                                      <p>{flight.departureCity}</p>
-                                      <p className="text-sm text-gray-500">{new Date(flight.departureTime).toLocaleString()}</p>
-                                    </div>
-                                  </div>
-                                  <div className="grid grid-cols-2 items-center gap-4">
-                                    <Label htmlFor="arrival">Arrival</Label>
-                                    <div>
-                                      <p>{flight.arrivalCity}</p>
-                                      <p className="text-sm text-gray-500">{new Date(flight.arrivalTime).toLocaleString()}</p>
-                                    </div>
-                                  </div>
-                                  <div className="grid grid-cols-2 items-center gap-4">
-                                    <Label htmlFor="duration">Duration</Label>
-                                    <p>{flight.flightDuration}</p>
-                                  </div>
-                                  <div className="grid grid-cols-2 items-center gap-4">
-                                    <Label htmlFor="aircraft">Aircraft</Label>
-                                    <p>{flight.aircraft}</p>
-                                  </div>
-                                  <div className="grid grid-cols-2 items-center gap-4">
-                                    <Label htmlFor="class">Class</Label>
-                                    <p>{flight.class}</p>
-                                  </div>
-                                  <div className="grid grid-cols-2 items-center gap-4">
-                                    <Label htmlFor="amenities">Amenities</Label>
-                                    <div className="flex flex-wrap gap-2">
-                                      {flight.amenities.map((amenity) => (
-                                        <Badge key={amenity} variant="secondary">{amenity}</Badge>
-                                      ))}
-                                    </div>
-                                  </div>
-                                  <div className="grid grid-cols-2 items-center gap-4">
-                                    <Label htmlFor="gate">Gate</Label>
-                                    <p>{flight.gate}</p>
-                                  </div>
-                                  <div className="grid grid-cols-2 items-center gap-4">
-                                    <Label htmlFor="terminal">Terminal</Label>
-                                    <p>{flight.terminal}</p>
-                                  </div>
-                                  {flight.stopover && (
-                                    <div className="grid grid-cols-2 items-center gap-4">
-                                      <Label htmlFor="stopover">Stopover</Label>
-                                      <p>{flight.stopover}</p>
-                                    </div>
-                                  )}
-                                  <div className="grid grid-cols-2 items-center gap-4">
-                                    <Label htmlFor="availableSeats">Available Seats</Label>
-                                    <p>{flight.availableSeats}</p>
-                                  </div>
-                                </div>
+                                {/* Add Dialog Content Here */}
                               </DialogContent>
                             </Dialog>
-                            <Button onClick={() => handleAddToCart(flight)} className="add-to-cart-button bg-gradient-to-r from-purple-500 to-indigo-600 text-white">
-                              Add to Cart
+                            <Button onClick={() => handleAddToCart(flight)} className="add-to-cart-button">
+                              Book Economy
+                            </Button>
+
+                            <Button onClick={() => handleAddToCart(flight)} className="add-to-cart-button">
+                              Book Business
                             </Button>
                           </div>
                         </div>
                       </CardContent>
                     </Card>
+
+
+
+
+
                   </motion.div>
                 ))}
               </AnimatePresence>
