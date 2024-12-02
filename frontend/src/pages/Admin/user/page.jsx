@@ -7,6 +7,8 @@ import { Button } from '../../../components/ui/button';
 import { Input } from '../../../components/ui/input';
 import { Label } from '../../../components/ui/label';
 import { Edit, Trash2, Search } from 'lucide-react';
+import { toast } from "../../../hooks/use-toast";
+
 import './styles.css';
 
 export default function UserManagement() {
@@ -15,11 +17,8 @@ export default function UserManagement() {
     const [isDialogOpen, setIsDialogOpen] = useState(false);
     const [newUser, setNewUser] = useState({
         name: '',
-        email: '',
         username: '',
         password: '',
-        role: 'Customer',
-        status: 'Active',
     });
     const [searchTerm, setSearchTerm] = useState('');
 
@@ -36,53 +35,67 @@ export default function UserManagement() {
         fetchUsers();
     }, []);
 
-    // Filtered users
     const filteredUsers = users.filter((user) => {
-        const name = user.name?.toLowerCase() || '';
-        const email = user.email?.toLowerCase() || '';
+        const name = user.name ? user.name.toLowerCase() : ''; // Default to an empty string if undefined
+        const username = user.username ? user.username.toLowerCase() : ''; // Default to an empty string if undefined
         const search = searchTerm.toLowerCase();
 
-        return name.includes(search) || email.includes(search);
+        return name.includes(search) || username.includes(search);
     });
 
+
+    // Handle input changes
     const handleInputChange = (e) => {
         const { name, value } = e.target;
         setNewUser({ ...newUser, [name]: value });
     };
 
+    // Handle form submission
     const handleSubmit = async (e) => {
         e.preventDefault();
+
+        console.log('Payload sent to API:', newUser);
+
         try {
-            if (editingUser) {
-                // Update user
-                await axios.put(`/api/users/${editingUser._id}`, newUser);
-                setUsers((prevUsers) =>
-                    prevUsers.map((u) => (u._id === editingUser._id ? { ...u, ...newUser } : u))
-                );
-            } else {
-                // Add new user
-                const response = await axios.post('/api/users', newUser);
-                setUsers((prevUsers) => [...prevUsers, response.data]); // Cập nhật danh sách
-            }
+            const response = await axios.post('https://qairline-t28f.onrender.com/api/users/', {
+                name: newUser.name,
+                username: newUser.username,
+                password: newUser.password
+            });
+            setUsers([...users, response.data.user]);
             resetForm();
+            toast({
+                title: 'Success',
+                description: 'User created successfully!',
+                status: 'success',
+            });
         } catch (error) {
-            console.error('Error saving user:', error);
+            console.error('Error response:', error.response?.data || error.message);
+            toast({
+                title: 'Error',
+                description: error.response?.data?.message || 'Failed to create user. Please check your input.',
+                status: 'error',
+            });
         }
     };
 
+
+
+
     const resetForm = () => {
+        setNewUser({ name: '', username: '', password: '' });
         setIsDialogOpen(false);
-        setNewUser({ name: '', email: '', username: '', password: '', role: 'Customer', status: 'Active' });
-        setEditingUser(null);
     };
 
 
+    // Handle user editing
     const handleEdit = (user) => {
         setEditingUser(user);
         setNewUser({ ...user });
         setIsDialogOpen(true);
     };
 
+    // Handle user deletion
     const handleDelete = async (id) => {
         try {
             await axios.delete(`/api/users/${id}`);
@@ -114,14 +127,16 @@ export default function UserManagement() {
                     className="search-input"
                 />
             </div>
-            <Button onClick={() => setIsDialogOpen(true)} className="button">
+            <Button onClick={() => {
+                resetForm();
+                setIsDialogOpen(true);
+            }} className="button">
                 Add New User
             </Button>
             <table className="table">
                 <thead>
                     <tr>
                         <th>Name</th>
-                        <th>Email</th>
                         <th>Username</th>
                         <th>Password</th>
                         <th>Actions</th>
@@ -131,7 +146,6 @@ export default function UserManagement() {
                     {filteredUsers.map((user) => (
                         <tr key={user._id}>
                             <td>{user.name}</td>
-                            <td>{user.email}</td>
                             <td>{user.username}</td>
                             <td>{user.password}</td>
                             <td>
@@ -165,17 +179,6 @@ export default function UserManagement() {
                             />
                         </div>
                         <div className="form-group">
-                            <Label htmlFor="email" className="form-label">Email</Label>
-                            <Input
-                                id="email"
-                                name="email"
-                                value={newUser.email}
-                                onChange={handleInputChange}
-                                required
-                                className="form-input"
-                            />
-                        </div>
-                        <div className="form-group">
                             <Label htmlFor="username" className="form-label">Username</Label>
                             <Input
                                 id="username"
@@ -197,32 +200,6 @@ export default function UserManagement() {
                                 required
                                 className="form-input"
                             />
-                        </div>
-                        <div className="form-group">
-                            <Label htmlFor="role" className="form-label">Role</Label>
-                            <select
-                                id="role"
-                                name="role"
-                                value={newUser.role}
-                                onChange={handleInputChange}
-                                className="form-select"
-                            >
-                                <option value="Customer">Customer</option>
-                                <option value="Admin">Admin</option>
-                            </select>
-                        </div>
-                        <div className="form-group">
-                            <Label htmlFor="status" className="form-label">Status</Label>
-                            <select
-                                id="status"
-                                name="status"
-                                value={newUser.status}
-                                onChange={handleInputChange}
-                                className="form-select"
-                            >
-                                <option value="Active">Active</option>
-                                <option value="Inactive">Inactive</option>
-                            </select>
                         </div>
 
                         <DialogFooter className="dialog-footer">

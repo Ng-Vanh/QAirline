@@ -22,26 +22,26 @@ export default function CMSPage() {
     const [alerts, setAlerts] = useState([]);
     const [activeTab, setActiveTab] = useState('introduction');
     const [editingItem, setEditingItem] = useState(null);
+    const fetchContent = async () => {
+        try {
+            const response = await axios.get('/api/content');
+            const allContent = response.data;
 
+            // Filter content by type
+            setIntroduction(allContent.filter(item => item.contentType === 'Introduction'));
+            setPromotions(allContent.filter(item => item.contentType === 'Promotions'));
+            setNews(allContent.filter(item => item.contentType === 'News'));
+            setAlerts(allContent.filter(item => item.contentType === 'Alerts'));
+        } catch (error) {
+            console.error('Error fetching content:', error);
+            toast({
+                title: 'Error',
+                description: 'Failed to load content from the server.',
+            });
+        }
+    };
     useEffect(() => {
-        const fetchContent = async () => {
-            try {
-                const response = await axios.get('/api/content');
-                const allContent = response.data;
 
-                // Filter content by type
-                setIntroduction(allContent.filter(item => item.contentType === 'Introduction'));
-                setPromotions(allContent.filter(item => item.contentType === 'Promotions'));
-                setNews(allContent.filter(item => item.contentType === 'News'));
-                setAlerts(allContent.filter(item => item.contentType === 'Alerts'));
-            } catch (error) {
-                console.error('Error fetching content:', error);
-                toast({
-                    title: 'Error',
-                    description: 'Failed to load content from the server.',
-                });
-            }
-        };
 
         fetchContent();
     }, []);
@@ -133,7 +133,7 @@ export default function CMSPage() {
                 default:
                     break;
             }
-
+            fetchContent();
             setEditingItem(null);
             toast({
                 title: 'Content Saved',
