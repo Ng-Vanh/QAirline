@@ -4,6 +4,7 @@ import React, { useEffect, useState } from 'react';
 import axios from 'axios';
 import { Calendar, Users, DollarSign } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle } from '../../../components/ui/card';
+import API_BASE_URL from '../config';
 
 export default function Reports() {
     const [stats, setStats] = useState(null); // Holds the statistics data
@@ -14,7 +15,7 @@ export default function Reports() {
         const fetchStatistics = async () => {
             setLoading(true);
             try {
-                const response = await axios.get('/api/statistics');
+                const response = await axios.get(`${API_BASE_URL}/api/statistics`);
                 setStats(response.data);
             } catch (error) {
                 console.error('Error fetching statistics:', error);

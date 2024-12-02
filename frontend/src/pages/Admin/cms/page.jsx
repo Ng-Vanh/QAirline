@@ -12,6 +12,7 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from ".
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "../../../components/ui/dialog";
 import { Plus, Edit, Trash2 } from 'lucide-react';
 import { toast } from '../../../hooks/use-toast';
+import API_BASE_URL from '../config';
 
 import './styles.css';
 
@@ -24,7 +25,7 @@ export default function CMSPage() {
     const [editingItem, setEditingItem] = useState(null);
     const fetchContent = async () => {
         try {
-            const response = await axios.get('/api/content');
+            const response = await axios.get(`${API_BASE_URL}/api/content`);
             const allContent = response.data;
 
             // Filter content by type
@@ -62,7 +63,7 @@ export default function CMSPage() {
 
     const handleDelete = async (id, contentType) => {
         try {
-            await axios.delete(`/api/content/${id}`);
+            await axios.delete(`${API_BASE_URL}/api/content/${id}`);
             switch (contentType) {
                 case 'Introduction':
                     setIntroduction(introduction.filter((item) => item._id !== id));
@@ -96,8 +97,8 @@ export default function CMSPage() {
         console.log(item);
         try {
             const response = item._id
-                ? await axios.put(`/api/content/${item._id}`, item)
-                : await axios.post('/api/content', item);
+                ? await axios.put(`${API_BASE_URL}/api/content/${item._id}`, item)
+                : await axios.post(`${API_BASE_URL}/api/content`, item);
 
             const savedItem = response.data;
 
