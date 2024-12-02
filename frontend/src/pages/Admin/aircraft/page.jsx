@@ -15,24 +15,7 @@ import { Popover, PopoverContent, PopoverTrigger } from "../../../components/ui/
 import { toast } from "../../../hooks/use-toast";
 import "./styles.css"
 
-// Sample Aircraft Data
-const AircraftData = [
-    {
-        id: 1,
-        code: 'A320',
-        manufacturer: 'Airbus',
-        model: 'A320-200',
-        seats: 180,
-        type: 'Narrow Body',
-        range: 6100,
-        cruiseSpeed: 828,
-        engineType: 'Turbofan',
-        inService: true,
-        lastMaintenance: '2023-05-15',
-        nextMaintenance: '2023-11-15',
-    },
-    // Add more aircraft as needed
-];
+
 
 export default function ManageAircraft() {
     const [aircrafts, setAircrafts] = useState([]);
@@ -132,20 +115,39 @@ export default function ManageAircraft() {
     };
 
     const handleDelete = async (id) => {
-        console.log('Deleting aircraft with ID:', id);
+        if (!id) {
+            console.error("No ID provided for deletion");
+            toast({
+                title: "Error",
+                description: "Invalid aircraft ID.",
+                variant: "destructive",
+            });
+            return;
+        }
+
+        console.log("Deleting aircraft with ID:", id);
         try {
             const response = await axios.delete(`/api/aircrafts/${id}`);
-            console.log('Delete response:', response.data);
+            console.log("Delete response:", response.data);
 
-            toast({ title: 'Aircraft Deleted', description: 'Aircraft has been removed.', variant: 'destructive' });
+            toast({
+                title: "Aircraft Deleted",
+                description: "Aircraft has been removed successfully.",
+                variant: "destructive",
+            });
 
             // Update the state to remove the deleted aircraft
-            setAircrafts(aircrafts.filter((a) => a._id !== id));
+            setAircrafts((prev) => prev.filter((a) => a._id !== id));
         } catch (err) {
-            console.error('Error deleting aircraft:', err);
-            toast({ title: 'Error', description: 'Failed to delete aircraft.', variant: 'destructive' });
+            console.error("Error deleting aircraft:", err);
+            toast({
+                title: "Error",
+                description: err.response?.data?.message || "Failed to delete aircraft.",
+                variant: "destructive",
+            });
         }
     };
+
 
 
 
@@ -196,7 +198,7 @@ export default function ManageAircraft() {
                 </div>
 
                 <div className="grid-container">
-                    {aircrafts.map((a) => (
+                    {/* {aircrafts.map((a) => (
                         <Card key={a.id} className="card">
                             <CardHeader className="card-header">
                                 <CardTitle className="card-title">
@@ -233,7 +235,49 @@ export default function ManageAircraft() {
                                 </button>
                             </CardFooter>
                         </Card>
+                    ))} */}
+                    {aircrafts.map((a) => (
+                        <Card key={a._id} className="card">
+                            <CardHeader className="card-header">
+                                <CardTitle className="card-title">
+                                    <span>{a.manufacturer} {a.model}</span>
+                                    <span className={`badge ${a.inService ? 'badge-default' : 'badge-secondary'}`}>
+                                        {a.inService ? "In Service" : "Out of Service"}
+                                    </span>
+                                </CardTitle>
+                                <CardDescription className="card-description">Code: {a.code}</CardDescription>
+                            </CardHeader>
+                            <CardContent
+                                className="card-content"
+                                style={{
+                                    display: "flex",
+                                    flexDirection: "column",
+                                    alignItems: "flex-start",
+                                    textAlign: "left",
+                                    lineHeight: "1.5",
+                                }}
+                            >
+                                <p style={{ fontSize: "18px", marginLeft: "12px" }}><strong>Type:</strong> {a.type}</p>
+                                <p style={{ fontSize: "18px", marginLeft: "12px" }}><strong>Seats:</strong> {a.seats}</p>
+                                <p style={{ fontSize: "18px", marginLeft: "12px" }}><strong>Range:</strong> {a.range} km</p>
+                                <p style={{ fontSize: "18px", marginLeft: "12px" }}><strong>Cruise Speed:</strong> {a.cruiseSpeed} km/h</p>
+                                <p style={{ fontSize: "18px", marginLeft: "12px" }}><strong>Engine Type:</strong> {a.engineType}</p>
+                                <p style={{ fontSize: "18px", marginLeft: "12px" }}><strong>Last Maintenance:</strong> {a.lastMaintenance}</p>
+                                <p style={{ fontSize: "18px", marginLeft: "12px" }}><strong>Next Maintenance:</strong> {a.nextMaintenance}</p>
+                            </CardContent>
+                            <CardFooter className="card-footer">
+                                <button className="button" onClick={() => handleEdit(a)}>
+                                    <Edit size={16} className="button-icon" />
+                                    Edit
+                                </button>
+                                <button className="button destructive" onClick={() => handleDelete(a._id)}>
+                                    <Trash2 size={16} className="button-icon" />
+                                    Delete
+                                </button>
+                            </CardFooter>
+                        </Card>
                     ))}
+
                 </div>
                 {aircrafts.length === 0 && (
                     <Card

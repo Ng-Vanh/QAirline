@@ -12,12 +12,16 @@ import CMSPage from './pages/Admin/cms/page';
 import UserManagement from './pages/Admin/user/page';
 import ManageAircraft from './pages/Admin/aircraft/page';
 import ManageFlights from './pages/Admin/flights/page';
+import AdminAirportManagement from './pages/Admin/airports/page';
+import Header from './components/Header';
+import Footer from './components/Footer';
 const App = () => {
 
     return (
         <Router>
             <div>
                 {/* <Navbar /> */}
+                <Header></Header>
                 <Routes>
                     <Route path="/" element={<Home />} />
                     <Route path="/flights" element={<Flights />} />
@@ -30,9 +34,10 @@ const App = () => {
                     <Route path="/admin/user" element={<UserManagement />} />
                     <Route path="/admin/aircraft" element={<ManageAircraft />} />
                     <Route path="/admin/flights" element={<ManageFlights />} />
+                    <Route path="/admin/airports" element={<AdminAirportManagement />} />
 
                 </Routes>
-
+                <Footer></Footer>
             </div>
         </Router>
     );
