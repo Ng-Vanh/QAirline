@@ -25,7 +25,9 @@ export default function CMSPage() {
     const [editingItem, setEditingItem] = useState(null);
     const fetchContent = async () => {
         try {
+
             const response = await axios.get(`${API_BASE_URL}/api/content`);
+
             const allContent = response.data;
 
             // Filter content by type

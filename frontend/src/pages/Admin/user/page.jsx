@@ -8,7 +8,9 @@ import { Input } from '../../../components/ui/input';
 import { Label } from '../../../components/ui/label';
 import { Edit, Trash2, Search } from 'lucide-react';
 import { toast } from "../../../hooks/use-toast";
+
 import API_BASE_URL from '../config';
+
 
 import './styles.css';
 
@@ -58,7 +60,9 @@ export default function UserManagement() {
         console.log('Payload sent to API:', newUser);
 
         try {
+
             const response = await axios.post(`${API_BASE_URL}/api/users/`, {
+
                 name: newUser.name,
                 username: newUser.username,
                 password: newUser.password
