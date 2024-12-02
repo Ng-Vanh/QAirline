@@ -8,7 +8,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "../..
 import { Alert, AlertDescription, AlertTitle } from "../../components/ui/alert";
 import { Bell, Info, Megaphone, Tag, Plane, Globe, Shield, MapPin, Calendar, Users } from 'lucide-react';
 
-import './styles.css'
+// import './styles.css'
 
 // This would typically come from an API or database
 const promotions = [
