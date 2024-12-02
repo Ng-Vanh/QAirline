@@ -1,0 +1,101 @@
+.container {
+    padding: 2rem;
+}
+
+.header {
+    font-size: 2rem;
+    font-weight: bold;
+    margin-bottom: 1rem;
+}
+
+.search-container {
+    position: relative;
+    margin-bottom: 1rem;
+}
+
+.search-input {
+    padding: 0.5rem 2rem 0.5rem 1.75rem;
+    border: 1px solid #ccc;
+    border-radius: 0.375rem;
+    width: 100%;
+}
+
+.button {
+    background-color: #4CAF50;
+    color: #fff;
+    padding: 0.5rem 1rem;
+    border-radius: 0.375rem;
+    border: none;
+    cursor: pointer;
+    transition: background-color 0.3s;
+    width: 102px;
+}
+
+.button:hover {
+    background-color: #45A049;
+}
+
+.btn-add {
+    width: 48px;
+}
+
+
+
+.dialog-content {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 1rem;
+    max-width: 400px;
+    width: 90%;
+}
+
+.dialog-footer {
+    display: flex;
+    justify-content: flex-end;
+    gap: 0.5rem;
+}
+
+.table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 1rem;
+}
+
+.table th,
+.table td {
+    padding: 0.75rem;
+    border: 1px solid #ddd;
+}
+
+.table th {
+    background-color: #f4f4f4;
+    text-align: left;
+}
+
+.table td button {
+    margin-right: 0.5rem;
+}
+
+.form-group {
+    display: flex;
+    flex-direction: column;
+    margin-bottom: 1rem;
+    width: 100%;
+    /* Ensures all rows have the same width */
+}
+
+.form-label {
+    margin-bottom: 0.5rem;
+    font-weight: bold;
+}
+
+.form-input,
+.form-select {
+    padding: 0.5rem;
+    border: 1px solid #ccc;
+    border-radius: 0.375rem;
+    width: 100%;
+    /* Ensure all inputs and selects stretch to the same width */
+    box-sizing: border-box;
+}
