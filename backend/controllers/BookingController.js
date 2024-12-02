@@ -185,6 +185,7 @@ exports.getUserBookings = async (req, res) => {
           departureTime: '$flight.departureTime',
           arrivalTime: '$flight.arrivalTime', 
           flightDuration: '$flight.flightDuration',
+          flightCode: '$flight.flightCode',
           // aircraft: 1,
           // aircraft: '$aircraft',
           flightClass: 1,

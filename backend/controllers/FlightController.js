@@ -76,10 +76,14 @@ exports.searchFlights = async (req, res) => {
       },
       {
         $project: {
+          flightCode: 1,
           flightID: '$_id',
-          departureAirport: '$departureAirportDetails.name',
-          arrivalAirport: '$arrivalAirportDetails.name',
+          // departureAirport: '$departureAirportDetails.name',
+          // arrivalAirport: '$arrivalAirportDetails.name',
+          departureAirportDetails: 1,
+          arrivalAirportDetails: 1, 
           departureTime: 1,
+          flightDuration: 1,
           arrivalTime: 1,
           flightClass: 1,
           aircraft: '$aircraftDetails.model',
@@ -102,18 +106,49 @@ exports.searchFlights = async (req, res) => {
   }
 };
 
+const formatFlightDuration = (durationInMinutes) => {
+  const hours = Math.floor(durationInMinutes / 60); // Get the number of hours
+  const minutes = durationInMinutes % 60; // Get the remaining minutes
+
+  let formattedDuration = '';
+
+  if (hours > 0) {
+    formattedDuration += `${hours}hr`;
+  }
+  if (minutes > 0) {
+    if (hours > 0) {
+      formattedDuration += ' ';
+    }
+    formattedDuration += `${minutes}m`;
+  }
+
+  return formattedDuration || '0m';
+};
+
 // Controller for creating a flight
 exports.createFlight = async (req, res) => {
   try {
-    const { departureAirport, arrivalAirport, departureTime, arrivalTime, flightDuration, flightClass, aircraft, flightStatus} = req.body;
+    const { departureAirport, arrivalAirport, departureTime, arrivalTime, flightClass, aircraft, flightStatus, flightCode} = req.body;
 
-    if (!departureAirport || !arrivalAirport || !departureTime || !arrivalTime || !flightDuration || !flightClass || !aircraft || !flightStatus) {
+    if (!departureAirport || !arrivalAirport || !departureTime || !arrivalTime || !flightClass || !aircraft || !flightStatus || !flightCode ) {
       return res.status(400).json({ message: 'Missing required fields' });
     }
 
     await checkAirportsExist(departureAirport, arrivalAirport);
 
     await checkAircraftExist(aircraft);
+
+    const departureDate = new Date(departureTime);
+    const arrivalDate = new Date(arrivalTime);
+
+    const flightDurationInMinutes  = (arrivalDate - departureDate) / (1000 * 60);
+
+    if (flightDurationInMinutes <= 0) {
+      return res.status(400).json({ message: 'Arrival time must be after departure time' });
+    }
+
+    const flightDuration = formatFlightDuration(flightDurationInMinutes);
+
 
     const newFlight = new Flight({
       departureAirport,
@@ -123,7 +158,8 @@ exports.createFlight = async (req, res) => {
       flightDuration,
       flightClass,
       aircraft,
-      flightStatus
+      flightStatus, 
+      flightCode
     });
 
     await newFlight.save();
@@ -139,7 +175,7 @@ exports.createFlight = async (req, res) => {
 exports.updateFlight = async (req, res) => {
   try {
     const flightId = req.params.id;
-    const { departureAirport, arrivalAirport, departureTime, arrivalTime, flightDuration, flightClass, aircraft, flightStatus} = req.body;
+    const { departureAirport, arrivalAirport, departureTime, arrivalTime, flightClass, aircraft, flightStatus, flightCode } = req.body;
 
     const flight = await Flight.findById(flightId);
     if (!flight) {
@@ -156,14 +192,31 @@ exports.updateFlight = async (req, res) => {
       await checkAircraftExist(aircraft);
     }
 
+    const departureDate = departureTime ? new Date(departureTime) : flight.departureTime;
+    const arrivalDate = arrivalTime ? new Date(arrivalTime) : flight.arrivalTime;
+
+    const flightDurationInMinutes = (arrivalDate - departureDate) / (1000 * 60);
+
+    if (flightDurationInMinutes <= 0) {
+      return res.status(400).json({ message: 'Arrival time must be after departure time' });
+    }
+
+    const flightDuration = formatFlightDuration(flightDurationInMinutes);   
+
     flight.departureAirport = departureAirport || flight.departureAirport;
     flight.arrivalAirport = arrivalAirport || flight.arrivalAirport;
-    flight.departureTime = departureTime || flight.departureTime;
-    flight.arrivalTime = arrivalTime || flight.arrivalTime;
-    flight.flightDuration = flightDuration || flight.flightDuration;
+
+    // flight.departureTime = departureTime || flight.departureTime;
+    // flight.arrivalTime = arrivalTime || flight.arrivalTime;
+
+    flight.departureTime = departureDate;
+    flight.arrivalTime = arrivalDate;
+
+    flight.flightDuration = flightDuration;
     flight.flightClass = flightClass || flight.flightClass;
     flight.aircraft = aircraft || flight.aircraft;
     flight.flightStatus = flightStatus || flight.flightStatus;
+    flight.flightCode = flightCode || flight.flightCode;
 
     await flight.save();
 
