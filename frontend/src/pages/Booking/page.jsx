@@ -98,10 +98,12 @@ export default function Bookings() {
         fetchAllData();
     }, []);
 
+    
     const handleCancelBooking = async (id) => {
         console.log(id);
         const booking = upcomingBookings.find(b => b._id === id);
         console.log(booking);
+    
         if (booking) {
             const departureDate = new Date(booking.departureTime);
             const now = new Date();
@@ -115,15 +117,13 @@ export default function Bookings() {
                     });
     
                     if (response.ok) {
-                        setUpcomingBookings(upcomingBookings.map(b =>
-                            b.id === id ? { ...b, status: 'Cancelled' } : b
-                        ));
+                        // Loại bỏ booking khỏi danh sách upcomingBookings
+                        setUpcomingBookings(upcomingBookings.filter(b => b._id !== id));
                         toast({
                             title: "Booking Cancelled",
                             description: `Your booking for flight ${booking.flightNumber} has been cancelled.`,
                         });
                     } else {
-                        console.log(id);
                         console.error("Failed to cancel booking:", response.status, response.statusText);
                         toast({
                             title: "Cancellation Failed",
@@ -149,6 +149,7 @@ export default function Bookings() {
         }
     };
     
+
 
     if (isLoading) {
         return <div>Loading data, please wait...</div>;
@@ -320,8 +321,8 @@ function BookingCard({ booking, onCancel, isPast, flight, user, bookingInfo }) {
                     <Plane className="plane-icon" size={24} />
                     <div className="arrival-info">
                         <div>
-                        <p className="city">{booking.arrivalAirport.city}</p>
-                        <p className="time">{new Date(booking.arrivalTime).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</p>
+                            <p className="city">{booking.arrivalAirport.city}</p>
+                            <p className="time">{new Date(booking.arrivalTime).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</p>
                         </div>
                     </div>
                 </div>

@@ -22,6 +22,8 @@ export default function Flights() {
   const [flights, setFlights] = useState([]);
   const [filteredFlights, setFilteredFlights] = useState([]);
   const [searchType, setSearchType] = useState('oneWay');
+  const [selectedDepartureFlight, setSelectedDepartureFlight] = useState(null);
+  const [recentSelectedFlight, setRecentSelectedFlight] = useState([]);
   const [searchCriteria, setSearchCriteria] = useState({
     departureCity: '',
     arrivalCity: '',
@@ -50,12 +52,10 @@ export default function Flights() {
     const fetchFlights = async () => {
       try {
         const response = await fetch('https://qairline-t28f.onrender.com/api/flights');
-        console.log(response);
         if (!response.ok) {
           throw new Error('Failed to fetch flights data');
         }
         const data = await response.json();
-        console.log('Fetched flights:', data);
         const formattedData = data.map(flight => ({
           id: flight._id,
           departureCity: flight.departureAirport.city,
@@ -92,7 +92,7 @@ export default function Flights() {
 
   useEffect(() => {
     applyFilters();
-  }, [flights, filters, sortBy, sortOrder, searchCriteria]);
+  }, [flights, filters, sortBy, sortOrder, searchCriteria, selectedDepartureFlight, recentSelectedFlight]);
 
   const applyFilters = () => {
     let filtered = flights.filter(flight =>
@@ -105,6 +105,23 @@ export default function Flights() {
       (!filters.directFlightsOnly || !flight.stopover) &&
       (filters.amenities.length === 0 || filters.amenities.every(amenity => flight.amenities.includes(amenity)))
     );
+
+    if (searchType === 'roundTrip' && selectedDepartureFlight) {
+      filtered = flights.filter(flight =>
+        flight.departureCity.toLowerCase() === selectedDepartureFlight.arrivalCity.toLowerCase() &&
+        flight.arrivalCity.toLowerCase() === selectedDepartureFlight.departureCity.toLowerCase() &&
+        new Date(flight.departureTime) > new Date(selectedDepartureFlight.arrivalTime) // Thời gian đi của chuyến về phải lớn hơn thời gian đến của chuyến đi
+      );
+    }
+    console.log(recentSelectedFlight);
+
+    if (searchType === 'multiCity' && recentSelectedFlight.length > 0) {
+      const lastFlight = recentSelectedFlight[recentSelectedFlight.length - 1]; // Lấy chuyến bay cuối cùng đã chọn
+      filtered = flights.filter(flight =>
+        flight.departureCity.toLowerCase() === lastFlight.arrivalCity.toLowerCase() && // Thành phố khởi hành khớp với thành phố đến của chuyến bay cuối
+        new Date(flight.departureTime) > new Date(lastFlight.arrivalTime) // Thời gian khởi hành hợp lệ
+      );
+    }
 
     // Apply sorting
     filtered.sort((a, b) => {
@@ -138,62 +155,107 @@ export default function Flights() {
           : item
       ));
     } else {
-      setCart([...cart, { flight, passengers: searchCriteria.passengers }]);
+      setCart([...cart, { flight, passengers: searchCriteria.passengers, flightClass }]);
     }
 
-    // @todo: pass correct passenget IDs
-    const bookingData = {
-      userID: "674b6d8245ff24b20112416a", 
-      flightID: flight.id,
-      flightClass: flightClass || "Economy", 
-      passengerCount: searchCriteria.passengers || 1,
-      passengerIDs: ["6749fd7b6904a9ed9d4a4a59", "674a2003f51d087e0c39aebb"] 
-    };
-
-    try {
-      const response = await fetch("https://qairline-t28f.onrender.com/api/bookings", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json"
-        },
-        body: JSON.stringify(bookingData)
-      });
-
-      if (response.ok) {
-        const result = await response.json();
-        console.log("Booking successful:", result);
-        toast({
-          title: 'Booking Created',
-          description: `Booking for flight ${flight.flightNumber} created successfully.`,
-        });
+    if (searchType === 'roundTrip') {
+      if (selectedDepartureFlight) {
+        setSelectedDepartureFlight(null);
       } else {
-        console.error("Failed to create booking:", response.status, response.statusText);
-        toast({
-          title: 'Booking Failed',
-          description: `Failed to create booking for flight ${flight.flightNumber}.`,
-          status: 'error',
-        });
+        setSelectedDepartureFlight(flight);
       }
-      
-    } catch (error) {
-      console.error("Error creating booking:", error);
-      toast({
-        title: 'Error',
-        description: `An error occurred while booking flight ${flight.flightNumber}.`,
-        status: 'error',
-      });
-
     }
+
+    if (searchType === 'multiCity') {
+      const updatedRecentSelectedFlight = [...recentSelectedFlight, flight];
+      setRecentSelectedFlight(updatedRecentSelectedFlight);
+    }
+
+    toast({
+      title: "Added to Cart",
+      description: `${searchCriteria.passengers} ticket(s) for flight added to cart.`,
+    })
   };
 
   const handleRemoveFromCart = flightId => {
     setCart(cart.filter(item => item.flight.id !== flightId));
+
+    if (searchType === 'roundTrip') {
+      setSelectedDepartureFlight(null);
+    }
+
+    if (searchType === 'multiCity' && recentSelectedFlight) {
+      const updatedRecentSelectedFlight = recentSelectedFlight.slice(0, -1);
+      setRecentSelectedFlight(updatedRecentSelectedFlight);
+    }
+
+    console.log(selectedDepartureFlight);
+
     toast({
       title: 'Removed from Cart',
       description: 'Flight removed from cart.',
       variant: 'destructive',
     });
   };
+
+  const handleProceedToPayment = async () => {
+    if (cart.length === 0) {
+      toast({
+        title: 'No Items in Cart',
+        description: 'Please add flights to your cart before proceeding to payment.',
+        status: 'warning',
+      });
+      return;
+    }
+    const bookingPromises = cart.map(item => {
+      const bookingData = {
+        userID: "674b6d8245ff24b20112416a",
+        flightID: item.flight.id,
+        flightClass: item.flightClass || "economy",
+        passengerCount: item.passengers,
+        passengerIDs: ["674a2003f51d087e0c39aebb"],
+      };
+
+      return fetch("https://qairline-t28f.onrender.com/api/bookings", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(bookingData),
+      }).then(async response => {
+        if (!response.ok) {
+          const errorMessage = `Failed to create booking for flight ${item.flight.flightNumber}.`;
+          console.error(errorMessage, response.status, response.statusText);
+          throw new Error(errorMessage);
+        }
+        return response.json();
+      });
+    });
+
+    try {
+      const results = await Promise.all(bookingPromises);
+      console.log("All bookings successful:", results);
+
+      toast({
+        title: 'Bookings Created',
+        description: 'All flights in your cart have been booked successfully.',
+      });
+      setCart([]); // remove all cart items after successful booking
+    } catch (error) {
+      console.error("Error processing bookings:", error);
+      toast({
+        title: 'Booking Failed',
+        description: 'An error occurred while processing your bookings.',
+        status: 'error',
+      });
+    }
+
+    toast({
+      title: 'Payment',
+      description: 'Redirecting to payment gateway...',
+    });
+  };
+
 
   const getTotalPrice = () => {
     return cart.reduce((total, item) => total + item.flight.price * item.passengers, 0);
@@ -283,9 +345,10 @@ export default function Flights() {
                   <p className="total-label">Total:</p>
                   <p className="total-price">${getTotalPrice()}</p>
                 </div>
-                <button className="payment-button">
+
+                <Button onClick={() => handleProceedToPayment()} className="payment-button">
                   <CreditCard className="payment-icon" /> Proceed to Payment
-                </button>
+                </Button>
               </div>
             )}
           </PopoverContent>
@@ -673,11 +736,11 @@ export default function Flights() {
                                 {/* Add Dialog Content Here */}
                               </DialogContent>
                             </Dialog>
-                            <Button onClick={() => handleAddToCart(flight)} className="add-to-cart-button">
+                            <Button onClick={() => handleAddToCart(flight, "economy")} className="add-to-cart-button">
                               Book Economy
                             </Button>
 
-                            <Button onClick={() => handleAddToCart(flight)} className="add-to-cart-button">
+                            <Button onClick={() => handleAddToCart(flight, "business")} className="add-to-cart-button">
                               Book Business
                             </Button>
                           </div>
