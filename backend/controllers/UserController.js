@@ -3,16 +3,21 @@ const User = require('../models/UserModel');
 // Controller for creating a user
 exports.createUser = async (req, res) => {
   try {
-    const { name, email } = req.body;
+    const { name, username, password } = req.body;
 
-    // Validate input
-    if (!name || !email) {
-      return res.status(400).json({ message: 'Name and email are required' });
+    if (!name || !username || !password) {
+      return res.status(400).json({ message: 'Name, username, and password are required' });
+    }
+
+    const existingUser = await User.findOne({ username });
+    if (existingUser) {
+      return res.status(400).json({ message: 'Username already taken' });
     }
 
     const newUser = new User({
       name,
-      email
+      username,
+      password
     });
 
     await newUser.save();
@@ -28,9 +33,8 @@ exports.createUser = async (req, res) => {
 exports.getUserById = async (req, res) => {
   try {
     const userId = req.params.id;
-    // const user = await User.findById(userId).populate('bookings');
 
-    const user = await User.findById(userId);
+    const user = await User.findById(userId).populate('bookings');
     if (!user) {
       return res.status(404).json({ message: 'User not found' });
     }
@@ -45,8 +49,7 @@ exports.getUserById = async (req, res) => {
 // Controller for getting all users
 exports.getAllUsers = async (req, res) => {
   try {
-    // const users = await User.find().populate('bookings');
-    const users = await User.find();
+    const users = await User.find().populate('bookings');
 
     if (!users || users.length === 0) {
       return res.status(404).json({ message: 'No users found' });
@@ -63,19 +66,24 @@ exports.getAllUsers = async (req, res) => {
 exports.updateUser = async (req, res) => {
   try {
     const userId = req.params.id;
-    const { name, email } = req.body;
+    const { name, username, password } = req.body;
 
-    // Find the user by ID
     const user = await User.findById(userId);
     if (!user) {
       return res.status(404).json({ message: 'User not found' });
     }
 
-    // Update the user fields if provided
-    if (name) user.name = name;
-    if (email) user.email = email;
+    if (username && username !== user.username) {
+      const existingUser = await User.findOne({ username });
+      if (existingUser) {
+        return res.status(400).json({ message: 'Username already taken' });
+      }
+      user.username = username;
+    }
 
-    // Save the updated user
+    if (name) user.name = name;
+    if (password) user.password = password;
+
     await user.save();
 
     return res.status(200).json({ message: 'User updated successfully', user });
@@ -90,7 +98,6 @@ exports.deleteUser = async (req, res) => {
   try {
     const userId = req.params.id;
 
-    // Find the user by ID
     const user = await User.findByIdAndDelete(userId);
     if (!user) {
       return res.status(404).json({ message: 'User not found' });
@@ -99,6 +106,34 @@ exports.deleteUser = async (req, res) => {
     return res.status(200).json({ message: 'User deleted successfully', user });
   } catch (error) {
     console.error('Error deleting user:', error);
+    return res.status(500).json({ message: 'Server error' });
+  }
+};
+
+// Controller for user login (simple username/password check)
+exports.loginUser = async (req, res) => {
+  try {
+    const { username, password } = req.body;
+
+    if (!username || !password) {
+      return res.status(400).json({ message: 'Username and password are required' });
+    }
+
+    const user = await User.findOne({ username });
+    if (!user) {
+      return res.status(401).json({ message: 'Invalid username or password' });
+    }
+
+    if (user.password !== password) {
+      return res.status(401).json({ message: 'Invalid username or password' });
+    }
+
+    return res.status(200).json({
+      message: 'Login successful',
+      user: { userId: user._id, name: user.name }
+    });
+  } catch (error) {
+    console.error('Error logging in:', error);
     return res.status(500).json({ message: 'Server error' });
   }
 };
