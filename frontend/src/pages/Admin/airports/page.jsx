@@ -15,20 +15,21 @@ const AdminAirportManagement = () => {
     const [editingAirport, setEditingAirport] = useState(null);
     const [isDialogOpen, setIsDialogOpen] = useState(false);
 
+    const fetchAirports = async () => {
+        try {
+            console.log("Fetching airports...");
+            const response = await axios.get('/api/airports'); // Gọi API lấy danh sách sân bay
+            console.log("Fetched Airports:", response.data); // Log dữ liệu nhận được
+            setAirports(response.data.airports || []); // Cập nhật danh sách vào state
+        } catch (error) {
+            console.error("Error fetching airports:", error);
+        }
+    };
+
+
     // Fetch airports
     useEffect(() => {
-        const fetchAirports = async () => {
-            try {
-                const response = await axios.get('/api/airports');
-                console.log('API Response:', response.data);
-
-                // Ensure you're setting the extracted `airports` array
-                setAirports(response.data.airports || []);
-            } catch (error) {
-                console.error("Error fetching airports:", error);
-            }
-        };
-        fetchAirports();
+        fetchAirports(); //
     }, []);
 
 
@@ -44,14 +45,14 @@ const AdminAirportManagement = () => {
         e.preventDefault();
         try {
             if (editingAirport) {
-                const response = await axios.put(`/api/airports/${editingAirport._id}`, newAirport);
-                setAirports(airports.map(airport => airport._id === editingAirport._id ? response.data : airport));
-                toast({ title: "Airport Updated", description: "Airport details have been successfully updated." });
+                await axios.put(`/api/airports/${editingAirport._id}`, newAirport);
+                toast({ title: "Airport Updated", description: "Airport details updated." });
             } else {
-                const response = await axios.post('/api/airports', newAirport);
-                setAirports([...airports, response.data]);
-                toast({ title: "Airport Added", description: "New airport has been successfully added." });
+                await axios.post('/api/airports', newAirport);
+                toast({ title: "Airport Added", description: "New airport added successfully." });
             }
+            // Đồng bộ lại danh sách từ API
+            fetchAirports();
             setNewAirport({ code: '', name: '', city: '' });
             setEditingAirport(null);
             setIsDialogOpen(false);
@@ -60,6 +61,9 @@ const AdminAirportManagement = () => {
             toast({ title: "Error", description: "Failed to save airport details.", variant: "destructive" });
         }
     };
+
+
+
 
     // Handle Edit
     const handleEdit = (airport) => {
@@ -122,6 +126,7 @@ const AdminAirportManagement = () => {
                     <p>No airports available</p>
                 )}
             </div>
+
 
 
             <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
