@@ -9,6 +9,9 @@ import { Label } from '../../../components/ui/label';
 import { Edit, Trash2, Search } from 'lucide-react';
 import { toast } from "../../../hooks/use-toast";
 
+import API_BASE_URL from '../config';
+
+
 import './styles.css';
 
 export default function UserManagement() {
@@ -26,7 +29,7 @@ export default function UserManagement() {
     useEffect(() => {
         const fetchUsers = async () => {
             try {
-                const response = await axios.get('/api/users');
+                const response = await axios.get(`${API_BASE_URL}/api/users`);
                 setUsers(response.data);
             } catch (error) {
                 console.error('Error fetching users:', error);
@@ -57,7 +60,9 @@ export default function UserManagement() {
         console.log('Payload sent to API:', newUser);
 
         try {
-            const response = await axios.post('https://qairline-t28f.onrender.com/api/users/', {
+
+            const response = await axios.post(`${API_BASE_URL}/api/users/`, {
+
                 name: newUser.name,
                 username: newUser.username,
                 password: newUser.password
@@ -98,7 +103,7 @@ export default function UserManagement() {
     // Handle user deletion
     const handleDelete = async (id) => {
         try {
-            await axios.delete(`/api/users/${id}`);
+            await axios.delete(`${API_BASE_URL}/api/users/${id}`);
             setUsers((prevUsers) => prevUsers.filter((u) => u._id !== id));
         } catch (error) {
             console.error('Error deleting user:', error);

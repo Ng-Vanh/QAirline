@@ -13,6 +13,8 @@ import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle }
 import { Badge } from "../../../components/ui/badge";
 import { Popover, PopoverContent, PopoverTrigger } from "../../../components/ui/popover";
 import { toast } from "../../../hooks/use-toast";
+import API_BASE_URL from '../config';
+
 import "./styles.css"
 
 
@@ -40,7 +42,7 @@ export default function ManageAircraft() {
 
     const fetchAircrafts = async () => {
         try {
-            const response = await axios.get('/api/aircrafts');
+            const response = await axios.get(`${API_BASE_URL}/api/aircrafts`);
             setAircrafts(response.data);
             setLoading(false);
         } catch (err) {
@@ -77,11 +79,11 @@ export default function ManageAircraft() {
         try {
             if (editingAircraft) {
                 // Update existing aircraft
-                await axios.put(`/api/aircrafts/${editingAircraft._id}`, newAircraft);
+                await axios.put(`${API_BASE_URL}/api/aircrafts/${editingAircraft._id}`, newAircraft);
                 toast({ title: 'Aircraft Updated', description: `Aircraft ${newAircraft.code} has been updated.` });
             } else {
                 // Add new aircraft
-                await axios.post('/api/aircrafts', newAircraft);
+                await axios.post(`${API_BASE_URL}/api/aircrafts`, newAircraft);
                 toast({ title: 'Aircraft Added', description: `Aircraft ${newAircraft.code} has been added.` });
             }
             fetchAircrafts();
@@ -127,7 +129,7 @@ export default function ManageAircraft() {
 
         console.log("Deleting aircraft with ID:", id);
         try {
-            const response = await axios.delete(`/api/aircrafts/${id}`);
+            const response = await axios.delete(`${API_BASE_URL}/api/aircrafts/${id}`);
             console.log("Delete response:", response.data);
 
             toast({
@@ -157,7 +159,7 @@ export default function ManageAircraft() {
             fetchAircrafts();
         } else {
             try {
-                const response = await axios.get(`/api/aircrafts/type/${type}`);
+                const response = await axios.get(`${API_BASE_URL}/api/aircrafts/type/${type}`);
                 setAircrafts(response.data);
             } catch (err) {
                 console.error('Error filtering aircrafts:', err);

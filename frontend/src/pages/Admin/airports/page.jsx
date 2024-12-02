@@ -7,6 +7,7 @@ import { Label } from "../../../components/ui/label";
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "../../../components/ui/dialog";
 import { Card, CardContent, CardFooter, CardHeader, CardTitle, CardDescription } from "../../../components/ui/card";
 import { toast } from "../../../hooks/use-toast";
+import API_BASE_URL from '../config';
 import "./styles.css";
 
 const AdminAirportManagement = () => {
@@ -18,7 +19,10 @@ const AdminAirportManagement = () => {
     const fetchAirports = async () => {
         try {
             console.log("Fetching airports...");
-            const response = await axios.get('/api/airports'); // Gọi API lấy danh sách sân bay
+
+            const response = await axios.get(`${API_BASE_URL}/api/airports`); // Gọi API lấy danh sách sân bay
+
+
             console.log("Fetched Airports:", response.data); // Log dữ liệu nhận được
             setAirports(response.data.airports || []); // Cập nhật danh sách vào state
         } catch (error) {
@@ -45,10 +49,13 @@ const AdminAirportManagement = () => {
         e.preventDefault();
         try {
             if (editingAirport) {
-                await axios.put(`/api/airports/${editingAirport._id}`, newAirport);
+
+                await axios.put(`${API_BASE_URL}/api/airports/${editingAirport._id}`, newAirport);
                 toast({ title: "Airport Updated", description: "Airport details updated." });
             } else {
-                await axios.post('/api/airports', newAirport);
+                await axios.post(`${API_BASE_URL}/api/airports`, newAirport);
+
+
                 toast({ title: "Airport Added", description: "New airport added successfully." });
             }
             // Đồng bộ lại danh sách từ API
@@ -75,7 +82,7 @@ const AdminAirportManagement = () => {
     // Handle Delete
     const handleDelete = async (id) => {
         try {
-            await axios.delete(`/api/airports/${id}`);
+            await axios.delete(`${API_BASE_URL}/api/airports/${id}`);
             setAirports(airports.filter(airport => airport._id !== id));
             toast({ title: "Airport Deleted", description: "Airport has been removed.", variant: "destructive" });
         } catch (error) {

@@ -3,6 +3,7 @@ import { Link } from "react-router-dom";
 
 import { Users, PlaneTakeoff, BarChart2, FileText, Plane, Clock, LandPlot } from "lucide-react";
 import AdminSidebar from "~/components/AdminSidebar";
+import Reports from '../report/page'
 import "./Styles.css";
 
 export default function AdminDashboard() {
@@ -18,6 +19,7 @@ export default function AdminDashboard() {
     return (
         <div>
             {/* <AdminSidebar></AdminSidebar> */}
+            {/* <Reports></Reports> */}
             <div className="dashboard-container">
                 <h1 className="dashboard-title">Admin Dashboard</h1>
                 <div className="dashboard-grid">

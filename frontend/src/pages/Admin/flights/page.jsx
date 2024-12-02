@@ -14,6 +14,7 @@ import { Badge } from "../../../components/ui/badge";
 import { Popover, PopoverContent, PopoverTrigger } from "../../../components/ui/popover";
 import { Checkbox } from "../../../components/ui/checkbox";
 import { toast } from "../../../hooks/use-toast";
+import API_BASE_URL from '../config';
 import "./styles.css"
 
 
@@ -45,7 +46,7 @@ export default function ManageFlights() {
 
     const fetchFlights = async () => {
         try {
-            const response = await axios.get('/api/flights');
+            const response = await axios.get(`${API_BASE_URL}/api/flights`);
             setFlights(response.data);
             setFilteredFlights(response.data);
         } catch (error) {
@@ -56,8 +57,8 @@ export default function ManageFlights() {
     const fetchAirportsAndAircrafts = async () => {
         try {
             const [airportsResponse, aircraftsResponse] = await Promise.all([
-                axios.get('/api/airports'), // Replace with your actual API endpoint
-                axios.get('/api/aircrafts'), // Replace with your actual API endpoint
+                axios.get(`${API_BASE_URL}/api/airports`), // Replace with your actual API endpoint
+                axios.get(`${API_BASE_URL}/api/aircrafts`), // Replace with your actual API endpoint
             ]);
 
             console.log('Airports:', airportsResponse.data);
@@ -146,10 +147,10 @@ export default function ManageFlights() {
 
         try {
             if (editingFlight) {
-                await axios.put(`/api/flights/${editingFlight._id}`, payload);
+                await axios.put(`${API_BASE_URL}/api/flights/${editingFlight._id}`, payload);
                 toast({ title: 'Flight Updated', description: 'Flight successfully updated.' });
             } else {
-                await axios.post('/api/flights', payload);
+                await axios.post(`${API_BASE_URL}/api/flights`, payload);
                 toast({ title: 'Flight Added', description: 'Flight successfully added.' });
             }
             fetchFlights(); // Refresh the flight list
