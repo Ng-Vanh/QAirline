@@ -1,7 +1,10 @@
 .admin-layout {
     display: flex;
     height: 100vh;
+
 }
+
+
 
 .sidebar {
     width: 250px;
@@ -32,5 +35,5 @@
 .admin-content {
     flex: 1;
     padding: 20px;
-    background-color: #ecf0f1;
+    /* background-color: #ecf0f1; */
 }

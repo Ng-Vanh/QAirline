@@ -12,7 +12,8 @@ import { Textarea } from "../../../components/ui/textarea";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "../../../components/ui/card";
 import { Badge } from "../../../components/ui/badge";
 import { Popover, PopoverContent, PopoverTrigger } from "../../../components/ui/popover";
-import { toast } from "../../../hooks/use-toast";
+import { toast } from "../../../hooks/toast";
+import Toaster from '~/hooks/Toaster';
 import API_BASE_URL from '../config';
 
 import "./styles.css"
@@ -486,6 +487,7 @@ export default function ManageAircraft() {
 
 
             </div>
+            <Toaster></Toaster>
         </div>
 
 

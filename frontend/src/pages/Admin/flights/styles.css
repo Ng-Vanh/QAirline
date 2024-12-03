@@ -78,12 +78,10 @@
 
 /* Title Styling */
 .flight-management-title {
-    font-size: 2rem;
-    /* Matches text-3xl */
+    font-size: 2.4rem;
     font-weight: bold;
-    /* Matches font-bold */
     margin-bottom: 5.5rem;
-    /* Matches mb-6 */
+    text-align: center;
 }
 
 /* Filters Container */
@@ -440,4 +438,15 @@ p.flight-info {
 
 .form-button:hover {
     background-color: #1e4db7;
+}
+
+.row-price {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.row-price>.form-group:first-child {
+    margin-right: 24px;
 }

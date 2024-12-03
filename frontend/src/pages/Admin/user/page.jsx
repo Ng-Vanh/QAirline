@@ -7,7 +7,8 @@ import { Button } from '../../../components/ui/button';
 import { Input } from '../../../components/ui/input';
 import { Label } from '../../../components/ui/label';
 import { Edit, Trash2, Search } from 'lucide-react';
-import { toast } from "../../../hooks/use-toast";
+import { toast } from "../../../hooks/toast";
+import Toaster from "../../../hooks/Toaster"
 import API_BASE_URL from '../config';
 
 import './styles.css';
@@ -109,31 +110,33 @@ export default function UserManagement() {
     return (
         <div className="container">
             <h1 className="header">User Management</h1>
-            <div className="search-container">
-                <Search
-                    style={{
-                        position: 'absolute',
-                        left: '0.5rem',
-                        top: '50%',
-                        transform: 'translateY(-50%)',
-                        color: '#888',
-                    }}
-                    size={20}
-                />
-                <input
-                    type="text"
-                    placeholder="Search users..."
-                    value={searchTerm}
-                    onChange={(e) => setSearchTerm(e.target.value)}
-                    className="search-input"
-                />
+            <div className="action-container">
+                <div className="search-container">
+                    <Search
+                        style={{
+                            position: 'absolute',
+                            left: '0.5rem',
+                            top: '50%',
+                            transform: 'translateY(-50%)',
+                            color: '#888',
+                        }}
+                        size={20}
+                    />
+                    <input
+                        type="text"
+                        placeholder="Search users..."
+                        value={searchTerm}
+                        onChange={(e) => setSearchTerm(e.target.value)}
+                        className="search-input"
+                    />
+                </div>
+                <Button onClick={() => {
+                    resetForm();
+                    setIsDialogOpen(true);
+                }} className="button">
+                    Add New User
+                </Button>
             </div>
-            <Button onClick={() => {
-                resetForm();
-                setIsDialogOpen(true);
-            }} className="button">
-                Add New User
-            </Button>
             <table className="table">
                 <thead>
                     <tr>
@@ -163,10 +166,11 @@ export default function UserManagement() {
             </table>
 
             <Dialog className="dialog-container" open={isDialogOpen} onOpenChange={setIsDialogOpen}>
-                <DialogContent className="dialog-content">
+                <DialogContent className="dialog-content"
+                    style={{ width: "18rem", height: "25rem", maxWidth: "70%", maxHeight: "80%" }}>
                     <form onSubmit={handleSubmit}>
                         <DialogHeader>
-                            <DialogTitle>{editingUser ? 'Edit User' : 'Add New User'}</DialogTitle>
+                            <DialogTitle style={{ textAlign: "center" }}>{editingUser ? 'Edit User' : 'Add New User'}</DialogTitle>
                         </DialogHeader>
                         <div className="form-group">
                             <Label htmlFor="name" className="form-label">Name</Label>
@@ -218,6 +222,8 @@ export default function UserManagement() {
                     </form>
                 </DialogContent>
             </Dialog>
+            <Toaster />
+
         </div>
     );
 }

@@ -13,7 +13,8 @@ import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle }
 import { Badge } from "../../../components/ui/badge";
 import { Popover, PopoverContent, PopoverTrigger } from "../../../components/ui/popover";
 import { Checkbox } from "../../../components/ui/checkbox";
-import { toast } from "../../../hooks/use-toast";
+import { toast } from "../../../hooks/toast";
+import Toaster from "../../../hooks/Toaster"
 import API_BASE_URL from '../config';
 import "./styles.css"
 
@@ -26,7 +27,7 @@ export default function ManageFlights() {
 
 
     const [newFlight, setNewFlight] = useState({
-        flightNumber: '',
+        flightCode: '',
         departureAirport: '',
         arrivalAirport: '',
         departureTime: '',
@@ -51,7 +52,7 @@ export default function ManageFlights() {
             setFilteredFlights(response.data);
         } catch (error) {
             console.error('Error fetching flights:', error);
-            toast({ title: 'Error', description: 'Failed to fetch flights.', variant: 'destructive' });
+            toast({ title: 'Error', description: 'Failed to fetch flights.', variant: 'destructive', status: 'error' });
         }
     };
     const fetchAirportsAndAircrafts = async () => {
@@ -68,7 +69,7 @@ export default function ManageFlights() {
             setAircrafts(aircraftsResponse.data || []);
         } catch (error) {
             console.error('Error fetching airports or aircrafts:', error.response?.data || error.message);
-            toast({ title: 'Error', description: 'Failed to fetch airports or aircrafts.', variant: 'destructive' });
+            toast({ title: 'Error', description: 'Failed to fetch airports or aircrafts.', variant: 'destructive', status: 'error' });
         }
     };
 
@@ -86,13 +87,13 @@ export default function ManageFlights() {
 
     useEffect(() => {
         const filtered = flights.filter((flight) => {
-            const flightNumber = flight.flightNumber?.toLowerCase() || '';
+            const flightCode = flight.flightCode?.toLowerCase() || '';
             const departureCity = flight.departureCity?.toLowerCase() || '';
             const arrivalCity = flight.arrivalCity?.toLowerCase() || '';
             const search = searchTerm.toLowerCase();
 
             return (
-                (flightNumber.includes(search) ||
+                (flightCode.includes(search) ||
                     departureCity.includes(search) ||
                     arrivalCity.includes(search)) &&
                 (statusFilter === 'All' || flight.status === statusFilter)
@@ -143,20 +144,26 @@ export default function ManageFlights() {
             },
             aircraft: newFlight.aircraft || null, // Send ID
             flightStatus: newFlight.status,
+            flightCode: newFlight.flightCode
         };
 
         try {
             if (editingFlight) {
                 await axios.put(`${API_BASE_URL}/api/flights/${editingFlight._id}`, payload);
-                toast({ title: 'Flight Updated', description: 'Flight successfully updated.' });
+                toast({ title: 'Flight Updated', description: 'Flight successfully updated.', status: 'success' });
             } else {
                 await axios.post(`${API_BASE_URL}/api/flights`, payload);
-                toast({ title: 'Flight Added', description: 'Flight successfully added.' });
+                toast({ title: 'Flight Added', description: 'Flight successfully added.', status: 'success' });
             }
             fetchFlights(); // Refresh the flight list
             setIsDialogOpen(false);
         } catch (error) {
             console.error('Error response:', error.response?.data || error.message);
+            toast({
+                title: 'Error',
+                description: "Fail to update",
+                status: 'error'
+            })
         }
     };
 
@@ -168,7 +175,7 @@ export default function ManageFlights() {
     const handleEdit = (flight) => {
         setEditingFlight(flight);
         setNewFlight({
-            flightNumber: flight.flightNumber || "",
+            flightCode: flight.flightCode || "",
             departureAirport: flight.departureAirport?._id || "", // Use ID
             arrivalAirport: flight.arrivalAirport?._id || "", // Use ID
             departureTime: flight.departureTime || "",
@@ -184,11 +191,11 @@ export default function ManageFlights() {
     const handleDelete = async (id) => {
         try {
             await axios.delete(`/api/flights/${id}`);
-            toast({ title: 'Success', description: 'Flight deleted successfully.' });
+            toast({ title: 'Success', description: 'Flight deleted successfully.', status: 'success' });
             fetchFlights(); // Refresh the flight list
         } catch (error) {
             console.error('Error deleting flight:', error);
-            toast({ title: 'Error', description: 'Failed to delete flight.', variant: 'destructive' });
+            toast({ title: 'Error', description: 'Failed to delete flight.', variant: 'destructive', status: 'error' });
         }
     };
     useEffect(() => {
@@ -248,7 +255,7 @@ export default function ManageFlights() {
                     onClick={() => {
                         setEditingFlight(null);
                         setNewFlight({
-                            flightNumber: "",
+                            flightCode: "",
                             departureCity: "",
                             arrivalCity: "",
                             departureTime: "",
@@ -346,8 +353,8 @@ export default function ManageFlights() {
                                 </Label>
                                 <Input
                                     id="flightNumber"
-                                    name="flightNumber"
-                                    value={newFlight.flightNumber}
+                                    name="flightCode"
+                                    value={newFlight.flightCode || ""}
                                     onChange={handleInputChange}
                                     placeholder="e.g., QA101"
                                     required
@@ -442,7 +449,7 @@ export default function ManageFlights() {
                                     <SelectContent>
                                         {aircrafts.map((aircraft) => (
                                             <SelectItem key={aircraft._id} value={aircraft._id}>
-                                                {aircraft.manufacturer} {aircraft.model}
+                                                {aircraft.model}
                                             </SelectItem>
                                         ))}
                                     </SelectContent>
@@ -463,112 +470,116 @@ export default function ManageFlights() {
                                     <SelectContent>
                                         <SelectItem value="Scheduled">Scheduled</SelectItem>
                                         <SelectItem value="Delayed">Delayed</SelectItem>
-                                        <SelectItem value="Cancelled">Cancelled</SelectItem>
-                                        <SelectItem value="In Air">In Air</SelectItem>
+                                        <SelectItem value="On time'">On time</SelectItem>
                                         <SelectItem value="Landed">Landed</SelectItem>
                                     </SelectContent>
                                 </Select>
                             </div>
-                            <div className="form-group">
-                                <Label htmlFor="economyPrice" className="form-label">
-                                    Economy Price
-                                </Label>
-                                <Input
-                                    id="economyPrice"
-                                    name="economyPrice"
-                                    type="number"
-                                    value={newFlight.flightClass?.economy?.price || ""}
-                                    onChange={(e) =>
-                                        setNewFlight({
-                                            ...newFlight,
-                                            flightClass: {
-                                                ...newFlight.flightClass,
-                                                economy: {
-                                                    ...newFlight.flightClass?.economy,
-                                                    price: e.target.value,
+                            <div className='row-price'>
+                                <div className="form-group">
+                                    <Label htmlFor="economyPrice" className="form-label">
+                                        Economy Price
+                                    </Label>
+                                    <Input
+                                        id="economyPrice"
+                                        name="economyPrice"
+                                        type="number"
+                                        value={newFlight.flightClass?.economy?.price || ""}
+                                        onChange={(e) =>
+                                            setNewFlight({
+                                                ...newFlight,
+                                                flightClass: {
+                                                    ...newFlight.flightClass,
+                                                    economy: {
+                                                        ...newFlight.flightClass?.economy,
+                                                        price: e.target.value,
+                                                    },
                                                 },
-                                            },
-                                        })
-                                    }
-                                    placeholder="e.g., 150"
-                                    className="form-input"
-                                />
-                            </div>
-                            <div className="form-group">
-                                <Label htmlFor="economySeats" className="form-label">
-                                    Economy Seats Available
-                                </Label>
-                                <Input
-                                    id="economySeats"
-                                    name="economySeats"
-                                    type="number"
-                                    value={newFlight.flightClass?.economy?.seatsAvailable || ""}
-                                    onChange={(e) =>
-                                        setNewFlight({
-                                            ...newFlight,
-                                            flightClass: {
-                                                ...newFlight.flightClass,
-                                                economy: {
-                                                    ...newFlight.flightClass?.economy,
-                                                    seatsAvailable: e.target.value,
+                                            })
+                                        }
+                                        placeholder="e.g., 150"
+                                        className="form-input"
+                                    />
+                                </div>
+                                <div className="form-group">
+                                    <Label htmlFor="economySeats" className="form-label">
+                                        Economy Seats Available
+                                    </Label>
+                                    <Input
+                                        id="economySeats"
+                                        name="economySeats"
+                                        type="number"
+                                        value={newFlight.flightClass?.economy?.seatsAvailable || ""}
+                                        onChange={(e) =>
+                                            setNewFlight({
+                                                ...newFlight,
+                                                flightClass: {
+                                                    ...newFlight.flightClass,
+                                                    economy: {
+                                                        ...newFlight.flightClass?.economy,
+                                                        seatsAvailable: e.target.value,
+                                                    },
                                                 },
-                                            },
-                                        })
-                                    }
-                                    placeholder="e.g., 198"
-                                    className="form-input"
-                                />
+                                            })
+                                        }
+                                        placeholder="e.g., 198"
+                                        className="form-input"
+                                    />
+                                </div>
                             </div>
-                            <div className="form-group">
-                                <Label htmlFor="businessPrice" className="form-label">
-                                    Business Price
-                                </Label>
-                                <Input
-                                    id="businessPrice"
-                                    name="businessPrice"
-                                    type="number"
-                                    value={newFlight.flightClass?.business?.price || ""}
-                                    onChange={(e) =>
-                                        setNewFlight({
-                                            ...newFlight,
-                                            flightClass: {
-                                                ...newFlight.flightClass,
-                                                business: {
-                                                    ...newFlight.flightClass?.business,
-                                                    price: e.target.value,
+                            <div className='row-price'>
+                                <div className="form-group">
+                                    <Label htmlFor="businessPrice" className="form-label">
+                                        Business Price
+                                    </Label>
+                                    <Input
+                                        id="businessPrice"
+                                        name="businessPrice"
+                                        type="number"
+                                        value={newFlight.flightClass?.business?.price || ""}
+                                        onChange={(e) =>
+                                            setNewFlight({
+                                                ...newFlight,
+                                                flightClass: {
+                                                    ...newFlight.flightClass,
+                                                    business: {
+                                                        ...newFlight.flightClass?.business,
+                                                        price: e.target.value,
+                                                    },
                                                 },
-                                            },
-                                        })
-                                    }
-                                    placeholder="e.g., 350"
-                                    className="form-input"
-                                />
-                            </div>
-                            <div className="form-group">
-                                <Label htmlFor="businessSeats" className="form-label">
-                                    Business Seats Available
-                                </Label>
-                                <Input
-                                    id="businessSeats"
-                                    name="businessSeats"
-                                    type="number"
-                                    value={newFlight.flightClass?.business?.seatsAvailable || ""}
-                                    onChange={(e) =>
-                                        setNewFlight({
-                                            ...newFlight,
-                                            flightClass: {
-                                                ...newFlight.flightClass,
-                                                business: {
-                                                    ...newFlight.flightClass?.business,
-                                                    seatsAvailable: e.target.value,
+                                            })
+                                        }
+                                        placeholder="e.g., 350"
+                                        className="form-input"
+                                    />
+                                </div>
+                                <div className="form-group">
+                                    <Label htmlFor="businessSeats" className="form-label">
+                                        Business Seats Available
+                                    </Label>
+                                    <Input
+                                        id="businessSeats"
+                                        name="businessSeats"
+                                        type="number"
+                                        value={newFlight.flightClass?.business?.seatsAvailable || ""}
+                                        onChange={(e) =>
+                                            setNewFlight({
+                                                ...newFlight,
+                                                flightClass: {
+                                                    ...newFlight.flightClass,
+                                                    business: {
+                                                        ...newFlight.flightClass?.business,
+                                                        seatsAvailable: e.target.value,
+                                                    },
                                                 },
-                                            },
-                                        })
-                                    }
-                                    placeholder="e.g., 50"
-                                    className="form-input"
-                                />
+                                            })
+                                        }
+                                        placeholder="e.g., 50"
+                                        className="form-input"
+                                    />
+                                </div>
                             </div>
+
                             {/* <div className="form-group">
                                 <Label htmlFor="gate" className="form-label">
                                     Gate
@@ -605,7 +616,7 @@ export default function ManageFlights() {
                     </form>
                 </DialogContent>
             </Dialog>
-
+            <Toaster />
 
 
 
