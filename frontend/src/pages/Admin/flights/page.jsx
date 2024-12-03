@@ -2,30 +2,16 @@
 
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
-import { Plane, Edit, Trash2, Plus, Calendar, Search, Filter, Bold } from 'lucide-react';
-import { Button } from "../../../components/ui/button";
-import { Input } from "../../../components/ui/input";
-import { Label } from "../../../components/ui/label";
-import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from "../../../components/ui/dialog";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "../../../components/ui/select";
-import { Textarea } from "../../../components/ui/textarea";
-import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "../../../components/ui/card";
-import { Badge } from "../../../components/ui/badge";
-import { Popover, PopoverContent, PopoverTrigger } from "../../../components/ui/popover";
-import { Checkbox } from "../../../components/ui/checkbox";
+import { Plane, Edit, Trash2, Plus, Calendar, Search, Filter } from 'lucide-react';
 import { toast } from "../../../hooks/toast";
-import Toaster from "../../../hooks/Toaster"
+import Toaster from "../../../hooks/Toaster";
 import API_BASE_URL from '../config';
-import "./styles.css"
-
-
+import './stylesFlights.css';
 
 export default function ManageFlights() {
     const [flights, setFlights] = useState([]);
     const [airports, setAirports] = useState([]);
     const [aircrafts, setAircrafts] = useState([]);
-
-
     const [newFlight, setNewFlight] = useState({
         flightCode: '',
         departureAirport: '',
@@ -33,597 +19,425 @@ export default function ManageFlights() {
         departureTime: '',
         arrivalTime: '',
         flightDuration: '',
-        flightClass: '',
+        flightClass: {
+            economy: { price: '', seatsAvailable: '' },
+            business: { price: '', seatsAvailable: '' }
+        },
         aircraft: '',
         flightStatus: 'Scheduled',
     });
-
     const [editingFlight, setEditingFlight] = useState(null);
     const [searchTerm, setSearchTerm] = useState('');
     const [statusFilter, setStatusFilter] = useState('All');
-    const [filteredFlights, setFilteredFlights] = useState(flights);
+    const [filteredFlights, setFilteredFlights] = useState([]);
     const [isDialogOpen, setIsDialogOpen] = useState(false);
     const [loading, setLoading] = useState(true);
+
+    useEffect(() => {
+        fetchFlights();
+        fetchAirportsAndAircrafts();
+    }, []);
+
+    useEffect(() => {
+        filterFlights();
+    }, [flights, searchTerm, statusFilter]);
 
     const fetchFlights = async () => {
         try {
             const response = await axios.get(`${API_BASE_URL}/api/flights`);
             setFlights(response.data);
-            setFilteredFlights(response.data);
         } catch (error) {
             console.error('Error fetching flights:', error);
-            toast({ title: 'Error', description: 'Failed to fetch flights.', variant: 'destructive', status: 'error' });
+            toast({
+                title: 'Error',
+                description: 'Failed to fetch flights.',
+                status: 'error',
+            });
         }
     };
+
     const fetchAirportsAndAircrafts = async () => {
         try {
             const [airportsResponse, aircraftsResponse] = await Promise.all([
-                axios.get(`${API_BASE_URL}/api/airports`), // Replace with your actual API endpoint
-                axios.get(`${API_BASE_URL}/api/aircrafts`), // Replace with your actual API endpoint
+                axios.get(`${API_BASE_URL}/api/airports`),
+                axios.get(`${API_BASE_URL}/api/aircrafts`),
             ]);
-
-            console.log('Airports:', airportsResponse.data);
-            console.log('Aircrafts:', aircraftsResponse.data);
-
             setAirports(airportsResponse.data.airports || []);
             setAircrafts(aircraftsResponse.data || []);
         } catch (error) {
-            console.error('Error fetching airports or aircrafts:', error.response?.data || error.message);
-            toast({ title: 'Error', description: 'Failed to fetch airports or aircrafts.', variant: 'destructive', status: 'error' });
+            console.error('Error fetching airports or aircrafts:', error);
+            toast({
+                title: 'Error',
+                description: 'Failed to fetch airports or aircrafts.',
+                status: 'error',
+            });
+        } finally {
+            setLoading(false);
         }
     };
 
-
-    useEffect(() => {
-        fetchFlights();
-        const fetchData = async () => {
-            setLoading(true); // Set loading to true before fetching
-            await fetchAirportsAndAircrafts();
-            setLoading(false); // Set loading to false after fetching
-        };
-
-        fetchData();
-    }, []);
-
-    useEffect(() => {
+    const filterFlights = () => {
         const filtered = flights.filter((flight) => {
             const flightCode = flight.flightCode?.toLowerCase() || '';
-            const departureCity = flight.departureCity?.toLowerCase() || '';
-            const arrivalCity = flight.arrivalCity?.toLowerCase() || '';
+            const departureCity = flight.departureAirport?.name?.toLowerCase() || '';
+            const arrivalCity = flight.arrivalAirport?.name?.toLowerCase() || '';
             const search = searchTerm.toLowerCase();
 
             return (
                 (flightCode.includes(search) ||
                     departureCity.includes(search) ||
                     arrivalCity.includes(search)) &&
-                (statusFilter === 'All' || flight.status === statusFilter)
+                (statusFilter === 'All' || flight.flightStatus === statusFilter)
             );
         });
         setFilteredFlights(filtered);
-    }, [flights, searchTerm, statusFilter]);
-
-
-    const handleInputChange = async (e) => {
-        const { name, value } = e.target;
-
-        if (name === "departureCity" || name === "arrivalCity") {
-            try {
-                const response = await axios.get(`/api/airports?city=${value}`);
-                setNewFlight({ ...newFlight, [name]: response.data._id });
-            } catch (error) {
-                console.error("Error fetching airport:", error.message);
-            }
-        } else {
-            setNewFlight({ ...newFlight, [name]: value });
-        }
     };
 
+    const handleInputChange = (e) => {
+        const { name, value } = e.target;
+        setNewFlight(prev => ({
+            ...prev,
+            [name]: value
+        }));
+    };
 
-    const handleStatusChange = (value) => {
-        setNewFlight({ ...newFlight, status: value });
+    const handleFlightClassChange = (classType, field, value) => {
+        setNewFlight(prev => ({
+            ...prev,
+            flightClass: {
+                ...prev.flightClass,
+                [classType]: {
+                    ...prev.flightClass[classType],
+                    [field]: value
+                }
+            }
+        }));
     };
 
     const handleSubmit = async (e) => {
         e.preventDefault();
-
-        const payload = {
-            departureAirport: newFlight.departureAirport, // Send ID
-            arrivalAirport: newFlight.arrivalAirport, // Send ID
-            departureTime: newFlight.departureTime,
-            arrivalTime: newFlight.arrivalTime,
-            flightDuration: Math.floor((new Date(newFlight.arrivalTime) - new Date(newFlight.departureTime)) / 60000), // in minutes
-            flightClass: {
-                economy: {
-                    price: parseFloat(newFlight.flightClass?.economy?.price || 0),
-                    seatsAvailable: parseInt(newFlight.flightClass?.economy?.seatsAvailable || 0),
-                },
-                business: {
-                    price: parseFloat(newFlight.flightClass?.business?.price || 0),
-                    seatsAvailable: parseInt(newFlight.flightClass?.business?.seatsAvailable || 0),
-                },
-            },
-            aircraft: newFlight.aircraft || null, // Send ID
-            flightStatus: newFlight.status,
-            flightCode: newFlight.flightCode
-        };
-
         try {
+            const payload = {
+                ...newFlight,
+                flightDuration: Math.floor((new Date(newFlight.arrivalTime) - new Date(newFlight.departureTime)) / 60000),
+            };
+
             if (editingFlight) {
                 await axios.put(`${API_BASE_URL}/api/flights/${editingFlight._id}`, payload);
-                toast({ title: 'Flight Updated', description: 'Flight successfully updated.', status: 'success' });
+                toast({
+                    title: 'Success',
+                    description: 'Flight updated successfully.',
+                    status: 'success',
+                });
             } else {
                 await axios.post(`${API_BASE_URL}/api/flights`, payload);
-                toast({ title: 'Flight Added', description: 'Flight successfully added.', status: 'success' });
+                toast({
+                    title: 'Success',
+                    description: 'Flight added successfully.',
+                    status: 'success',
+                });
             }
-            fetchFlights(); // Refresh the flight list
+            fetchFlights();
             setIsDialogOpen(false);
         } catch (error) {
-            console.error('Error response:', error.response?.data || error.message);
+            console.error('Error:', error);
             toast({
                 title: 'Error',
-                description: "Fail to update",
-                status: 'error'
-            })
+                description: 'Failed to process request. Please check your input.',
+                status: 'error',
+            });
         }
     };
-
-
-
-
-
 
     const handleEdit = (flight) => {
         setEditingFlight(flight);
         setNewFlight({
             flightCode: flight.flightCode || "",
-            departureAirport: flight.departureAirport?._id || "", // Use ID
-            arrivalAirport: flight.arrivalAirport?._id || "", // Use ID
+            departureAirport: flight.departureAirport?._id || "",
+            arrivalAirport: flight.arrivalAirport?._id || "",
             departureTime: flight.departureTime || "",
             arrivalTime: flight.arrivalTime || "",
-            aircraft: flight.aircraft?._id || "", // Use ID
-            status: flight.flightStatus || "Scheduled",
+            aircraft: flight.aircraft?._id || "",
+            flightStatus: flight.flightStatus || "Scheduled",
             flightClass: flight.flightClass || {},
         });
         setIsDialogOpen(true);
     };
 
-
     const handleDelete = async (id) => {
         try {
-            await axios.delete(`/api/flights/${id}`);
-            toast({ title: 'Success', description: 'Flight deleted successfully.', status: 'success' });
-            fetchFlights(); // Refresh the flight list
+            await axios.delete(`${API_BASE_URL}/api/flights/${id}`);
+            toast({
+                title: 'Success',
+                description: 'Flight deleted successfully.',
+                status: 'success',
+            });
+            fetchFlights();
         } catch (error) {
             console.error('Error deleting flight:', error);
-            toast({ title: 'Error', description: 'Failed to delete flight.', variant: 'destructive', status: 'error' });
+            toast({
+                title: 'Error',
+                description: 'Failed to delete flight.',
+                status: 'error',
+            });
         }
     };
-    useEffect(() => {
-        fetchFlights(); // Fetch flights on component mount
-    }, []);
+
     const getStatusColor = (status) => {
         switch (status) {
-            case "Scheduled":
-                return "status-scheduled";
-            case "Delayed":
-                return "status-delayed";
-            case "Cancelled":
-                return "status-cancelled";
-            case "In Air":
-                return "status-in-air";
-            case "Landed":
-                return "status-landed";
-            default:
-                return "status-default";
+            case "Scheduled": return "status-scheduled";
+            case "Delayed": return "status-delayed";
+            case "On time": return "status-in-air";
+            case "Landed": return "status-landed";
+            default: return "status-default";
         }
     };
+
     return (
         <div className="flight-management-container">
             <h1 className="flight-management-title">Manage Flights</h1>
 
             <div className="filters-container">
-                <div className="filters-left">
-                    <div className="search-container">
-                        <Search className="search-icon" size={20} />
-                        <Input
-                            type="text"
-                            placeholder="Search flights..."
-                            value={searchTerm}
-                            onChange={(e) => setSearchTerm(e.target.value)}
-                            className="search-input"
-                        />
-                    </div>
-                    <Select
-                        value={statusFilter}
-                        onValueChange={(value) => setStatusFilter(value)}
-                        className="select-btn"
-                    >
-                        <SelectTrigger className="status-select">
-                            <SelectValue placeholder="Filter by status" />
-                        </SelectTrigger>
-                        <SelectContent>
-                            <SelectItem value="All">All Statuses</SelectItem>
-                            <SelectItem value="Scheduled">Scheduled</SelectItem>
-                            <SelectItem value="Delayed">Delayed</SelectItem>
-                            <SelectItem value="Cancelled">Cancelled</SelectItem>
-                            <SelectItem value="In Air">In Air</SelectItem>
-                            <SelectItem value="Landed">Landed</SelectItem>
-                        </SelectContent>
-                    </Select>
+                <div className="search-container">
+                    <Search className="search-icon" />
+                    <input
+                        type="text"
+                        placeholder="Search flights..."
+                        value={searchTerm}
+                        onChange={(e) => setSearchTerm(e.target.value)}
+                        className="search-input"
+                    />
                 </div>
-                <Button className="add-button"
-                    onClick={() => {
-                        setEditingFlight(null);
-                        setNewFlight({
-                            flightCode: "",
-                            departureCity: "",
-                            arrivalCity: "",
-                            departureTime: "",
-                            arrivalTime: "",
-                            aircraft: "",
-                            status: "Scheduled",
-                            gate: "",
-                            terminal: "",
-                        });
-                        setIsDialogOpen(true);
-                    }}
+                <select
+                    value={statusFilter}
+                    onChange={(e) => setStatusFilter(e.target.value)}
+                    className="status-select"
                 >
-                    <Plus className="add-button-icon" size={18} />
-                    Add New Flight
-                </Button>
+                    <option value="All">All Statuses</option>
+                    <option value="Scheduled">Scheduled</option>
+                    <option value="Delayed">Delayed</option>
+                    <option value="On time">On time</option>
+                    <option value="Landed">Landed</option>
+                </select>
+                <button className="add-button" onClick={() => {
+                    setEditingFlight(null);
+                    setNewFlight({
+                        flightCode: "",
+                        departureAirport: "",
+                        arrivalAirport: "",
+                        departureTime: "",
+                        arrivalTime: "",
+                        aircraft: "",
+                        flightStatus: "Scheduled",
+                        flightClass: {
+                            economy: { price: '', seatsAvailable: '' },
+                            business: { price: '', seatsAvailable: '' }
+                        },
+                    });
+                    setIsDialogOpen(true);
+                }}>
+                    <Plus /> Add New Flight
+                </button>
             </div>
 
-            <div className="filtered-flights-container">
+            <div className="flights-grid">
                 {filteredFlights.map((flight) => (
-                    <Card key={flight._id} className="flight-card">
-                        <CardContent className="flight-card-content">
-                            <div className="flight-card-header">
-                                <div>
-                                    <h3 className="flight-title">Flight {flight.flightCode || "Unknown"}</h3>
-                                    <p className="flight-info">
-                                        <strong> {flight.departureAirport?.name || "Unknown Departure"}</strong> to
-                                        <strong> {flight.arrivalAirport?.name || "Unknown Arrival"}</strong>
-                                    </p>
-                                    <p className="flight-info">
-                                        <strong> Departure:</strong> {flight.departureTime ? new Date(flight.departureTime).toLocaleString() : "N/A"}
-                                    </p>
-                                    <p className="flight-info">
-                                        <strong> Arrival:</strong> {flight.arrivalTime ? new Date(flight.arrivalTime).toLocaleString() : "N/A"}
-                                    </p>
-                                    <p className="flight-info"> <strong> Duration:</strong> {flight.flightDuration || "N/A"}</p>
-                                    <p className="flight-info">
-                                        <strong> Aircraft:</strong> {flight.aircraft?.model || "Unknown"}
-                                    </p>
-                                    <Badge className={`flight-status ${getStatusColor(flight.flightStatus || "Unknown")}`}>
-                                        {flight.flightStatus || "Unknown"}
-                                    </Badge>
-                                </div>
-                                <div className="flight-actions">
-                                    <Button
-                                        variant="outline"
-                                        size="sm"
-                                        onClick={() => handleEdit(flight)}
-                                        className="flight-action-button"
-                                    >
-                                        <Edit size={18} />
-                                    </Button>
-                                    <Button
-                                        variant="outline"
-                                        size="sm"
-                                        onClick={() => handleDelete(flight._id)}
-                                        className="flight-action-button"
-                                    >
-                                        <Trash2 size={18} />
-                                    </Button>
-                                </div>
+                    <div key={flight._id} className="flight-card">
+                        <div className="flight-card-header">
+                            <h3 className="flight-title">Flight {flight.flightCode || "Unknown"}</h3>
+                            <div className={`flight-status ${getStatusColor(flight.flightStatus)}`}>
+                                {flight.flightStatus || "Unknown"}
                             </div>
-                        </CardContent>
-                    </Card>
-
+                        </div>
+                        <div className="flight-info">
+                            <p><strong>From:</strong> {flight.departureAirport?.name || "Unknown"}</p>
+                            <p><strong>To:</strong> {flight.arrivalAirport?.name || "Unknown"}</p>
+                            <p><strong>Departure:</strong> {new Date(flight.departureTime).toLocaleString()}</p>
+                            <p><strong>Arrival:</strong> {new Date(flight.arrivalTime).toLocaleString()}</p>
+                            <p><strong>Aircraft:</strong> {flight.aircraft?.model || "Unknown"}</p>
+                        </div>
+                        <div className="flight-actions">
+                            <button onClick={() => handleEdit(flight)} className="edit-button">
+                                <Edit />
+                            </button>
+                            <button onClick={() => handleDelete(flight._id)} className="delete-button">
+                                <Trash2 />
+                            </button>
+                        </div>
+                    </div>
                 ))}
             </div>
+
             {filteredFlights.length === 0 && (
-                <Card className="no-flights-card">
-                    <CardContent className="no-flights-content">
-                        <Calendar className="no-flights-icon" />
-                        <p className="no-flights-title">No flights found</p>
-                        <p className="no-flights-message">Try adjusting your search or filters.</p>
-                    </CardContent>
-                </Card>
+                <div className="no-flights">
+                    <Calendar className="no-flights-icon" />
+                    <p>No flights found</p>
+                    <p>Try adjusting your search or filters.</p>
+                </div>
             )}
 
-
-            <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
-                <DialogContent className="dialog-content">
-                    <form onSubmit={handleSubmit} className="dialog-form">
-                        <DialogHeader className="dialog-header">
-                            <DialogTitle className="dialog-title">
-                                {editingFlight ? 'Edit Flight' : 'Add New Flight'}
-                            </DialogTitle>
-                            <DialogDescription className="dialog-description">
-                                {editingFlight
-                                    ? 'Edit the details of the flight below.'
-                                    : 'Fill in the details for the new flight.'}
-                            </DialogDescription>
-                        </DialogHeader>
-                        <div className="dialog-body">
+            {isDialogOpen && (
+                <div className="modal-overlay">
+                    <div className="modal">
+                        <h2>{editingFlight ? 'Edit Flight' : 'Add New Flight'}</h2>
+                        <form onSubmit={handleSubmit}>
                             <div className="form-group">
-                                <Label htmlFor="flightNumber" className="form-label">
-                                    Flight Number
-                                </Label>
-                                <Input
-                                    id="flightNumber"
+                                <label htmlFor="flightCode">Flight Number</label>
+                                <input
+                                    id="flightCode"
                                     name="flightCode"
-                                    value={newFlight.flightCode || ""}
+                                    value={newFlight.flightCode}
                                     onChange={handleInputChange}
                                     placeholder="e.g., QA101"
                                     required
-                                    className="form-input"
                                 />
                             </div>
                             <div className="form-group">
-                                <Label htmlFor="departureAirport" className="form-label">
-                                    Departure Airport
-                                </Label>
-                                <Select
+                                <label htmlFor="departureAirport">Departure Airport</label>
+                                <select
+                                    id="departureAirport"
+                                    name="departureAirport"
                                     value={newFlight.departureAirport}
-                                    onValueChange={(value) => setNewFlight({ ...newFlight, departureAirport: value })}
-                                    className="form-select"
+                                    onChange={handleInputChange}
+                                    required
                                 >
-                                    <SelectTrigger>
-                                        <SelectValue placeholder="Select departure airport" />
-                                    </SelectTrigger>
-                                    <SelectContent>
-                                        {airports.map((airport) => (
-                                            <SelectItem key={airport._id} value={airport._id}>
-                                                {airport.name} ({airport.city})
-                                            </SelectItem>
-                                        ))}
-
-
-                                    </SelectContent>
-                                </Select>
+                                    <option value="">Select departure airport</option>
+                                    {airports.map((airport) => (
+                                        <option key={airport._id} value={airport._id}>
+                                            {airport.name} ({airport.city})
+                                        </option>
+                                    ))}
+                                </select>
                             </div>
-
                             <div className="form-group">
-                                <Label htmlFor="arrivalAirport" className="form-label">
-                                    Arrival Airport
-                                </Label>
-                                <Select
+                                <label htmlFor="arrivalAirport">Arrival Airport</label>
+                                <select
+                                    id="arrivalAirport"
+                                    name="arrivalAirport"
                                     value={newFlight.arrivalAirport}
-                                    onValueChange={(value) => setNewFlight({ ...newFlight, arrivalAirport: value })}
-                                    className="form-select"
+                                    onChange={handleInputChange}
+                                    required
                                 >
-                                    <SelectTrigger>
-                                        <SelectValue placeholder="Select arrival airport" />
-                                    </SelectTrigger>
-                                    <SelectContent>
-                                        {airports.map((airport) => (
-                                            <SelectItem key={airport._id} value={airport._id}>
-                                                {airport.name} ({airport.city})
-                                            </SelectItem>
-                                        ))}
-                                    </SelectContent>
-                                </Select>
+                                    <option value="">Select arrival airport</option>
+                                    {airports.map((airport) => (
+                                        <option key={airport._id} value={airport._id}>
+                                            {airport.name} ({airport.city})
+                                        </option>
+                                    ))}
+                                </select>
                             </div>
                             <div className="form-group">
-                                <Label htmlFor="departureTime" className="form-label">
-                                    Departure Time
-                                </Label>
-                                <Input
+                                <label htmlFor="departureTime">Departure Time</label>
+                                <input
                                     id="departureTime"
                                     name="departureTime"
                                     type="datetime-local"
                                     value={newFlight.departureTime}
                                     onChange={handleInputChange}
                                     required
-                                    className="form-input"
                                 />
                             </div>
                             <div className="form-group">
-                                <Label htmlFor="arrivalTime" className="form-label">
-                                    Arrival Time
-                                </Label>
-                                <Input
+                                <label htmlFor="arrivalTime">Arrival Time</label>
+                                <input
                                     id="arrivalTime"
                                     name="arrivalTime"
                                     type="datetime-local"
                                     value={newFlight.arrivalTime}
                                     onChange={handleInputChange}
                                     required
-                                    className="form-input"
                                 />
                             </div>
                             <div className="form-group">
-                                <Label htmlFor="aircraft" className="form-label">
-                                    Aircraft
-                                </Label>
-                                <Select
+                                <label htmlFor="aircraft">Aircraft</label>
+                                <select
+                                    id="aircraft"
+                                    name="aircraft"
                                     value={newFlight.aircraft}
-                                    onValueChange={(value) => setNewFlight({ ...newFlight, aircraft: value })}
-                                    className="form-select"
+                                    onChange={handleInputChange}
+                                    required
                                 >
-                                    <SelectTrigger>
-                                        <SelectValue placeholder="Select aircraft" />
-                                    </SelectTrigger>
-                                    <SelectContent>
-                                        {aircrafts.map((aircraft) => (
-                                            <SelectItem key={aircraft._id} value={aircraft._id}>
-                                                {aircraft.model}
-                                            </SelectItem>
-                                        ))}
-                                    </SelectContent>
-                                </Select>
+                                    <option value="">Select aircraft</option>
+                                    {aircrafts.map((aircraft) => (
+                                        <option key={aircraft._id} value={aircraft._id}>
+                                            {aircraft.model}
+                                        </option>
+                                    ))}
+                                </select>
                             </div>
                             <div className="form-group">
-                                <Label htmlFor="status" className="form-label">
-                                    Flight Status
-                                </Label>
-                                <Select
-                                    value={newFlight.status}
-                                    onValueChange={handleStatusChange}
-                                    className="form-select"
+                                <label htmlFor="flightStatus">Flight Status</label>
+                                <select
+                                    id="flightStatus"
+                                    name="flightStatus"
+                                    value={newFlight.flightStatus}
+                                    onChange={handleInputChange}
+                                    required
                                 >
-                                    <SelectTrigger>
-                                        <SelectValue placeholder="Select flight status" />
-                                    </SelectTrigger>
-                                    <SelectContent>
-                                        <SelectItem value="Scheduled">Scheduled</SelectItem>
-                                        <SelectItem value="Delayed">Delayed</SelectItem>
-                                        <SelectItem value="On time'">On time</SelectItem>
-                                        <SelectItem value="Landed">Landed</SelectItem>
-                                    </SelectContent>
-                                </Select>
+                                    <option value="Scheduled">Scheduled</option>
+                                    <option value="Delayed">Delayed</option>
+                                    <option value="On time">On time</option>
+                                    <option value="Landed">Landed</option>
+                                </select>
                             </div>
-                            <div className='row-price'>
+                            <div className="form-row">
                                 <div className="form-group">
-                                    <Label htmlFor="economyPrice" className="form-label">
-                                        Economy Price
-                                    </Label>
-                                    <Input
+                                    <label htmlFor="economyPrice">Economy Price</label>
+                                    <input
                                         id="economyPrice"
-                                        name="economyPrice"
                                         type="number"
-                                        value={newFlight.flightClass?.economy?.price || ""}
-                                        onChange={(e) =>
-                                            setNewFlight({
-                                                ...newFlight,
-                                                flightClass: {
-                                                    ...newFlight.flightClass,
-                                                    economy: {
-                                                        ...newFlight.flightClass?.economy,
-                                                        price: e.target.value,
-                                                    },
-                                                },
-                                            })
-                                        }
+                                        value={newFlight.flightClass.economy.price}
+                                        onChange={(e) => handleFlightClassChange('economy', 'price', e.target.value)}
                                         placeholder="e.g., 150"
-                                        className="form-input"
                                     />
                                 </div>
                                 <div className="form-group">
-                                    <Label htmlFor="economySeats" className="form-label">
-                                        Economy Seats Available
-                                    </Label>
-                                    <Input
+                                    <label htmlFor="economySeats">Economy Seats</label>
+                                    <input
                                         id="economySeats"
-                                        name="economySeats"
                                         type="number"
-                                        value={newFlight.flightClass?.economy?.seatsAvailable || ""}
-                                        onChange={(e) =>
-                                            setNewFlight({
-                                                ...newFlight,
-                                                flightClass: {
-                                                    ...newFlight.flightClass,
-                                                    economy: {
-                                                        ...newFlight.flightClass?.economy,
-                                                        seatsAvailable: e.target.value,
-                                                    },
-                                                },
-                                            })
-                                        }
+                                        value={newFlight.flightClass.economy.seatsAvailable}
+                                        onChange={(e) => handleFlightClassChange('economy', 'seatsAvailable', e.target.value)}
                                         placeholder="e.g., 198"
-                                        className="form-input"
                                     />
                                 </div>
                             </div>
-                            <div className='row-price'>
+                            <div className="form-row">
                                 <div className="form-group">
-                                    <Label htmlFor="businessPrice" className="form-label">
-                                        Business Price
-                                    </Label>
-                                    <Input
+                                    <label htmlFor="businessPrice">Business Price</label>
+                                    <input
                                         id="businessPrice"
-                                        name="businessPrice"
                                         type="number"
-                                        value={newFlight.flightClass?.business?.price || ""}
-                                        onChange={(e) =>
-                                            setNewFlight({
-                                                ...newFlight,
-                                                flightClass: {
-                                                    ...newFlight.flightClass,
-                                                    business: {
-                                                        ...newFlight.flightClass?.business,
-                                                        price: e.target.value,
-                                                    },
-                                                },
-                                            })
-                                        }
+                                        value={newFlight.flightClass.business.price}
+                                        onChange={(e) => handleFlightClassChange('business', 'price', e.target.value)}
                                         placeholder="e.g., 350"
-                                        className="form-input"
                                     />
                                 </div>
                                 <div className="form-group">
-                                    <Label htmlFor="businessSeats" className="form-label">
-                                        Business Seats Available
-                                    </Label>
-                                    <Input
+                                    <label htmlFor="businessSeats">Business Seats</label>
+                                    <input
                                         id="businessSeats"
-                                        name="businessSeats"
                                         type="number"
-                                        value={newFlight.flightClass?.business?.seatsAvailable || ""}
-                                        onChange={(e) =>
-                                            setNewFlight({
-                                                ...newFlight,
-                                                flightClass: {
-                                                    ...newFlight.flightClass,
-                                                    business: {
-                                                        ...newFlight.flightClass?.business,
-                                                        seatsAvailable: e.target.value,
-                                                    },
-                                                },
-                                            })
-                                        }
+                                        value={newFlight.flightClass.business.seatsAvailable}
+                                        onChange={(e) => handleFlightClassChange('business', 'seatsAvailable', e.target.value)}
                                         placeholder="e.g., 50"
-                                        className="form-input"
                                     />
                                 </div>
                             </div>
-
-                            {/* <div className="form-group">
-                                <Label htmlFor="gate" className="form-label">
-                                    Gate
-                                </Label>
-                                <Input
-                                    id="gate"
-                                    name="gate"
-                                    value={newFlight.gate}
-                                    onChange={handleInputChange}
-                                    placeholder="e.g., A1"
-                                    className="form-input"
-                                />
+                            <div className="form-actions">
+                                <button type="submit" className="submit-button">
+                                    {editingFlight ? "Update" : "Add"} Flight
+                                </button>
+                                <button type="button" onClick={() => setIsDialogOpen(false)} className="cancel-button">
+                                    Cancel
+                                </button>
                             </div>
-                            <div className="form-group">
-                                <Label htmlFor="terminal" className="form-label">
-                                    Terminal
-                                </Label>
-                                <Input
-                                    id="terminal"
-                                    name="terminal"
-                                    value={newFlight.terminal}
-                                    onChange={handleInputChange}
-                                    placeholder="e.g., T1"
-                                    className="form-input"
-                                />
-                            </div> */}
-                        </div>
-
-                        <DialogFooter className="dialog-footer">
-                            <Button type="submit" className="form-button">
-                                {editingFlight ? "Update" : "Add"} Flight
-                            </Button>
-                        </DialogFooter>
-                    </form>
-                </DialogContent>
-            </Dialog>
+                        </form>
+                    </div>
+                </div>
+            )}
             <Toaster />
-
-
-
-
         </div>
-
-
-    )
-
+    );
 }
+

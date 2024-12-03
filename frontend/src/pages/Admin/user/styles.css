@@ -1,119 +1,191 @@
 .container {
+    max-width: 1200px;
+    margin: 0 auto;
     padding: 2rem;
 }
 
 .header {
     font-size: 2rem;
     font-weight: bold;
-    margin-bottom: 1rem;
-    text-align: center;
+    color: #00415a;
+    display: flex;
+    align-items: center;
+    margin-bottom: 2rem;
 }
 
-.action-container {
+.header .icon {
+    margin-right: 0.5rem;
+}
+
+.actions {
     display: flex;
-    flex-direction: row;
+    justify-content: space-between;
     align-items: center;
-    justify-content: space-evenly;
+    margin-bottom: 1.5rem;
 }
 
 .search-container {
     position: relative;
-    margin-bottom: 1rem;
-    top: 10px;
-}
-
-.action-container>.button {
-    margin-right: 100px;
 }
 
 .search-input {
-    padding: 0.5rem 2rem 0.5rem 1.75rem;
-    border: 1px solid #ccc;
-    border-radius: 0.375rem;
-    width: 100%;
+    padding: 0.5rem 0.5rem 0.5rem 2rem;
+    border: 1px solid #00b8ff;
+    border-radius: 4px;
+    font-size: 1rem;
+    width: 250px;
 }
 
-.button {
-    background-color: #4CAF50;
-    color: #fff;
-    padding: 0.5rem 1rem;
-    border-radius: 0.375rem;
+.search-icon {
+    position: absolute;
+    left: 0.5rem;
+    top: 50%;
+    transform: translateY(-50%);
+    color: #00b8ff;
+}
+
+.add-button {
+    background-color: #00b8ff;
+    color: white;
     border: none;
+    padding: 0.5rem 1rem;
+    border-radius: 4px;
+    font-size: 1rem;
     cursor: pointer;
-    transition: background-color 0.3s;
-    width: 102px;
-}
-
-.button:hover {
-    background-color: #45A049;
-}
-
-.btn-add {
-    width: 48px;
-}
-
-
-
-.dialog-content {
     display: flex;
-    flex-direction: column;
-    align-items: flex-start;
-    gap: 1rem;
-    max-width: 400px;
-    width: 90%;
-    overflow: "scroll";
-}
-
-.dialog-footer {
-    display: flex;
-    width: 100%;
-    flex-direction: row;
-    justify-content: center;
     align-items: center;
-    gap: 0.5rem;
-    margin-left: 8px;
 }
 
-.table {
-    width: 100%;
-    border-collapse: collapse;
-    margin-top: 1rem;
+.add-button:hover {
+    background-color: #009bd6;
 }
 
-.table th,
-.table td {
-    padding: 0.75rem;
-    border: 1px solid #ddd;
-}
-
-.table th {
-    background-color: #f4f4f4;
-    text-align: left;
-}
-
-.table td button {
+.add-button .icon {
     margin-right: 0.5rem;
 }
 
-.form-group {
-    display: flex;
-    flex-direction: column;
-    margin-bottom: 1rem;
+.table-container {
+    background-color: white;
+    border-radius: 8px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    overflow: hidden;
+}
+
+table {
     width: 100%;
-    /* Ensures all rows have the same width */
+    border-collapse: collapse;
 }
 
-.form-label {
+thead {
+    background-color: #00415a;
+    color: white;
+}
+
+th,
+td {
+    padding: 1rem;
+    text-align: left;
+}
+
+tbody tr:nth-child(even) {
+    background-color: #f8f8f8;
+}
+
+tbody tr:hover {
+    background-color: #e8e8e8;
+}
+
+.edit-button,
+.delete-button {
+    background: none;
+    border: none;
+    cursor: pointer;
+    padding: 0.25rem;
+    margin-right: 0.5rem;
+}
+
+.edit-button {
+    color: #00b8ff;
+}
+
+.delete-button {
+    color: #ff4136;
+}
+
+.dialog-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: rgba(0, 0, 0, 0.5);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.dialog {
+    background-color: white;
+    padding: 2rem;
+    border-radius: 8px;
+    width: 100%;
+    max-width: 400px;
+}
+
+.dialog h2 {
+    margin-top: 0;
+    margin-bottom: 1.5rem;
+    color: #00415a;
+}
+
+.form-group {
+    margin-bottom: 1rem;
+}
+
+.form-group label {
+    display: block;
     margin-bottom: 0.5rem;
-    font-weight: bold;
+    color: #00415a;
 }
 
-.form-input,
-.form-select {
+.form-group input {
+    width: 100%;
     padding: 0.5rem;
     border: 1px solid #ccc;
-    border-radius: 0.375rem;
-    width: 100%;
-    /* Ensure all inputs and selects stretch to the same width */
-    box-sizing: border-box;
+    border-radius: 4px;
+    font-size: 1rem;
+}
+
+.dialog-actions {
+    display: flex;
+    justify-content: flex-end;
+    margin-top: 1.5rem;
+}
+
+.save-button,
+.cancel-button {
+    padding: 0.5rem 1rem;
+    border: none;
+    border-radius: 4px;
+    font-size: 1rem;
+    cursor: pointer;
+    margin-left: 0.5rem;
+}
+
+.save-button {
+    background-color: #00b8ff;
+    color: white;
+}
+
+.save-button:hover {
+    background-color: #009bd6;
+}
+
+.cancel-button {
+    background-color: #ccc;
+    color: #333;
+}
+
+.cancel-button:hover {
+    background-color: #bbb;
 }
