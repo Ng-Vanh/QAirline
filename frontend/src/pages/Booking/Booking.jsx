@@ -11,8 +11,8 @@ import { Badge } from "~/components/ui/badge"
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "~/components/ui/tooltip"
 import { toast } from "~/hooks/use-toast"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "~/components/ui/tabs"
-import Image from 'next/image'
-import Link from 'next/link'
+// import Image from 'next/image'
+// import Link from 'next/link'
 import "./Booking.css";
 
 export default function Bookings() {
@@ -293,7 +293,7 @@ function BookingCard({ booking, onCancel, isPast, flight, user, bookingInfo }) {
             <CardHeader className="booking-card-header">
                 <CardTitle className="booking-card-title">
                     <div className="booking-airline-info">
-                        <Image src={booking.airlineLogo} alt={booking.airline} width={30} height={30} className="airline-logo" />
+                        {/* <Image src={booking.airlineLogo} alt={booking.airline} width={30} height={30} className="airline-logo" /> */}
                         <span>{flight.aircraft.code} {flight.aircraft.manufacturer}</span>
                     </div>
                     <Badge variant="outline" className={`status-badge ${getStatusColor(booking.status)}`}>
@@ -450,7 +450,7 @@ function BookingCard({ booking, onCancel, isPast, flight, user, bookingInfo }) {
                             </Button>
                         </div>
                         <div className="footer-policy">
-                            <Link href="/terms" className="link">View change/cancel policy</Link>
+                            {/* <Link href="/terms" className="link">View change/cancel policy</Link> */}
                         </div>
                     </>
                 )}

@@ -1,74 +1,96 @@
-import React, { useState } from "react";
-// import { useRouter } from "next/navigation";
-import { Eye, EyeOff } from "lucide-react";
-import "./login.css"; // Import the CSS file
+'use client'
 
-export default function Login() {
-    const [email, setEmail] = useState("");
-    const [password, setPassword] = useState("");
-    const [showPassword, setShowPassword] = useState(false);
-    // const router = useRouter();
+import { useState } from 'react'
+import { useRouter } from 'next/navigation'
+import styles from './login.module.css'
 
-    const handleSubmit = (e) => {
-        e.preventDefault();
-        console.log("Login attempt:", { email, password });
-        // router.push("/admin/dashboard");
-    };
+export default function LoginPage() {
+    const [isLogin, setIsLogin] = useState(true)
+    const [username, setUsername] = useState('')
+    const [password, setPassword] = useState('')
+    const [name, setName] = useState('')
+    const [message, setMessage] = useState('')
+    const [isLoading, setIsLoading] = useState(false)
+    const router = useRouter()
+
+    const handleSubmit = async (e) => {
+        e.preventDefault()
+        setIsLoading(true)
+        setMessage('')
+
+        const url = isLogin
+            ? 'https://qairline-t28f.onrender.com/api/users/login'
+            : 'https://qairline-t28f.onrender.com/api/users'
+
+        const body = isLogin
+            ? { username, password }
+            : { name, username, password }
+
+        try {
+            const response = await fetch(url, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(body),
+            })
+
+            const data = await response.json()
+
+            if (response.ok) {
+                setMessage(data.message)
+                setTimeout(() => router.push('/'), 2000) 
+            } else {
+                setMessage(data.message || 'An error occurred')
+            }
+        } catch (error) {
+            setMessage('An error occurred. Please try again.')
+        } finally {
+            setIsLoading(false)
+        }
+    }
 
     return (
-        <div className="login-container">
-            <div className="login-box">
-                <h2 className="login-title">Sign in to your account</h2>
-                <form className="login-form" onSubmit={handleSubmit}>
-                    <div className="form-group">
-                        <label htmlFor="email-address" className="form-label">
-                        </label>
+        <div className={styles.container}>
+            <div className={styles.formContainer}>
+                <h1 className={styles.title}>{isLogin ? 'Login' : 'Create Account'}</h1>
+                <form onSubmit={handleSubmit} className={styles.form}>
+                    {!isLogin && (
                         <input
-                            id="email-address"
-                            name="email"
-                            type="email"
+                            type="text"
+                            value={name}
+                            onChange={(e) => setName(e.target.value)}
+                            placeholder="Full Name"
                             required
-                            className="form-input"
-                            placeholder="Email address"
-                            value={email}
-                            onChange={(e) => setEmail(e.target.value)}
+                            className={styles.input}
                         />
-                    </div>
-                    <div className="form-group password-group">
-                        <label htmlFor="password" className="form-label">
-                        </label>
-                        <input
-                            id="password"
-                            name="password"
-                            type={showPassword ? "text" : "password"}
-                            required
-                            className="form-input"
-                            placeholder="Password"
-                            value={password}
-                            onChange={(e) => setPassword(e.target.value)}
-                        />
-                        <button
-                            type="button"
-                            className="toggle-password"
-                            onClick={() => setShowPassword(!showPassword)}
-                        >
-                            {/* {showPassword ? <EyeOff className="icon" /> : <Eye className="icon" />} */}
-                        </button>
-                    </div>
-                    <div className="form-footer">
-                        <div className="remember-me">
-                            <input id="remember-me" name="remember-me" type="checkbox" />
-                            <label htmlFor="remember-me">Remember me</label>
-                        </div>
-                        <a href="#" className="forgot-password">
-                            Forgot your password?
-                        </a>
-                    </div>
-                    <button type="submit" className="submit-button">
-                        Sign in
+                    )}
+                    <input
+                        type="text"
+                        value={username}
+                        onChange={(e) => setUsername(e.target.value)}
+                        placeholder="Username"
+                        required
+                        className={styles.input}
+                    />
+                    <input
+                        type="password"
+                        value={password}
+                        onChange={(e) => setPassword(e.target.value)}
+                        placeholder="Password"
+                        required
+                        className={styles.input}
+                    />
+                    <button type="submit" className={styles.button} disabled={isLoading}>
+                        {isLoading ? 'Processing...' : isLogin ? 'Login' : 'Create Account'}
                     </button>
                 </form>
+                {message && <p className={styles.message}>{message}</p>}
+                <p className={styles.switchText}>
+                    {isLogin ? "Don't have an account? " : "Already have an account? "}
+                    <button onClick={() => setIsLogin(!isLogin)} className={styles.switchButton}>
+                        {isLogin ? 'Create one' : 'Login'}
+                    </button>
+                </p>
             </div>
         </div>
-    );
+    )
 }
