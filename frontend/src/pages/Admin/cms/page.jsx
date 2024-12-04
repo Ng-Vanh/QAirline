@@ -2,19 +2,11 @@
 
 import { useState, useEffect } from 'react';
 import axios from 'axios';
-import { Button } from "../../../components/ui/button";
-import { Input } from "../../../components/ui/input";
-import { Label } from "../../../components/ui/label";
-import { Textarea } from "../../../components/ui/textarea";
-import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "../../../components/ui/card";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "../../../components/ui/tabs";
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "../../../components/ui/table";
-import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "../../../components/ui/dialog";
-import { Plus, Edit, Trash2 } from 'lucide-react';
-import { toast } from '../../../hooks/use-toast';
+import { Plus, Edit, Trash2, ImageIcon, Loader } from 'lucide-react';
+import { toast } from "../../../hooks/toast";
+import Toaster from "../../../hooks/Toaster";
 import API_BASE_URL from '../config';
-
-import './styles.css';
+import cmsStyle from './stylesCMS.module.css';
 
 export default function CMSPage() {
     const [introduction, setIntroduction] = useState([]);
@@ -23,14 +15,17 @@ export default function CMSPage() {
     const [alerts, setAlerts] = useState([]);
     const [activeTab, setActiveTab] = useState('introduction');
     const [editingItem, setEditingItem] = useState(null);
+    const [isDialogOpen, setIsDialogOpen] = useState(false);
+    const [loading, setLoading] = useState(true);
+
     const fetchContent = async () => {
+        setLoading(true);
         try {
 
             const response = await axios.get(`${API_BASE_URL}/api/content`);
 
             const allContent = response.data;
 
-            // Filter content by type
             setIntroduction(allContent.filter(item => item.contentType === 'Introduction'));
             setPromotions(allContent.filter(item => item.contentType === 'Promotions'));
             setNews(allContent.filter(item => item.contentType === 'News'));
@@ -41,11 +36,12 @@ export default function CMSPage() {
                 title: 'Error',
                 description: 'Failed to load content from the server.',
             });
+        } finally {
+            setLoading(false);
         }
     };
+
     useEffect(() => {
-
-
         fetchContent();
     }, []);
 
@@ -55,33 +51,20 @@ export default function CMSPage() {
             description: '',
             image: '',
             isActive: true,
-            contentType: '', // Content type is selected in the dialog
+            contentType: '',
         });
+        setIsDialogOpen(true);
     };
 
     const handleEdit = (item) => {
         setEditingItem(item);
+        setIsDialogOpen(true);
     };
 
     const handleDelete = async (id, contentType) => {
         try {
             await axios.delete(`${API_BASE_URL}/api/content/${id}`);
-            switch (contentType) {
-                case 'Introduction':
-                    setIntroduction(introduction.filter((item) => item._id !== id));
-                    break;
-                case 'Promotions':
-                    setPromotions(promotions.filter((item) => item._id !== id));
-                    break;
-                case 'News':
-                    setNews(news.filter((item) => item._id !== id));
-                    break;
-                case 'Alerts':
-                    setAlerts(alerts.filter((item) => item._id !== id));
-                    break;
-                default:
-                    break;
-            }
+            fetchContent();
             toast({
                 title: 'Content Deleted',
                 description: 'The content was successfully deleted.',
@@ -95,49 +78,16 @@ export default function CMSPage() {
         }
     };
 
-    const handleSave = async (item) => {
-        console.log(item);
+    const handleSave = async (e) => {
+        e.preventDefault();
         try {
-            const response = item._id
-                ? await axios.put(`${API_BASE_URL}/api/content/${item._id}`, item)
-                : await axios.post(`${API_BASE_URL}/api/content`, item);
+            const response = editingItem._id
+                ? await axios.put(`${API_BASE_URL}/api/content/${editingItem._id}`, editingItem)
+                : await axios.post(`${API_BASE_URL}/api/content`, editingItem);
 
-            const savedItem = response.data;
-
-            switch (savedItem.contentType) {
-                case 'Introduction':
-                    setIntroduction((prev) =>
-                        prev.some((i) => i._id === savedItem._id)
-                            ? prev.map((i) => (i._id === savedItem._id ? savedItem : i))
-                            : [...prev, savedItem]
-                    );
-                    break;
-                case 'Promotions':
-                    setPromotions((prev) =>
-                        prev.some((i) => i._id === savedItem._id)
-                            ? prev.map((i) => (i._id === savedItem._id ? savedItem : i))
-                            : [...prev, savedItem]
-                    );
-                    break;
-                case 'News':
-                    setNews((prev) =>
-                        prev.some((i) => i._id === savedItem._id)
-                            ? prev.map((i) => (i._id === savedItem._id ? savedItem : i))
-                            : [...prev, savedItem]
-                    );
-                    break;
-                case 'Alerts':
-                    setAlerts((prev) =>
-                        prev.some((i) => i._id === savedItem._id)
-                            ? prev.map((i) => (i._id === savedItem._id ? savedItem : i))
-                            : [...prev, savedItem]
-                    );
-                    break;
-                default:
-                    break;
-            }
             fetchContent();
             setEditingItem(null);
+            setIsDialogOpen(false);
             toast({
                 title: 'Content Saved',
                 description: 'Your changes have been saved successfully.',
@@ -151,187 +101,176 @@ export default function CMSPage() {
         }
     };
 
-
+    const handleFileUpload = (e) => {
+        const file = e.target.files[0];
+        if (file) {
+            setEditingItem((prevItem) => ({
+                ...prevItem,
+                image: file.name,
+            }));
+        }
+    };
 
     const renderTable = (items) => (
-        <Table>
-            <TableHeader>
-                <TableRow>
-                    <TableHead>Title</TableHead>
-                    <TableHead>Description/Content</TableHead>
-                    <TableHead>Image</TableHead>
-                    <TableHead>Actions</TableHead>
-                </TableRow>
-            </TableHeader>
-            <TableBody>
+        <table className={cmsStyle.cms_table}>
+            <thead>
+                <tr>
+                    <th>Title</th>
+                    <th>Description</th>
+                    <th>Image</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
                 {items.map((item) => (
-                    <TableRow key={item._id}>
-                        <TableCell>{item.title}</TableCell>
-                        <TableCell>{item.description || item.content}</TableCell>
-                        <TableCell>
+                    <tr key={item._id}>
+                        <td>{item.title}</td>
+                        <td>{item.description}</td>
+                        <td>
                             {item.image && (
-                                <div className="w-16 h-16 relative">
-                                    <img src={item.image} alt={item.title} className="object-cover rounded" />
-                                </div>
+                                <img
+                                    src={`../../../assets/uploads/${item.image}`}
+                                    alt={item.title}
+                                    className={cmsStyle.table_image}
+                                />
                             )}
-                        </TableCell>
-                        <TableCell>
-                            <Button
-                                variant="outline"
-                                size="sm"
+                        </td>
+                        <td>
+                            <button
                                 onClick={() => handleEdit(item)}
-                                className="mr-2"
+                                className={`${cmsStyle.action_button} ${cmsStyle.edit_button}`}
                             >
-                                <Edit className="h-4 w-4" />
-                            </Button>
-                            <Button
-                                variant="outline"
-                                size="sm"
+                                <Edit size={18} />
+                            </button>
+                            <button
                                 onClick={() => handleDelete(item._id, item.contentType)}
+                                className={`${cmsStyle.action_button} ${cmsStyle.delete_button}`}
                             >
-                                <Trash2 className="h-4 w-4" />
-                            </Button>
-                        </TableCell>
-                    </TableRow>
+                                <Trash2 size={18} />
+                            </button>
+
+                        </td>
+                    </tr>
                 ))}
-            </TableBody>
-        </Table>
+            </tbody>
+        </table>
     );
 
     return (
-        <div className="container">
-            <h1 className="heading">Content Management System</h1>
+        <div className={cmsStyle.cms_container}>
+            <h1 className={cmsStyle.cms_heading}>Content Management System</h1>
 
-            <Button className="btn add-button" onClick={handleAdd}>
-                <Plus className="icon plus-icon" /> Add Content
-            </Button>
+            <button className={cmsStyle.add_button} onClick={handleAdd}>
+                <Plus size={18} /> Add Content
+            </button>
 
-            <Tabs value={activeTab} onValueChange={(value) => setActiveTab(value)}>
-                <TabsList className="tabs-list">
-                    <TabsTrigger value="introduction">Introduction</TabsTrigger>
-                    <TabsTrigger value="promotions">Promotions</TabsTrigger>
-                    <TabsTrigger value="news">News</TabsTrigger>
-                    <TabsTrigger value="alerts">Alerts</TabsTrigger>
-                </TabsList>
+            <div className={cmsStyle.tabs}>
+                <div className={cmsStyle.tab_list}>
+                    <button
+                        className={`${cmsStyle.tab_button} ${activeTab === 'introduction' ? cmsStyle.active : ''}`}
+                        onClick={() => setActiveTab('introduction')}
+                    >
+                        Introduction
+                    </button>
+                    <button
+                        className={`${cmsStyle.tab_button} ${activeTab === 'promotions' ? cmsStyle.active : ''}`}
+                        onClick={() => setActiveTab('promotions')}
+                    >
+                        Promotions
+                    </button>
+                    <button
+                        className={`${cmsStyle.tab_button} ${activeTab === 'news' ? cmsStyle.active : ''}`}
+                        onClick={() => setActiveTab('news')}
+                    >
+                        News
+                    </button>
+                    <button
+                        className={`${cmsStyle.tab_button} ${activeTab === 'alerts' ? cmsStyle.active : ''}`}
+                        onClick={() => setActiveTab('alerts')}
+                    >
+                        Alerts
+                    </button>
+                </div>
 
-                <TabsContent value="introduction">{renderTable(introduction)}</TabsContent>
-                <TabsContent value="promotions">{renderTable(promotions)}</TabsContent>
-                <TabsContent value="news">{renderTable(news)}</TabsContent>
-                <TabsContent value="alerts">{renderTable(alerts)}</TabsContent>
-            </Tabs>
+                <div className={cmsStyle.tab_content}>
+                    {loading ? (
+                        <div className={cmsStyle.loading}>
+                            <Loader className={cmsStyle.spinner} />
+                            <p>Loading content...</p>
+                        </div>
+                    ) : (
+                        <>
+                            {activeTab === 'introduction' && renderTable(introduction)}
+                            {activeTab === 'promotions' && renderTable(promotions)}
+                            {activeTab === 'news' && renderTable(news)}
+                            {activeTab === 'alerts' && renderTable(alerts)}
+                        </>
+                    )}
+                </div>
+            </div>
 
-            <Dialog
-                open={!!editingItem}
-                onOpenChange={(isOpen) => {
-                    if (!isOpen) setEditingItem(null); // Clear editing item when dialog closes
-                }}
-            >
-                <DialogContent className="dialog-content">
-                    <DialogHeader className="dialog-header">
-                        <DialogTitle className="dialog-title">
-                            {editingItem?._id ? 'Edit' : 'Add'} Content
-                        </DialogTitle>
-                        <DialogDescription className="dialog-description">
-                            {editingItem?._id
-                                ? 'Edit the details of the content below.'
-                                : 'Fill in the details for the new content.'}
-                        </DialogDescription>
-                    </DialogHeader>
-                    {editingItem && (
-                        <form
-                            onSubmit={(e) => {
-                                e.preventDefault();
-                                if (!editingItem.title || !editingItem.image || !editingItem.contentType) {
-                                    return toast({
-                                        title: 'Error',
-                                        description: 'All fields, including Content Type, are required.',
-                                    });
-                                }
-                                handleSave(editingItem);
-                            }}
-                            className="dialog-form"
-                        >
-                            {/* Content Type Selector */}
-                            {!editingItem._id && (
-                                <div className="form-group">
-                                    <Label htmlFor="contentType" className="form-label">Content Type</Label>
-                                    <select
-                                        id="contentType"
-                                        value={editingItem.contentType}
-                                        onChange={(e) =>
-                                            setEditingItem({ ...editingItem, contentType: e.target.value })
-                                        }
-                                        className="form-select"
-                                        required
-                                    >
-                                        <option value="">Select Content Type</option>
-                                        <option value="Introduction">Introduction</option>
-                                        <option value="Promotions">Promotions</option>
-                                        <option value="News">News</option>
-                                        <option value="Alerts">Alerts</option>
-                                    </select>
-                                </div>
-                            )}
-
-                            {/* Title Field */}
-                            <div className="form-group">
-                                <Label htmlFor="title" className="form-label">Title</Label>
-                                <Input
+            {isDialogOpen && (
+                <div className={cmsStyle.modal_overlay}>
+                    <div className={cmsStyle.modal}>
+                        <h2>{editingItem?._id ? 'Edit Content' : 'Add Content'}</h2>
+                        <form onSubmit={handleSave}>
+                            <div className={cmsStyle.form_group}>
+                                <label htmlFor="contentType">Content Type</label>
+                                <select
+                                    id="contentType"
+                                    value={editingItem.contentType}
+                                    onChange={(e) => setEditingItem({ ...editingItem, contentType: e.target.value })}
+                                    required
+                                >
+                                    <option value="">Select</option>
+                                    <option value="Introduction">Introduction</option>
+                                    <option value="Promotions">Promotions</option>
+                                    <option value="News">News</option>
+                                    <option value="Alerts">Alerts</option>
+                                </select>
+                            </div>
+                            <div className={cmsStyle.form_group}>
+                                <label htmlFor="title">Title</label>
+                                <input
                                     id="title"
                                     value={editingItem.title}
                                     onChange={(e) => setEditingItem({ ...editingItem, title: e.target.value })}
-                                    className="form-input"
                                     required
                                 />
                             </div>
-
-                            {/* Description or Content Field */}
-                            {/* Description Field */}
-                            <div className="form-group">
-                                <Label htmlFor="description" className="form-label">Description</Label>
-                                <Textarea
+                            <div className={cmsStyle.form_group}>
+                                <label htmlFor="description">Description</label>
+                                <textarea
                                     id="description"
-                                    value={editingItem.description || ''}
-                                    onChange={(e) =>
-                                        setEditingItem({
-                                            ...editingItem,
-                                            description: e.target.value, // Always update the description field
-                                        })
-                                    }
-                                    className="form-textarea"
+                                    value={editingItem.description}
+                                    onChange={(e) => setEditingItem({ ...editingItem, description: e.target.value })}
                                 />
                             </div>
-
-
-
-                            {/* Image Field */}
-                            <div className="form-group">
-                                <Label htmlFor="image" className="form-label">Image URL</Label>
-                                <Input
-                                    id="image"
-                                    value={editingItem.image || ''}
-                                    onChange={(e) => setEditingItem({ ...editingItem, image: e.target.value })}
-                                    className="form-input"
-                                    required
-                                />
+                            <div className={cmsStyle.form_group}>
+                                <label htmlFor="image">Upload Image</label>
+                                <div className={cmsStyle.file_input_wrapper}>
+                                    <input
+                                        type="file"
+                                        id="image"
+                                        accept="image/*"
+                                        onChange={handleFileUpload}
+                                    />
+                                    <label htmlFor="image" className={cmsStyle.file_input_label}>
+                                        <ImageIcon size={18} />
+                                        {editingItem.image ? editingItem.image : 'Choose a file'}
+                                    </label>
+                                </div>
                             </div>
-
-                            <DialogFooter className="dialog-footer">
-                                <Button type="submit" className="dialog-button">Save</Button>
-                                <Button
-                                    type="button"
-                                    variant="outline"
-                                    onClick={() => setEditingItem(null)}
-                                    className="dialog-button-cancel"
-                                >
-                                    Cancel
-                                </Button>
-                            </DialogFooter>
+                            <div className={cmsStyle.form_actions}>
+                                <button type="submit" className={cmsStyle.save_button}>Save</button>
+                                <button type="button" onClick={() => setIsDialogOpen(false)} className={cmsStyle.cancel_button}>Cancel</button>
+                            </div>
                         </form>
-                    )}
-                </DialogContent>
-            </Dialog>
-
+                    </div>
+                </div>
+            )}
+            <Toaster />
         </div>
     );
 }
+

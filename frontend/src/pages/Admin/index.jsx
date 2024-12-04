@@ -1,29 +1,21 @@
-// import React from "react";
-// import { BrowserRouter as Router, Routes, Route, Navigate } from "react-router-dom";
-// import AdminSidebar from "~/components/AdminSidebar";
-// import Report from "./report/page";
-// import Airports from "./airports/page"; // Example for other pages
-// import Flights from "./flights/page";
-// import './style'
+import React from "react";
+import { Routes, Route, Outlet, Navigate } from "react-router-dom";
+import AdminSidebar from "~/components/AdminSidebar";
 
-// const Admin = () => {
-//     return (
-//         <div className="admin-layout">
-//             {/* Sidebar */}
-//             <AdminSidebar />
+import './styles.css'
 
-//             {/* Content */}
-//             <div className="admin-content">
-//                 <Routes>
-//                     <Route path="/report" element={<Report />} />
-//                     <Route path="/airports" element={<Airports />} />
-//                     <Route path="/flights" element={<Flights />} />
-//                     {/* Redirect to /report by default */}
-//                     <Route path="*" element={<Navigate to="/admin/report" />} />
-//                 </Routes>
-//             </div>
-//         </div>
-//     );
-// };
+const Admin = () => {
+    return (
+        <div className="admin-layout" >
+            {/* Sidebar */}
+            <AdminSidebar className="sideBar" />
 
-// export default Admin;
+            {/* Content */}
+            <div className="admin-content" style={{ marginLeft: "16rem", padding: "1rem", height: "100vh" }}>
+                <Outlet />
+            </div>
+        </div>
+    );
+};
+
+export default Admin;

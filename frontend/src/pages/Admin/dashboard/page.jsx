@@ -4,7 +4,7 @@ import { Link } from "react-router-dom";
 import { Users, PlaneTakeoff, BarChart2, FileText, Plane, Clock, LandPlot } from "lucide-react";
 import AdminSidebar from "~/components/AdminSidebar";
 import Reports from '../report/page'
-import "./Styles.css";
+import dbStyle from "./StylesDb.module.css";
 
 export default function AdminDashboard() {
     const adminFeatures = [
@@ -20,14 +20,14 @@ export default function AdminDashboard() {
         <div>
             {/* <AdminSidebar></AdminSidebar> */}
             {/* <Reports></Reports> */}
-            <div className="dashboard-container">
-                <h1 className="dashboard-title">Admin Dashboard</h1>
-                <div className="dashboard-grid">
+            <div className={dbStyle.dashboard_container}>
+                <h1 className={dbStyle.dashboard_title}>Admin Dashboard</h1>
+                <div className={dbStyle.dashboard_grid}>
                     {adminFeatures.map((feature, index) => (
-                        <Link key={index} to={feature.link} className="dashboard-card">
-                            <div className="card-content">
-                                <feature.icon className="card-icon" size={24} />
-                                <span className="card-title">{feature.title}</span>
+                        <Link key={index} to={feature.link} className={dbStyle.dashboard_card}>
+                            <div className={dbStyle.card_content}>
+                                <feature.icon className={dbStyle.card_icon} size={24} />
+                                <span className={dbStyle.card_title}>{feature.title}</span>
                             </div>
                         </Link>
                     ))}
