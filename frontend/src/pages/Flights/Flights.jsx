@@ -1,827 +1,803 @@
 'use client'
 
 import { useState, useEffect } from 'react'
+import { Plane, ArrowRight, ArrowLeft, Search, Calendar, MapPin, Users, CreditCard, Luggage, X, ShoppingCart, Info, ChevronDown, ChevronUp, Trash2 } from 'lucide-react'
 import { motion, AnimatePresence } from 'framer-motion'
-import { Plane, ArrowRight, ArrowUp, ArrowDown, Search, Calendar, MapPin, Users, CreditCard, Luggage, Utensils, Wifi, Film, Moon, Plus, Minus, X, ShoppingCart, Info } from 'lucide-react'
-import { Button } from "@/components/ui/button"
-import { Input } from "@/components/ui/input"
-import { Label } from "@/components/ui/label"
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
-import { Slider } from "@/components/ui/slider"
-import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog"
-import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
-import { Checkbox } from "@/components/ui/checkbox"
-import { Badge } from "@/components/ui/badge"
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
-import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover"
-import { toast } from "@/hooks/use-toast"
-import { ScrollArea } from "@/components/ui/scroll-area"
-import './flights.css';
+import FlightsStyle from './flights.module.css'
 
 export default function Flights() {
-  const [flights, setFlights] = useState([]);
-  const [filteredFlights, setFilteredFlights] = useState([]);
-  const [searchType, setSearchType] = useState('oneWay');
-  const [selectedDepartureFlight, setSelectedDepartureFlight] = useState(null);
-  const [recentSelectedFlight, setRecentSelectedFlight] = useState([]);
+  const [searchType, setSearchType] = useState('oneWay')
   const [searchCriteria, setSearchCriteria] = useState({
     departureCity: '',
-    arrivalCity: '',
+    destinationCity: '',
     departureDate: '',
-    returnDate: '',
-    passengers: 1,
-    class: 'Economy',
-  });
+    passengerCount: 1
+  })
+  const [returnDate, setReturnDate] = useState('')
   const [multiCityFlights, setMultiCityFlights] = useState([
-    { departureCity: '', arrivalCity: '', departureDate: '' },
-    { departureCity: '', arrivalCity: '', departureDate: '' },
-  ]);
-  const [filters, setFilters] = useState({
-    minPrice: 0,
-    maxPrice: 1000,
-    directFlightsOnly: false,
-    amenities: [],
-  });
-  const [sortBy, setSortBy] = useState('price');
-  const [sortOrder, setSortOrder] = useState('asc');
-  const [cart, setCart] = useState([]);
-  const [isCartOpen, setIsCartOpen] = useState(false);
-  const [isLoading, setIsLoading] = useState(true);
+    { departureCity: '', destinationCity: '', departureDate: '' },
+    { departureCity: '', destinationCity: '', departureDate: '' }
+  ])
+  const [searchResults, setSearchResults] = useState([])
+  const [isLoading, setIsLoading] = useState(false)
+  const [currentSearchStep, setCurrentSearchStep] = useState(0)
+  const [isCartOpen, setIsCartOpen] = useState(false)
+  const [selectedFlight, setSelectedFlight] = useState(null)
+  const [showFlightDetails, setShowFlightDetails] = useState(false)
+  const [selectedFlights, setSelectedFlights] = useState({})
+  const [showPassengerInfo, setShowPassengerInfo] = useState(false)
+  const [passengers, setPassengers] = useState([])
+  const [bookingConfirmed, setBookingConfirmed] = useState(false)
+  const [currentStep, setCurrentStep] = useState(0)
+  const [maxReachedStep, setMaxReachedStep] = useState(0)
+  const [previousLegArrivalTime, setPreviousLegArrivalTime] = useState(null)
 
-  useEffect(() => {
-    const fetchFlights = async () => {
-      try {
-        const response = await fetch('https://qairline-t28f.onrender.com/api/flights');
-        if (!response.ok) {
-          throw new Error('Failed to fetch flights data');
-        }
-        const data = await response.json();
-        const formattedData = data.map(flight => ({
-          id: flight._id,
-          departureCity: flight.departureAirport.city,
-          arrivalCity: flight.arrivalAirport.city,
-          departureTime: flight.departureTime,
-          arrivalTime: flight.arrivalTime,
-          flightDuration: flight.flightDuration,
-          price: flight.flightClass.economy.price, // Defaulting to Economy price
-          class: 'Economy',
-          stopover: false, // Assuming no stopover data in API
-          amenities: [], // Assuming no amenities data in API
-          flightNumber: flight.aircraft.code,
-          airline: flight.aircraft.manufacturer,
-          aircraft: flight.aircraft.model,
-          availableSeats: flight.flightClass.economy.seatsAvailable, // Defaulting to Economy available seats
-        }));
-        setFlights(formattedData);
-        setFilteredFlights(formattedData);
-      } catch (error) {
-        console.error('Error fetching flights:', error);
-        toast({
-          title: 'Error',
-          description: 'Failed to load flights data. Please try again later.',
-          variant: 'destructive',
-        });
-      } finally {
-        setIsLoading(false);
-      }
-    };
-
-    fetchFlights();
-  }, []);
-
-
-  useEffect(() => {
-    applyFilters();
-  }, [flights, filters, sortBy, sortOrder, searchCriteria, selectedDepartureFlight, recentSelectedFlight]);
-
-  const applyFilters = () => {
-    let filtered = flights.filter(flight =>
-      (!searchCriteria.departureCity || flight.departureCity.toLowerCase().includes(searchCriteria.departureCity.toLowerCase())) &&
-      (!searchCriteria.arrivalCity || flight.arrivalCity.toLowerCase().includes(searchCriteria.arrivalCity.toLowerCase())) &&
-      (!searchCriteria.departureDate || new Date(flight.departureTime).toDateString() === new Date(searchCriteria.departureDate).toDateString()) &&
-      flight.price >= filters.minPrice &&
-      flight.price <= filters.maxPrice &&
-      (searchCriteria.class === 'Economy' || flight.class === searchCriteria.class) &&
-      (!filters.directFlightsOnly || !flight.stopover) &&
-      (filters.amenities.length === 0 || filters.amenities.every(amenity => flight.amenities.includes(amenity)))
-    );
-
-    if (searchType === 'roundTrip' && selectedDepartureFlight) {
-      filtered = flights.filter(flight =>
-        flight.departureCity.toLowerCase() === selectedDepartureFlight.arrivalCity.toLowerCase() &&
-        flight.arrivalCity.toLowerCase() === selectedDepartureFlight.departureCity.toLowerCase() &&
-        new Date(flight.departureTime) > new Date(selectedDepartureFlight.arrivalTime) // Thời gian đi của chuyến về phải lớn hơn thời gian đến của chuyến đi
-      );
-    }
-    console.log(recentSelectedFlight);
-
-    if (searchType === 'multiCity' && recentSelectedFlight.length > 0) {
-      const lastFlight = recentSelectedFlight[recentSelectedFlight.length - 1]; // Lấy chuyến bay cuối cùng đã chọn
-      filtered = flights.filter(flight =>
-        flight.departureCity.toLowerCase() === lastFlight.arrivalCity.toLowerCase() && // Thành phố khởi hành khớp với thành phố đến của chuyến bay cuối
-        new Date(flight.departureTime) > new Date(lastFlight.arrivalTime) // Thời gian khởi hành hợp lệ
-      );
-    }
-
-    // Apply sorting
-    filtered.sort((a, b) => {
-      if (sortBy === 'price') {
-        return sortOrder === 'asc' ? a.price - b.price : b.price - a.price;
-      } else if (sortBy === 'duration') {
-        const durationA = parseInt(a.flightDuration.split('h')[0]);
-        const durationB = parseInt(b.flightDuration.split('h')[0]);
-        return sortOrder === 'asc' ? durationA - durationB : durationB - durationA;
-      }
-      return 0;
-    });
-
-    setFilteredFlights(filtered);
-  };
-
-  const handleSearch = () => {
-    applyFilters();
-    toast({
-      title: 'Search Completed',
-      description: `Found ${filteredFlights.length} flights matching your criteria.`,
-    });
-  };
-
-  const handleAddToCart = async (flight, flightClass) => {
-    const existingItem = cart.find(item => item.flight.id === flight.id);
-    if (existingItem) {
-      setCart(cart.map(item =>
-        item.flight.id === flight.id
-          ? { ...item, passengers: item.passengers + searchCriteria.passengers }
-          : item
-      ));
-    } else {
-      setCart([...cart, { flight, passengers: searchCriteria.passengers, flightClass }]);
-    }
-
-    if (searchType === 'roundTrip') {
-      if (selectedDepartureFlight) {
-        setSelectedDepartureFlight(null);
-      } else {
-        setSelectedDepartureFlight(flight);
-      }
-    }
-
-    if (searchType === 'multiCity') {
-      const updatedRecentSelectedFlight = [...recentSelectedFlight, flight];
-      setRecentSelectedFlight(updatedRecentSelectedFlight);
-    }
-
-    toast({
-      title: "Added to Cart",
-      description: `${searchCriteria.passengers} ticket(s) for flight added to cart.`,
-    })
-  };
-
-  const handleRemoveFromCart = flightId => {
-    setCart(cart.filter(item => item.flight.id !== flightId));
-
-    if (searchType === 'roundTrip') {
-      setSelectedDepartureFlight(null);
-    }
-
-    if (searchType === 'multiCity' && recentSelectedFlight) {
-      const updatedRecentSelectedFlight = recentSelectedFlight.slice(0, -1);
-      setRecentSelectedFlight(updatedRecentSelectedFlight);
-    }
-
-    console.log(selectedDepartureFlight);
-
-    toast({
-      title: 'Removed from Cart',
-      description: 'Flight removed from cart.',
-      variant: 'destructive',
-    });
-  };
-
-  const handleProceedToPayment = async () => {
-    if (cart.length === 0) {
-      toast({
-        title: 'No Items in Cart',
-        description: 'Please add flights to your cart before proceeding to payment.',
-        status: 'warning',
-      });
-      return;
-    }
-    const bookingPromises = cart.map(item => {
-      const bookingData = {
-        userID: "674b6d8245ff24b20112416a",
-        flightID: item.flight.id,
-        flightClass: item.flightClass || "economy",
-        passengerCount: item.passengers,
-        passengerIDs: ["674a2003f51d087e0c39aebb"],
-      };
-
-      return fetch("https://qairline-t28f.onrender.com/api/bookings", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(bookingData),
-      }).then(async response => {
-        if (!response.ok) {
-          const errorMessage = `Failed to create booking for flight ${item.flight.flightNumber}.`;
-          console.error(errorMessage, response.status, response.statusText);
-          throw new Error(errorMessage);
-        }
-        return response.json();
-      });
-    });
-
-    try {
-      const results = await Promise.all(bookingPromises);
-      console.log("All bookings successful:", results);
-
-      toast({
-        title: 'Bookings Created',
-        description: 'All flights in your cart have been booked successfully.',
-      });
-      setCart([]); // remove all cart items after successful booking
-    } catch (error) {
-      console.error("Error processing bookings:", error);
-      toast({
-        title: 'Booking Failed',
-        description: 'An error occurred while processing your bookings.',
-        status: 'error',
-      });
-    }
-
-    toast({
-      title: 'Payment',
-      description: 'Redirecting to payment gateway...',
-    });
-  };
-
-
-  const getTotalPrice = () => {
-    return cart.reduce((total, item) => total + item.flight.price * item.passengers, 0);
-  };
-
-  const amenityIcons = {
-    wifi: <Wifi className="h-4 w-4" />,
-    meal: <Utensils className="h-4 w-4" />,
-    entertainment: <Film className="h-4 w-4" />,
-    lounge: <Users className="h-4 w-4" />,
-    flatbed: <Moon className="h-4 w-4" />,
-  };
-
-  if (isLoading) {
-    return <div>Loading data, please wait...</div>;
+  const getTotalRoutes = () => {
+    if (searchType === 'oneWay') return 1
+    if (searchType === 'roundTrip') return 2
+    return multiCityFlights.length
   }
 
+  const searchFlights = async (criteria) => {
+    console.log('Searching flights with criteria:', criteria)
+    setIsLoading(true)
+    try {
+      const response = await fetch('https://qairline-t28f.onrender.com/api/flights/search', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          ...criteria,
+          passengerCount: searchCriteria.passengerCount
+        }),
+      })
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`)
+      }
+      const data = await response.json()
+      console.log('Search results:', data)
+      return Array.isArray(data) ? data : []
+    } catch (error) {
+      console.error('Error searching flights:', error)
+      return []
+    } finally {
+      setIsLoading(false)
+    }
+  }
+
+  const handleSearch = async () => {
+    console.log('Searching for:', searchType)
+    setIsLoading(true)
+    setSearchResults([])
+    setSelectedFlights({})
+    setCurrentStep(0)
+    setMaxReachedStep(0)
+    setPreviousLegArrivalTime(null)
+
+    let searchPromises = []
+
+    if (searchType === 'oneWay') {
+      searchPromises = [searchFlights(searchCriteria)]
+    } else if (searchType === 'roundTrip') {
+      searchPromises = [
+        searchFlights(searchCriteria),
+        searchFlights({
+          departureCity: searchCriteria.destinationCity,
+          destinationCity: searchCriteria.departureCity,
+          departureDate: returnDate,
+          passengerCount: searchCriteria.passengerCount
+        })
+      ]
+    } else if (searchType === 'multiCity') {
+      searchPromises = multiCityFlights.map(flight => 
+        searchFlights({
+          departureCity: flight.departureCity,
+          destinationCity: flight.destinationCity,
+          departureDate: flight.departureDate,
+          passengerCount: searchCriteria.passengerCount
+        })
+      )
+    }
+
+    try {
+      const results = await Promise.all(searchPromises)
+      setSearchResults(results)
+      if (results.some(flights => flights.length > 0)) {
+        setCurrentStep(0)
+        setMaxReachedStep(getTotalRoutes() - 1)
+      } else {
+        alert('No flights found for the given criteria. Please try different search parameters.')
+      }
+    } catch (error) {
+      console.error('Error searching flights:', error)
+      alert('An error occurred while searching for flights. Please try again.')
+    } finally {
+      setIsLoading(false)
+    }
+  }
+
+  const handleAddToCart = (flight, flightClass) => {
+    const newItem = {
+      flight,
+      class: flightClass,
+      passengers: searchCriteria.passengerCount
+    };
+    
+    setSelectedFlights(prev => ({
+      ...prev,
+      [currentStep]: newItem
+    }));
+
+    setPreviousLegArrivalTime(flight.arrivalTime);
+
+    if (currentStep === maxReachedStep && currentStep < getTotalRoutes() - 1) {
+      setMaxReachedStep(currentStep + 1);
+    }
+    if (currentStep < getTotalRoutes() - 1) {
+      setCurrentStep(currentStep + 1);
+    }
+  };
+
+  const removeFromCart = (index) => {
+    setSelectedFlights(prev => {
+      const newSelectedFlights = { ...prev };
+      delete newSelectedFlights[index];
+      return newSelectedFlights;
+    });
+  }
+
+  const clearCart = () => {
+    setSelectedFlights({});
+    setCurrentStep(0);
+    setMaxReachedStep(0);
+    setPreviousLegArrivalTime(null);
+  }
+
+  const getTotalPrice = () => {
+    return Object.values(selectedFlights).reduce((total, item) => {
+      return total + item.flight.flightClass[item.class].price * item.passengers
+    }, 0)
+  }
+
+  const renderFlightResults = (flights, routeIndex) => {
+    const routeInfo = getRouteInfo(routeIndex);
+    
+    const filteredFlights = routeIndex > 0 && previousLegArrivalTime
+      ? flights.filter(flight => new Date(flight.departureTime) > new Date(previousLegArrivalTime))
+      : flights;
+  
+    return (
+      <div className={FlightsStyle.flight_results}>
+        <h2 className={FlightsStyle.flight_results_title}>
+          {filteredFlights.length > 0 ? `${filteredFlights.length} Flights found` : 'No flights found'} for {routeInfo.departureCity} to {routeInfo.destinationCity}, {routeInfo.departureDate}
+        </h2>
+        {filteredFlights.length > 0 ? (
+          filteredFlights.map((flight) => {
+            const isSelected = selectedFlights[routeIndex]?.flight._id === flight._id;
+            const selectedClass = selectedFlights[routeIndex]?.class;
+            return (
+              <div key={flight._id} className={`${FlightsStyle.flight_card} ${FlightsStyle.fade_in} ${isSelected ? FlightsStyle.selected_flight : ''}`}>
+                <div className={FlightsStyle.flight_card_content}>
+                  <div className={FlightsStyle.flight_header}>
+                    <h3>{flight.flightCode}</h3>
+                    <span className={FlightsStyle.flight_duration}>{flight.flightDuration}</span>
+                  </div>
+                  <div className={FlightsStyle.flight_details}>
+                    <div className={FlightsStyle.flight_route}>
+                      <h4>{flight.departureAirportDetails.city} ({flight.departureAirportDetails.code})</h4>
+                      <p>{new Date(flight.departureTime).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})}</p>
+                    </div>
+                    <Plane className={FlightsStyle.flight_icon} />
+                    <div className={FlightsStyle.flight_route}>
+                      <h4>{flight.arrivalAirportDetails.city} ({flight.arrivalAirportDetails.code})</h4>
+                      <p>{new Date(flight.arrivalTime).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})}</p>
+                    </div>
+                  </div>
+                  <div className={FlightsStyle.flight_actions}>
+                    <button 
+                      className={`${FlightsStyle.button} ${isSelected && selectedClass === 'economy' ? FlightsStyle.button_selected : FlightsStyle.button_primary} ${isSelected && selectedClass === 'economy' ? FlightsStyle.selected_class : ''}`} 
+                      onClick={() => handleAddToCart(flight, 'economy')}
+                    >
+                      Economy: ${flight.flightClass.economy.price}
+                      <span className={FlightsStyle.seats_available}>({flight.flightClass.economy.seatsAvailable} seats left)</span>
+                    </button>
+                    <button 
+                      className={`${FlightsStyle.button} ${isSelected && selectedClass === 'business' ? FlightsStyle.button_selected : FlightsStyle.button_secondary} ${isSelected && selectedClass === 'business' ? FlightsStyle.selected_class : ''}`} 
+                      onClick={() => handleAddToCart(flight, 'business')}
+                    >
+                      Business: ${flight.flightClass.business.price}
+                      <span className={FlightsStyle.seats_available}>({flight.flightClass.business.seatsAvailable} seats left)</span>
+                    </button>
+                    <button className={`${FlightsStyle.button} ${FlightsStyle.button_outline}`} onClick={() => {
+                      setSelectedFlight(flight)
+                      setShowFlightDetails(true)
+                    }}>
+                      <Info className={FlightsStyle.button_icon} />
+                      Details
+                    </button>
+                  </div>
+                </div>
+              </div>
+            )
+          })
+        ) : (
+          <p>No suitable flights found for this route and date. Please try different search criteria or adjust your previous flight selection.</p>
+        )}
+      </div>
+    )
+  }
+  
+  const getRouteInfo = (routeIndex) => {
+    if (searchType === 'oneWay' || (searchType === 'roundTrip' && routeIndex === 0)) {
+      return {
+        departureCity: searchCriteria.departureCity,
+        destinationCity: searchCriteria.destinationCity,
+        departureDate: searchCriteria.departureDate
+      };
+    } else if (searchType === 'roundTrip' && routeIndex === 1) {
+      return {
+        departureCity: searchCriteria.destinationCity,
+        destinationCity: searchCriteria.departureCity,
+        departureDate: returnDate
+      };
+    } else if (searchType === 'multiCity') {
+      return multiCityFlights[routeIndex];
+    }
+    return { departureCity: '', destinationCity: '', departureDate: '' };
+  };
+  
+  const handlePreviousStep = () => {
+    if (currentSearchStep > 0) {
+      setCurrentSearchStep(currentSearchStep - 1)
+    }
+  }
+  
+  const handleNextStep = () => {
+    if (currentSearchStep < getTotalRoutes() - 1) {
+      setCurrentSearchStep(currentSearchStep + 1)
+    }
+  }
+  
+  const isLastStep = () => {
+    return currentSearchStep === getTotalRoutes() - 1 && Object.keys(selectedFlights).length === getTotalRoutes();
+  };
+  
+
+  const renderBookedFlights = () => (
+    <div className={FlightsStyle.booked_flights}>
+      <h2 className={FlightsStyle.flight_results_title}>Here are your booked flights</h2>
+      {Object.entries(selectedFlights).map(([index, item]) => (
+        <div key={index} className={`${FlightsStyle.flight_card} ${FlightsStyle.fade_in}`}>
+          <div className={FlightsStyle.flight_card_content}>
+            <div className={FlightsStyle.flight_header}>
+              <h3>{item.flight.flightCode}</h3>
+              <span className={FlightsStyle.flight_duration}>{item.flight.flightDuration}</span>
+            </div>
+            <div className={FlightsStyle.flight_details}>
+              <div className={FlightsStyle.flight_route}>
+                <h4>{item.flight.departureAirportDetails.city} ({item.flight.departureAirportDetails.code})</h4>
+                <p>{new Date(item.flight.departureTime).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</p>
+              </div>
+              <Plane className={FlightsStyle.flight_icon} />
+              <div className={FlightsStyle.flight_route}>
+                <h4>{item.flight.arrivalAirportDetails.city} ({item.flight.arrivalAirportDetails.code})</h4>
+                <p>{new Date(item.flight.arrivalTime).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</p>
+              </div>
+            </div>
+            <div className={FlightsStyle.flight_actions}>
+              <p>Class: {item.class}</p>
+              <p>Passengers: {item.passengers}</p>
+              <p>Total: ${item.flight.flightClass[item.class].price * item.passengers}</p>
+            </div>
+          </div>
+        </div>
+      ))}
+      <button
+        className={`${FlightsStyle.button} ${FlightsStyle.button_outline}`}
+        onClick={handlePreviousStep}
+      >
+        <ArrowLeft className={FlightsStyle.button_icon} />
+        Back to Flight Selection
+      </button>
+    </div>
+  );
+  
+  const handleFillPassengerInfo = () => {
+    setShowPassengerInfo(true);
+    setPassengers(Array(searchCriteria.passengerCount).fill({ name: '', email: '' }));
+  };
+  
+  const handlePassengerInfoChange = (index, field, value) => {
+    setPassengers(prevPassengers => {
+      const newPassengers = [...prevPassengers];
+      newPassengers[index] = { ...newPassengers[index], [field]: value };
+      return newPassengers;
+    });
+  };
+  
+  const handleConfirmBooking = async () => {
+    try {
+      const createdPassengers = await Promise.all(
+        passengers.map(passenger =>
+          fetch('https://qairline-t28f.onrender.com/api/passengers/', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(passenger)
+          }).then(res => res.json())
+        )
+      );
+  
+      const passengerIDs = createdPassengers.map(p => p._id);
+  
+      const bookingPromises = Object.values(selectedFlights).map(item =>
+        fetch('https://qairline-t28f.onrender.com/api/bookings/', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            userID: "674f27aae3e51236a5d700d4",
+            flightID: item.flight._id,
+            flightClass: item.class,
+            passengerCount: item.passengers,
+            passengerIDs: passengerIDs
+          })
+        }).then(res => res.json())
+      );
+  
+      const bookingResults = await Promise.all(bookingPromises);
+  
+      console.log('Booking results:', bookingResults);
+  
+      setBookingConfirmed(true);
+      setSelectedFlights({});
+      setCurrentStep(0);
+      setMaxReachedStep(0);
+      setShowPassengerInfo(false);
+      setIsCartOpen(false);
+    } catch (error) {
+      console.error('Error during booking process:', error);
+      alert('An error occurred while confirming your booking. Please try again.');
+    }
+  };
+  
+  const handleBack = () => {
+    if (currentStep > 0) {
+      setCurrentStep(currentStep - 1);
+      if (currentStep > 1) {
+        const previousFlight = selectedFlights[currentStep - 2]?.flight;
+        setPreviousLegArrivalTime(previousFlight ? previousFlight.arrivalTime : null);
+      } else {
+        setPreviousLegArrivalTime(null);
+      }
+    }
+  };
+  
+  const handleNext = () => {
+    if (currentStep < maxReachedStep) {
+      setCurrentStep(currentStep + 1);
+    }
+  };
+  
+
   return (
-    <div className="page-container">
-
-
-
-
-
-      <div className="hero-section">
-        <div className="hero-content">
-          <motion.h1
-            className="hero-title"
-            initial={{ opacity: 0, y: -20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.5 }}
+    <div className={FlightsStyle.container}>
+      <h1 className={FlightsStyle.search_title}>Find Your Perfect Flight</h1>
+      
+      <div className={FlightsStyle.search_area}>
+        <div className={FlightsStyle.tabs}>
+          <button 
+            className={`${FlightsStyle.tab} ${searchType === 'oneWay' ? FlightsStyle.active : ''}`} 
+            onClick={() => setSearchType('oneWay')}
           >
-            Discover Your Next Adventure
-          </motion.h1>
-          <motion.p
-            className="hero-subtitle"
+            One Way
+          </button>
+          <button 
+            className={`${FlightsStyle.tab} ${searchType === 'roundTrip' ? FlightsStyle.active : ''}`} 
+            onClick={() => setSearchType('roundTrip')}
+          >
+            Round Trip
+          </button>
+          <button 
+            className={`${FlightsStyle.tab} ${searchType === 'multiCity' ? FlightsStyle.active : ''}`} 
+            onClick={() => setSearchType('multiCity')}
+          >
+            Multi-City
+          </button>
+        </div>
+
+        <AnimatePresence mode="wait">
+          <motion.div
+            key={searchType}
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.5, delay: 0.2 }}
+            exit={{ opacity: 0, y: -20 }}
+            transition={{ duration: 0.3 }}
           >
-            Fly with QAirline to over 150 destinations worldwide
-          </motion.p>
-        </div>
-      </div>
-
-      <div className="search-section">
-        <h2 className="search-title">Search Flights</h2>
-        <Popover open={isCartOpen} onOpenChange={setIsCartOpen}>
-          <PopoverTrigger asChild>
-            <button className="cart-button">
-              <ShoppingCart className="cart-icon" />
-              Cart
-              {cart.length > 0 && (
-                <span className="cart-badge">{cart.length}</span>
-              )}
-            </button>
-          </PopoverTrigger>
-          <PopoverContent className="cart-popover">
-            <div className="cart-scroll">
-              {cart.length === 0 ? (
-                <p>Your cart is empty.</p>
-              ) : (
-                <div className="cart-items">
-                  {cart.map((item) => (
-                    <div key={item.flight.id} className="cart-item">
-                      <div>
-                        <p className="item-title">
-                          {item.flight.airline} {item.flight.flightNumber}
-                        </p>
-                        <p className="item-details">{item.flight.departureCity} to {item.flight.arrivalCity}</p>
-                        <p className="item-details">{item.passengers} passenger(s)</p>
-                      </div>
-                      <div className="item-actions">
-                        <p className="item-price">${item.flight.price * item.passengers}</p>
-                        <button className="remove-button" onClick={() => handleRemoveFromCart(item.flight.id)}>
-                          <X className="remove-icon" />
-                        </button>
-                      </div>
-                    </div>
-                  ))}
+          {searchType === 'oneWay' && (
+            <div className={FlightsStyle.form_grid}>
+              <div className={FlightsStyle.form_row}>
+                <div className={FlightsStyle.form_group}>
+                  <label className={FlightsStyle.label} htmlFor="departureCity">From</label>
+                  <div className={FlightsStyle.input_wrapper}>
+                    <MapPin className={FlightsStyle.input_icon} />
+                    <input
+                      id="departureCity"
+                      className={FlightsStyle.input}
+                      value={searchCriteria.departureCity}
+                      onChange={(e) => setSearchCriteria({...searchCriteria, departureCity: e.target.value})}
+                      placeholder="Departure City"
+                    />
+                  </div>
                 </div>
-              )}
+                <div className={FlightsStyle.form_group}>
+                  <label className={FlightsStyle.label} htmlFor="destinationCity">To</label>
+                  <div className={FlightsStyle.input_wrapper}>
+                    <MapPin className={FlightsStyle.input_icon} />
+                    <input
+                      id="destinationCity"
+                      className={FlightsStyle.input}
+                      value={searchCriteria.destinationCity}
+                      onChange={(e) => setSearchCriteria({...searchCriteria, destinationCity: e.target.value})}
+                      placeholder="Destination City"
+                    />
+                  </div>
+                </div>
+                <div className={FlightsStyle.form_group}>
+                  <label className={FlightsStyle.label} htmlFor="departureDate">Departure Date</label>
+                  <div className={FlightsStyle.input_wrapper}>
+                    <Calendar className={FlightsStyle.input_icon} />
+                    <input
+                      id="departureDate"
+                      className={FlightsStyle.input}
+                      type="date"
+                      value={searchCriteria.departureDate}
+                      onChange={(e) => setSearchCriteria({...searchCriteria, departureDate: e.target.value})}
+                    />
+                  </div>
+                </div>
+              </div>
+              <div className={FlightsStyle.form_row}>
+                <div className={FlightsStyle.form_group}>
+                  <label className={FlightsStyle.label} htmlFor="passengerCount">Passengers</label>
+                  <div className={FlightsStyle.input_wrapper}>
+                    <Users className={FlightsStyle.input_icon} />
+                    <input
+                      id="passengerCount"
+                      className={FlightsStyle.input}
+                      type="number"
+                      value={searchCriteria.passengerCount}
+                      onChange={(e) => setSearchCriteria({...searchCriteria, passengerCount: parseInt(e.target.value)})}
+                      min={1}
+                    />
+                  </div>
+                </div>
+              </div>
             </div>
-            {cart.length > 0 && (
-              <div className="cart-total">
-                <div className="total-details">
-                  <p className="total-label">Total:</p>
-                  <p className="total-price">${getTotalPrice()}</p>
-                </div>
+          )}
 
-                <Button onClick={() => handleProceedToPayment()} className="payment-button">
-                  <CreditCard className="payment-icon" /> Proceed to Payment
-                </Button>
-              </div>
-            )}
-          </PopoverContent>
-        </Popover>
-      </div>
-
-
-
-
-
-
-
-      <Card className="card">
-        <CardHeader className="card-header">
-          <CardTitle className="card-title">Find Your Perfect Flight</CardTitle>
-          <CardDescription className="card-description">Search for the best deals on flights worldwide</CardDescription>
-        </CardHeader>
-        <CardContent className="card-content">
-          <Tabs value={searchType} onValueChange={(value) => setSearchType(value)} className="tabs">
-            <TabsList className="tabs-list">
-              <TabsTrigger value="oneWay" className="tabs-trigger">One Way</TabsTrigger>
-              <TabsTrigger value="roundTrip" className="tabs-trigger">Round Trip</TabsTrigger>
-              <TabsTrigger value="multiCity" className="tabs-trigger">Multi-City</TabsTrigger>
-            </TabsList>
-            <TabsContent value="oneWay" className="tabs-content">
-
-
-              <div className="search-form-grid">
-                <div className="input-wrapper">
-                  <Label htmlFor="departureCity" className="label">From</Label>
-                  <div className="relative">
-                    <MapPin className="input-icon" />
-                    <Input
+          {searchType === 'roundTrip' && (
+            <div className={FlightsStyle.form_grid}>
+              <div className={FlightsStyle.form_row}>
+                <div className={FlightsStyle.form_group}>
+                  <label className={FlightsStyle.label} htmlFor="departureCity">From</label>
+                  <div className={FlightsStyle.input_wrapper}>
+                    <MapPin className={FlightsStyle.input_icon} />
+                    <input
                       id="departureCity"
+                      className={FlightsStyle.input}
                       value={searchCriteria.departureCity}
-                      onChange={(e) => setSearchCriteria({ ...searchCriteria, departureCity: e.target.value })}
+                      onChange={(e) => setSearchCriteria({...searchCriteria, departureCity: e.target.value})}
                       placeholder="Departure City"
-                      className="input"
                     />
                   </div>
                 </div>
-                <div className="input-wrapper">
-                  <Label htmlFor="arrivalCity" className="label">To</Label>
-                  <div className="relative">
-                    <MapPin className="input-icon" />
-                    <Input
-                      id="arrivalCity"
-                      value={searchCriteria.arrivalCity}
-                      onChange={(e) => setSearchCriteria({ ...searchCriteria, arrivalCity: e.target.value })}
-                      placeholder="Arrival City"
-                      className="input"
-                    />
-                  </div>
-                </div>
-                <div className="input-wrapper">
-                  <Label htmlFor="departureDate" className="label">Departure Date</Label>
-                  <div className="relative">
-                    <Calendar className="input-icon" />
-                    <Input
-                      id="departureDate"
-                      type="date"
-                      value={searchCriteria.departureDate}
-                      onChange={(e) => setSearchCriteria({ ...searchCriteria, departureDate: e.target.value })}
-                      className="input"
+                <div className={FlightsStyle.form_group}>
+                  <label className={FlightsStyle.label} htmlFor="destinationCity">To</label>
+                  <div className={FlightsStyle.input_wrapper}>
+                    <MapPin className={FlightsStyle.input_icon} />
+                    <input
+                      id="destinationCity"
+                      className={FlightsStyle.input}
+                      value={searchCriteria.destinationCity}
+                      onChange={(e) => setSearchCriteria({...searchCriteria, destinationCity: e.target.value})}
+                      placeholder="Destination City"
                     />
                   </div>
                 </div>
               </div>
-            </TabsContent>
-            <TabsContent value="roundTrip" className="tabs-content">
-
-
-              <div className="form-grid">
-                <div className="input-wrapper">
-                  <Label htmlFor="departureCity" className="label">From</Label>
-                  <div className="relative">
-                    <MapPin className="input-icon" />
-                    <Input
-                      id="departureCity"
-                      value={searchCriteria.departureCity}
-                      onChange={(e) => setSearchCriteria({ ...searchCriteria, departureCity: e.target.value })}
-                      placeholder="Departure City"
-                      className="input"
-                    />
-                  </div>
-                </div>
-                <div className="input-wrapper">
-                  <Label htmlFor="arrivalCity" className="label">To</Label>
-                  <div className="relative">
-                    <MapPin className="input-icon" />
-                    <Input
-                      id="arrivalCity"
-                      value={searchCriteria.arrivalCity}
-                      onChange={(e) => setSearchCriteria({ ...searchCriteria, arrivalCity: e.target.value })}
-                      placeholder="Arrival City"
-                      className="input"
-                    />
-                  </div>
-                </div>
-                <div className="input-wrapper">
-                  <Label htmlFor="departureDate" className="label">Departure Date</Label>
-                  <div className="relative">
-                    <Calendar className="input-icon" />
-                    <Input
+              <div className={FlightsStyle.form_row}>
+                <div className={FlightsStyle.form_group}>
+                  <label className={FlightsStyle.label} htmlFor="departureDate">Departure Date</label>
+                  <div className={FlightsStyle.input_wrapper}>
+                    <Calendar className={FlightsStyle.input_icon} />
+                    <input
                       id="departureDate"
+                      className={FlightsStyle.input}
                       type="date"
                       value={searchCriteria.departureDate}
-                      onChange={(e) => setSearchCriteria({ ...searchCriteria, departureDate: e.target.value })}
-                      className="input"
+                      onChange={(e) => setSearchCriteria({...searchCriteria, departureDate: e.target.value})}
                     />
                   </div>
                 </div>
-                <div className="input-wrapper">
-                  <Label htmlFor="returnDate" className="label">Return Date</Label>
-                  <div className="relative">
-                    <Calendar className="input-icon" />
-                    <Input
+                <div className={FlightsStyle.form_group}>
+                  <label className={FlightsStyle.label} htmlFor="returnDate">Return Date</label>
+                  <div className={FlightsStyle.input_wrapper}>
+                    <Calendar className={FlightsStyle.input_icon} />
+                    <input
                       id="returnDate"
+                      className={FlightsStyle.input}
                       type="date"
-                      value={searchCriteria.returnDate}
-                      onChange={(e) => setSearchCriteria({ ...searchCriteria, returnDate: e.target.value })}
-                      className="input"
+                      value={returnDate}
+                      onChange={(e) => setReturnDate(e.target.value)}
                     />
                   </div>
                 </div>
               </div>
-            </TabsContent>
-            {/* Add multi-city content similarly */}
-          </Tabs>
-          <div className="form-input-grid">
-            <div className="input-wrapper">
-              <Label htmlFor="passengers" className="label">Passengers</Label>
-              <div className="relative">
-                <Users className="input-icon" />
-                <Input
-                  id="passengers"
-                  type="number"
-                  min="1"
-                  max="9"
-                  value={searchCriteria.passengers}
-                  onChange={(e) => setSearchCriteria({ ...searchCriteria, passengers: parseInt(e.target.value) })}
-                  className="input"
-                />
-              </div>
-            </div>
-            <div className="input-wrapper">
-              <Label htmlFor="class" className="label">Class</Label>
-              <Select
-                value={searchCriteria.class}
-                onValueChange={(value) => setSearchCriteria({ ...searchCriteria, class: value })}
-              >
-                <SelectTrigger id="class" className="select-trigger">
-                  <SelectValue placeholder="Select class" />
-                </SelectTrigger>
-                <SelectContent className="select-content">
-                  <SelectItem value="Economy" className="select-item">Economy</SelectItem>
-                  <SelectItem value="Business" className="select-item">Business</SelectItem>
-                  <SelectItem value="First" className="select-item">First Class</SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
-          </div>
-        </CardContent>
-        <CardFooter className="card-footer">
-          <Button onClick={handleSearch} className="button button-primary">
-            <Search className="mr-2 h-4 w-4" /> Search Flights
-          </Button>
-        </CardFooter>
-      </Card>
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-      <div className="filter-container">
-        <Card className="filter-card">
-          <CardHeader className="filter-card-header">
-            <CardTitle className="filter-card-title">Filters</CardTitle>
-          </CardHeader>
-          <CardContent className="filter-card-content">
-            <div className="filter-section">
-              <div className="filter-item">
-                <Label htmlFor="priceRange" className="filter-label">Price Range</Label>
-                <div className="price-range">
-                  <Input
-                    id="minPrice"
-                    type="number"
-                    value={filters.minPrice}
-                    onChange={(e) => setFilters({ ...filters, minPrice: parseInt(e.target.value) })}
-                    className="price-input"
-                  />
-                  <span className="price-separator">-</span>
-                  <Input
-                    id="maxPrice"
-                    type="number"
-                    value={filters.maxPrice}
-                    onChange={(e) => setFilters({ ...filters, maxPrice: parseInt(e.target.value) })}
-                    className="price-input"
-                  />
-                </div>
-                <Slider
-                  min={0}
-                  max={2000}
-                  step={50}
-                  value={[filters.minPrice, filters.maxPrice]}
-                  onValueChange={(value) => {
-                    setFilters({ ...filters, minPrice: value[0], maxPrice: value[1] });
-                  }}
-                  className="price-slider"
-                />
-              </div>
-              <div className="filter-item">
-                <div className="checkbox-wrapper">
-                  <Checkbox
-                    id="directFlights"
-                    checked={filters.directFlightsOnly}
-                    onCheckedChange={(checked) => setFilters({ ...filters, directFlightsOnly: checked })}
-                    className="filter-checkbox"
-                  />
-                  <Label htmlFor="directFlights" className="filter-label">Direct flights only</Label>
+              <div className={FlightsStyle.form_row}>
+                <div className={FlightsStyle.form_group}>
+                  <label className={FlightsStyle.label} htmlFor="passengerCount">Passengers</label>
+                  <div className={FlightsStyle.input_wrapper}>
+                    <Users className={FlightsStyle.input_icon} />
+                    <input
+                      id="passengerCount"
+                      className={FlightsStyle.input}
+                      type="number"
+                      value={searchCriteria.passengerCount}
+                      onChange={(e) => setSearchCriteria({...searchCriteria, passengerCount: parseInt(e.target.value)})}
+                      min={1}
+                    />
+                  </div>
                 </div>
               </div>
-              <div className="filter-item">
-                <Label className="filter-label">Amenities</Label>
-                <div className="amenities-grid">
-                  {Object.entries(amenityIcons).map(([amenity, icon]) => (
-                    <div key={amenity} className="amenity-item">
-                      <Checkbox
-                        id={`amenity-${amenity}`}
-                        checked={filters.amenities.includes(amenity)}
-                        onCheckedChange={(checked) => {
-                          const newAmenities = checked
-                            ? [...filters.amenities, amenity]
-                            : filters.amenities.filter((a) => a !== amenity);
-                          setFilters({ ...filters, amenities: newAmenities });
+            </div>
+          )}
+
+          {searchType === 'multiCity' && (
+            <div className={FlightsStyle.multi_city_flights}>
+              {multiCityFlights.map((flight, index) => (
+                <div key={index} className={FlightsStyle.form_row}>
+                  <div className={FlightsStyle.form_group}>
+                    <label className={FlightsStyle.label} htmlFor={`departureCity-${index}`}>From</label>
+                    <div className={FlightsStyle.input_wrapper}>
+                      <MapPin className={FlightsStyle.input_icon} />
+                      <input
+                        id={`departureCity-${index}`}
+                        className={FlightsStyle.input}
+                        value={flight.departureCity}
+                        onChange={(e) => {
+                          const newFlights = [...multiCityFlights];
+                          newFlights[index].departureCity = e.target.value;
+                          setMultiCityFlights(newFlights);
                         }}
-                        className="filter-checkbox"
+                        placeholder="Departure City"
                       />
-                      <Label htmlFor={`amenity-${amenity}`} className="amenity-label">
-                        {icon}
-                        <span className="amenity-text">{amenity}</span>
-                      </Label>
                     </div>
-                  ))}
+                  </div>
+                  <div className={FlightsStyle.form_group}>
+                    <label className={FlightsStyle.label} htmlFor={`destinationCity-${index}`}>To</label>
+                    <div className={FlightsStyle.input_wrapper}>
+                      <MapPin className={FlightsStyle.input_icon} />
+                      <input
+                        id={`destinationCity-${index}`}
+                        className={FlightsStyle.input}
+                        value={flight.destinationCity}
+                        onChange={(e) => {
+                          const newFlights = [...multiCityFlights];
+                          newFlights[index].destinationCity = e.target.value;
+                          setMultiCityFlights(newFlights);
+                        }}
+                        placeholder="Destination City"
+                      />
+                    </div>
+                  </div>
+                  <div className={FlightsStyle.form_group}>
+                    <label className={FlightsStyle.label} htmlFor={`departureDate-${index}`}>Date</label>
+                    <div className={FlightsStyle.input_wrapper}>
+                      <Calendar className={FlightsStyle.input_icon} />
+                      <input
+                        id={`departureDate-${index}`}
+                        className={FlightsStyle.input}
+                        type="date"
+                        value={flight.departureDate}
+                        onChange={(e) => {
+                          const newFlights = [...multiCityFlights];
+                          newFlights[index].departureDate = e.target.value;
+                          setMultiCityFlights(newFlights);
+                        }}
+                      />
+                    </div>
+                  </div>
+                </div>
+              ))}
+              <div className={FlightsStyle.multi_city_actions}>
+                <button 
+                  className={`${FlightsStyle.button} ${FlightsStyle.button_secondary}`}
+                  onClick={() => setMultiCityFlights([...multiCityFlights, { departureCity: '', destinationCity: '', departureDate: '' }])}
+                >
+                  Add Flight
+                </button>
+                <button 
+                  className={`${FlightsStyle.button} ${FlightsStyle.button_outline}`}
+                  onClick={() => setMultiCityFlights(multiCityFlights.slice(0, -1))}
+                  disabled={multiCityFlights.length <= 2}
+                >
+                  Remove Flight
+                </button>
+              </div>
+              <div className={FlightsStyle.form_row}>
+                <div className={FlightsStyle.form_group}>
+                  <label className={FlightsStyle.label} htmlFor="passengerCount">Passengers</label>
+                  <div className={FlightsStyle.input_wrapper}>
+                    <Users className={FlightsStyle.input_icon} />
+                    <input
+                      id="passengerCount"
+                      className={FlightsStyle.input}
+                      type="number"
+                      value={searchCriteria.passengerCount}
+                      onChange={(e) => setSearchCriteria({...searchCriteria, passengerCount: parseInt(e.target.value)})}
+                      min={1}
+                    />
+                  </div>
                 </div>
               </div>
             </div>
-          </CardContent>
-        </Card>
+          )}
+        </motion.div>
+      </AnimatePresence>
 
-
-
-
-
-
-
-
-
-
-
-
-        <div className="flight-results-container">
-          <Card className="flight-card">
-            <CardHeader>
-              <div className="header-container">
-                <CardTitle className="flight-card-title">Flight Results</CardTitle>
-                <div className="filter-container">
-                  <Select value={sortBy} onValueChange={setSortBy}>
-                    <SelectTrigger className="select-trigger">
-                      <SelectValue placeholder="Sort by" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="price">Price</SelectItem>
-                      <SelectItem value="duration">Duration</SelectItem>
-                    </SelectContent>
-                  </Select>
-                  <Button
-                    variant="outline"
-                    size="icon"
-                    onClick={() => setSortOrder(sortOrder === 'asc' ? 'desc' : 'asc')}
-                  >
-                    {sortOrder === 'asc' ? <ArrowUp className="sort-icon" /> : <ArrowDown className="sort-icon" />}
-                  </Button>
-                </div>
-              </div>
-              <CardDescription>Showing {filteredFlights.length} flights</CardDescription>
-            </CardHeader>
-            <CardContent>
-              <AnimatePresence>
-                {filteredFlights.map((flight) => (
-                  <motion.div
-                    key={flight.id}
-                    initial={{ opacity: 0, y: 20 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    exit={{ opacity: 0, y: -20 }}
-                    transition={{ duration: 0.3 }}
-                  >
-
-
-
-
-
-
-
-                    <Card className="flight-result-card">
-                      <CardContent className="flight-result-card-content">
-                        <div className="flight-result-header">
-                          <div className="flight-info">
-                            <div className="flight-icon">
-                              <Plane className="plane-icon" />
-                            </div>
-                            <div>
-                              <h3 className="flight-name">{flight.airline} {flight.flightNumber}</h3>
-                              <p className="flight-aircraft">{flight.aircraft}</p>
-                            </div>
-                          </div>
-                          <div className="price-info">
-                            <p className="price">${flight.price}</p>
-                            <Badge variant="secondary">{flight.class}</Badge>
-                          </div>
-                        </div>
-                        <div className="flight-details">
-                          <div className="departure-info">
-                            <p className="departure-city">{flight.departureCity}</p>
-                            <p className="departure-time">{new Date(flight.departureTime).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</p>
-                          </div>
-                          <div className="flight-duration">
-                            <ArrowRight className="arrow-icon" />
-                            <p className="duration">
-                              {new Date(flight.flightDuration).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', hour12: false })}
-                            </p>
-                            {flight.stopover && (
-                              <p className="stopover">{flight.stopover}</p>
-                            )}
-                          </div>
-                          <div className="arrival-info">
-                            <div>
-                              <p className="arrival-city">{flight.arrivalCity}</p>
-                              <p className="arrival-time">{new Date(flight.arrivalTime).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</p>
-                            </div>
-                          </div>
-                        </div>
-                        <div className="flight-actions">
-                          <div className="amenities">
-                            {flight.amenities.map((amenity) => (
-                              <Popover key={amenity}>
-                                <PopoverTrigger>
-                                  <Button className="amenity-icon">{amenityIcons[amenity]}</Button>
-                                </PopoverTrigger>
-                                <PopoverContent className="amenity-tooltip">
-                                  <p>{amenity}</p>
-                                </PopoverContent>
-                              </Popover>
-                            ))}
-                          </div>
-                          <p className="seats-left">{flight.availableSeats} seats left</p>
-                          <div className="action-buttons">
-                            <Dialog>
-                              <DialogTrigger asChild>
-                                <Button variant="outline" className="details-button">
-                                  <Info className="details-button-icon" />
-                                  More Details
-                                </Button>
-                              </DialogTrigger>
-                              <DialogContent>
-                                <DialogHeader>
-                                  <DialogTitle>{flight.airline} {flight.flightNumber}</DialogTitle>
-                                  <DialogDescription>Flight Details</DialogDescription>
-                                </DialogHeader>
-                                {/* Add Dialog Content Here */}
-                              </DialogContent>
-                            </Dialog>
-                            <Button onClick={() => handleAddToCart(flight, "economy")} className="add-to-cart-button">
-                              Book Economy
-                            </Button>
-
-                            <Button onClick={() => handleAddToCart(flight, "business")} className="add-to-cart-button">
-                              Book Business
-                            </Button>
-                          </div>
-                        </div>
-                      </CardContent>
-                    </Card>
-
-
-
-
-
-                  </motion.div>
-                ))}
-              </AnimatePresence>
-            </CardContent>
-          </Card>
-        </div>
-
-
-
-
-
-
-      </div>
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-      <div className="why-choose-container">
-        <h2 className="section-title">Why Choose QAirline?</h2>
-        <div className="features-grid">
-          <div className="feature-item">
-            <div className="feature-icon">
-              <Plane className="icon" />
-            </div>
-            <h3 className="feature-title">Modern Fleet</h3>
-            <p className="feature-description">
-              Experience comfort and efficiency with our state-of-the-art aircraft.
-            </p>
-          </div>
-          <div className="feature-item">
-            <div className="feature-icon">
-              <Users className="icon" />
-            </div>
-            <h3 className="feature-title">Exceptional Service</h3>
-            <p className="feature-description">
-              Our dedicated crew ensures a pleasant journey from takeoff to landing.
-            </p>
-          </div>
-          <div className="feature-item">
-            <div className="feature-icon">
-              <Luggage className="icon" />
-            </div>
-            <h3 className="feature-title">Generous Baggage Allowance</h3>
-            <p className="feature-description">
-              Travel with ease knowing you have ample space for your belongings.
-            </p>
-          </div>
-        </div>
-      </div>
-
+      <button className={`${FlightsStyle.button} ${FlightsStyle.button_primary} ${FlightsStyle.button_full}`} onClick={handleSearch}>
+        <Search className={FlightsStyle.button_icon} />
+        Search Flights
+      </button>
     </div>
-  )
+
+    {isLoading && (
+      <div className={FlightsStyle.loader_container}>
+        <div className={FlightsStyle.loader}></div>
+      </div>
+    )}
+
+    {currentStep < getTotalRoutes() && searchResults.length > 0 && (
+      <div className={FlightsStyle.flight_results_container}>
+        {renderFlightResults(searchResults[currentStep] || [], currentStep)}
+        <div className={FlightsStyle.navigation_buttons}>
+          <button className={`${FlightsStyle.button} ${FlightsStyle.button_outline}`} onClick={handleBack} disabled={currentStep === 0}>
+            <ArrowLeft className={FlightsStyle.button_icon} />
+            Back
+          </button>
+          <button className={`${FlightsStyle.button} ${FlightsStyle.button_outline}`} onClick={handleNext} disabled={currentStep === maxReachedStep}>
+            Next
+            <ArrowRight className={FlightsStyle.button_icon} />
+          </button>
+        </div>
+      </div>
+    )}
+
+    {currentStep === getTotalRoutes() -1 && Object.keys(selectedFlights).length === getTotalRoutes() && (
+      <div className={FlightsStyle.booked_flights_container}>
+        {renderBookedFlights()}
+        <button className={`${FlightsStyle.button} ${FlightsStyle.button_outline}`} onClick={handlePreviousStep}>
+          <ArrowLeft className={FlightsStyle.button_icon} />
+          Back to Flight Selection
+        </button>
+      </div>
+    )}
+
+    <button className={FlightsStyle.cart_button} onClick={() => setIsCartOpen(!isCartOpen)}>
+      <ShoppingCart className={FlightsStyle.button_icon} />
+      Cart ({Object.keys(selectedFlights).length})
+    </button>
+
+    {isCartOpen && (
+      <div className={FlightsStyle.cart_popover}>
+        <h2 className={FlightsStyle.cart_title}>Your Cart</h2>
+        <div className={FlightsStyle.cart_scroll_area}>
+          {Object.entries(selectedFlights).map(([index, item]) => (
+            <div key={index} className={FlightsStyle.cart_item}>
+              <div>
+                <p>{item.flight.flightCode}: {item.flight.departureAirportDetails.city} to {item.flight.arrivalAirportDetails.city}</p>
+                <p>Class: {item.class}</p>
+                <p>Passengers: {item.passengers}</p>
+                <p>Price: ${item.flight.flightClass[item.class].price * item.passengers}</p>
+              </div>
+              <button className={`${FlightsStyle.button} ${FlightsStyle.button_outline}`} onClick={() => removeFromCart(parseInt(index))}>
+                <X className={FlightsStyle.button_icon} />
+                Remove
+              </button>
+            </div>
+          ))}
+        </div>
+        <div className={FlightsStyle.cart_total}>
+          <span>Total:</span>
+          <span className={FlightsStyle.cart_total_price}>${getTotalPrice()}</span>
+        </div>
+        <div className={FlightsStyle.cart_actions}>
+          <button className={`${FlightsStyle.button} ${FlightsStyle.button_primary} ${FlightsStyle.button_full}`} onClick={handleFillPassengerInfo}>
+            Fill Passenger Info
+          </button>
+          <button className={`${FlightsStyle.button} ${FlightsStyle.button_outline} ${FlightsStyle.button_full}`} onClick={clearCart}>
+            <Trash2 className={FlightsStyle.button_icon} />
+            Clear Cart
+          </button>
+        </div>
+      </div>
+    )}
+
+    {showPassengerInfo && (
+      <div className={FlightsStyle.modal}>
+        <div className={FlightsStyle.modal_content}>
+          <button className={FlightsStyle.close_button} onClick={() => setShowPassengerInfo(false)}>×</button>
+          <h2>Passenger Information</h2>
+          {passengers.map((passenger, index) => (
+            <div key={index} className={FlightsStyle.passenger_form}>
+              <h3>Passenger {index + 1}</h3>
+              <input
+                type="text"
+                placeholder="Name"
+                value={passenger.name}
+                onChange={(e) => handlePassengerInfoChange(index, 'name', e.target.value)}
+              />
+              <input
+                type="email"
+                placeholder="Email"
+                value={passenger.email}
+                onChange={(e) => handlePassengerInfoChange(index, 'email', e.target.value)}
+              />
+            </div>
+          ))}
+          <button className={`${FlightsStyle.button} ${FlightsStyle.button_primary}`} onClick={handleConfirmBooking}>
+            Confirm Booking
+          </button>
+        </div>
+      </div>
+    )}
+
+    {showFlightDetails && (
+      <div className={FlightsStyle.modal}>
+        <div className={FlightsStyle.modal_content}>
+          <h2>Flight Details</h2>
+          {selectedFlight && (
+            <div>
+              <p><strong>Flight Code:</strong> {selectedFlight.flightCode}</p>
+              <p><strong>From:</strong> {selectedFlight.departureAirportDetails.city} ({selectedFlight.departureAirportDetails.code})</p>
+              <p><strong>To:</strong> {selectedFlight.arrivalAirportDetails.city} ({selectedFlight.arrivalAirportDetails.code})</p>
+              <p><strong>Departure:</strong> {new Date(selectedFlight.departureTime).toLocaleString()}</p>
+              <p><strong>Arrival:</strong> {new Date(selectedFlight.arrivalTime).toLocaleString()}</p>
+              <p><strong>Duration:</strong> {selectedFlight.flightDuration}</p>
+              <p><strong>Aircraft:</strong> {selectedFlight.aircraft}</p>
+              <h3>Economy Class:</h3>
+              <ul>
+                <li>Price: ${selectedFlight.flightClass.economy.price}</li>
+                <li>Available Seats: {selectedFlight.flightClass.economy.seatsAvailable}</li>
+              </ul>
+              <h3>Business Class:</h3>
+              <ul>
+                <li>Price: ${selectedFlight.flightClass.business.price}</li>
+                <li>Available Seats: {selectedFlight.flightClass.business.seatsAvailable}</li>
+              </ul>
+            </div>
+          )}
+          <button className={`${FlightsStyle.button} ${FlightsStyle.button_primary}`} onClick={() => setShowFlightDetails(false)}>Close</button>
+        </div>
+      </div>
+    )}
+
+    {bookingConfirmed && (
+      <div className={FlightsStyle.modal}>
+        <div className={FlightsStyle.modal_content}>
+          <h2>Booking Confirmed</h2>
+          <p>Your booking has been successfully confirmed. Thank you for choosing our airline!</p>
+          <button className={`${FlightsStyle.button_primary}`} onClick={() => {
+            setBookingConfirmed(false);
+            setShowPassengerInfo(false);
+            setIsCartOpen(false);
+          }}>
+            Close
+          </button>
+        </div>
+      </div>
+    )}
+  </div>
+)
 }
 
