@@ -1,0 +1,314 @@
+:root {
+    --primary: #00b8ff;
+    --primary-dark: #009bd6;
+    --secondary: #00415a;
+    --background: #f0f4f8;
+    --text: #333;
+    --border: #e0e0e0;
+    --success: #4caf50;
+    --error: #f44336;
+}
+
+body {
+    font-family: Arial, sans-serif;
+    background-color: var(--background);
+    color: var(--text);
+    line-height: 1.6;
+    margin: 0;
+    padding: 0;
+}
+
+.aircraft_management {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 2rem;
+}
+
+.page_title {
+    color: var(--secondary);
+    font-size: 2.5rem;
+    margin-bottom: 2rem;
+}
+
+.controls {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 2rem;
+}
+
+.add_button {
+    background-color: var(--primary);
+    color: white;
+    border: none;
+    padding: 0.5rem 1rem;
+    font-size: 1rem;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    border-radius: 4px;
+}
+
+.add_button:hover {
+    background-color: var(--primary-dark);
+}
+
+.filter_buttons {
+    display: flex;
+    gap: 1rem;
+}
+
+.filter_button {
+    background-color: white;
+    color: var(--secondary);
+    border: 1px solid var(--secondary);
+    padding: 0.5rem 1rem;
+    font-size: 1rem;
+    cursor: pointer;
+    border-radius: 4px;
+}
+
+.filter_button.active {
+    background-color: var(--secondary);
+    color: white;
+}
+
+.aircraft_grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+    gap: 2rem;
+}
+
+.aircraft_card {
+    background-color: white;
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    padding: 1.5rem;
+}
+
+.aircraft_header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1rem;
+}
+
+.aircraft_header h2 {
+    margin: 0;
+    font-size: 1.5rem;
+    color: var(--secondary);
+}
+
+.badge {
+    padding: 0.25rem 0.5rem;
+    border-radius: 4px;
+    font-size: 0.875rem;
+    font-weight: bold;
+}
+
+.badge.in_service {
+    background-color: var(--success);
+    color: white;
+}
+
+.badge.out_of_service {
+    background-color: var(--error);
+    color: white;
+}
+
+.aircraft_code {
+    font-size: 1rem;
+    color: var(--primary-dark);
+    margin-bottom: 1rem;
+}
+
+.aircraft_details p {
+    margin: 0.5rem 0;
+}
+
+.aircraft_actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: 1rem;
+    margin-top: 1rem;
+}
+
+.edit_button,
+.delete_button {
+    background: none;
+    border: none;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-size: 1rem;
+}
+
+.edit_button {
+    color: var(--primary);
+}
+
+.delete_button {
+    color: var(--error);
+}
+
+.no_aircraft {
+    text-align: center;
+    padding: 4rem;
+    background-color: white;
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.no_aircraft svg {
+    color: var(--primary);
+    margin-bottom: 1rem;
+}
+
+.modal_overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: rgba(0, 0, 0, 0.5);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.modal {
+    background-color: white;
+    border-radius: 8px;
+    padding: 2rem;
+    width: 90%;
+    max-width: 600px;
+    max-height: 90vh;
+    overflow-y: auto;
+    position: relative;
+}
+
+.modal h2 {
+    color: var(--secondary);
+    margin-top: 0;
+    margin-bottom: 1.5rem;
+}
+
+.form_grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 1rem;
+}
+
+.form_group {
+    margin-bottom: 1rem;
+}
+
+.form_group label {
+    display: block;
+    margin-bottom: 0.5rem;
+    color: var(--secondary);
+}
+
+.form_group input,
+.form_group select {
+    width: 100%;
+    padding: 0.5rem;
+    border: 1px solid var(--border);
+    border-radius: 4px;
+    font-size: 1rem;
+}
+
+.form_actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: 1rem;
+    margin-top: 1.5rem;
+}
+
+.save_button,
+.cancel_button {
+    padding: 0.5rem 1rem;
+    border: none;
+    border-radius: 4px;
+    font-size: 1rem;
+    cursor: pointer;
+}
+
+.save_button {
+    background-color: var(--primary);
+    color: white;
+}
+
+.save_button:hover {
+    background-color: var(--primary-dark);
+}
+
+.cancel_button {
+    background-color: #ccc;
+    color: var(--text);
+}
+
+.cancel_button:hover {
+    background-color: #bbb;
+}
+
+.close_modal {
+    position: absolute;
+    top: 1rem;
+    right: 1rem;
+    background: none;
+    border: none;
+    cursor: pointer;
+    color: var(--secondary);
+}
+
+.loading,
+.error {
+    text-align: center;
+    font-size: 1.25rem;
+    padding: 2rem;
+}
+
+.error {
+    color: var(--error);
+}
+
+@media (max-width: 768px) {
+    .controls {
+        flex-direction: column;
+        align-items: stretch;
+    }
+
+    .filter_buttons {
+        margin-top: 1rem;
+    }
+
+    .form_grid {
+        grid-template-columns: 1fr;
+    }
+}
+
+.loading {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    height: 200px;
+}
+
+.spinner {
+    animation: spin 1s linear infinite;
+    color: #00b8ff;
+}
+
+@keyframes spin {
+    0% {
+        transform: rotate(0deg);
+    }
+
+    100% {
+        transform: rotate(360deg);
+    }
+}

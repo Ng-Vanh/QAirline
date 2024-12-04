@@ -1,0 +1,233 @@
+:root {
+    --primary: #00b8ff;
+    --primary-dark: #009bd6;
+    --secondary: #00415a;
+    --background: #f0f4f8;
+    --text: #333;
+    --border: #e0e0e0;
+}
+
+body {
+    font-family: Arial, sans-serif;
+    background-color: var(--background);
+    color: var(--text);
+    line-height: 1.6;
+    margin: 0;
+    padding: 0;
+}
+
+.container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 2rem;
+}
+
+.header {
+    font-size: 2rem;
+    font-weight: bold;
+    color: var(--secondary);
+    display: flex;
+    align-items: center;
+    margin-bottom: 2rem;
+}
+
+.header .icon {
+    margin-right: 0.5rem;
+}
+
+.actions {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1.5rem;
+}
+
+.search_container {
+    position: relative;
+    width: 250px;
+}
+
+.search_input {
+    width: 100%;
+    padding: 0.5rem 0.5rem 0.5rem 2rem;
+    border: 1px solid var(--primary);
+    border-radius: 4px;
+    font-size: 1rem;
+}
+
+.search_icon {
+    position: absolute;
+    left: 0.5rem;
+    top: 50%;
+    transform: translateY(-50%);
+    color: var(--primary);
+}
+
+.add_button {
+    background-color: var(--primary);
+    color: white;
+    border: none;
+    padding: 0.5rem 1rem;
+    border-radius: 4px;
+    font-size: 1rem;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+}
+
+.add_button:hover {
+    background-color: var(--primary-dark);
+}
+
+.add_button .icon {
+    margin-right: 0.5rem;
+}
+
+.table_container {
+    background-color: white;
+    border-radius: 8px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    overflow: hidden;
+}
+
+table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+thead {
+    background-color: var(--secondary);
+    color: white;
+}
+
+th,
+td {
+    padding: 1rem;
+    text-align: left;
+}
+
+tbody tr:nth-child(even) {
+    background-color: #f8f8f8;
+}
+
+tbody tr:hover {
+    background-color: #e8e8e8;
+}
+
+.edit_button,
+.delete_button {
+    background: none;
+    border: none;
+    cursor: pointer;
+    padding: 0.25rem;
+    margin-right: 0.5rem;
+}
+
+.edit_button {
+    color: var(--primary);
+}
+
+.delete_button {
+    color: #ff4136;
+}
+
+.dialog_overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: rgba(0, 0, 0, 0.5);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.dialog {
+    background-color: white;
+    padding: 2rem;
+    border-radius: 8px;
+    width: 100%;
+    max-width: 400px;
+}
+
+.dialog h2 {
+    margin-top: 0;
+    margin-bottom: 1.5rem;
+    color: var(--secondary);
+}
+
+.form_group {
+    margin-bottom: 1rem;
+}
+
+.form_group label {
+    display: block;
+    margin-bottom: 0.5rem;
+    color: var(--secondary);
+}
+
+.form_group input {
+    width: 100%;
+    padding: 0.5rem;
+    border: 1px solid var(--border);
+    border-radius: 4px;
+    font-size: 1rem;
+}
+
+.dialog_actions {
+    display: flex;
+    justify-content: flex-end;
+    margin-top: 1.5rem;
+}
+
+.save_button,
+.cancel_button {
+    padding: 0.5rem 1rem;
+    border: none;
+    border-radius: 4px;
+    font-size: 1rem;
+    cursor: pointer;
+    margin-left: 0.5rem;
+}
+
+.save_button {
+    background-color: var(--primary);
+    color: white;
+}
+
+.save_button:hover {
+    background-color: var(--primary-dark);
+}
+
+.cancel_button {
+    background-color: #ccc;
+    color: var(--text);
+}
+
+.cancel_button:hover {
+    background-color: #bbb;
+}
+
+.loading {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    height: 200px;
+}
+
+.spinner {
+    animation: spin 1s linear infinite;
+    color: var(--primary);
+}
+
+@keyframes spin {
+    0% {
+        transform: rotate(0deg);
+    }
+
+    100% {
+        transform: rotate(360deg);
+    }
+}

@@ -1,0 +1,21 @@
+import React from "react";
+import { Routes, Route, Outlet, Navigate } from "react-router-dom";
+import AdminSidebar from "~/components/AdminSidebar";
+
+import './styles.css'
+
+const Admin = () => {
+    return (
+        <div className="admin-layout" >
+            {/* Sidebar */}
+            <AdminSidebar className="sideBar" />
+
+            {/* Content */}
+            <div className="admin-content" style={{ marginLeft: "16rem", padding: "1rem", height: "100vh" }}>
+                <Outlet />
+            </div>
+        </div>
+    );
+};
+
+export default Admin;
