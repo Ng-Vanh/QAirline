@@ -5,7 +5,7 @@ import { Home, Users, PlaneTakeoff, BarChart2, Bell, FileText, LandPlot, Plane }
 export default function AdminSidebar() {
     const styles = {
         aside: {
-            backgroundColor: "#1f2937", // bg-gray-800
+            backgroundColor: "#009bd6", // bg-gray-800
             color: "#ffffff", // text-white
             width: "15rem", // w-64
             height: "100vh", // 100% height of viewport

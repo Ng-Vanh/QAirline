@@ -4,7 +4,7 @@
     --accent-color: #00415a;
     --background-color: #f0f4f8;
     --text-color: #333;
-    --card-background: #ffffff;
+    --card_background: #ffffff;
     --border-color: #e0e0e0;
 }
 
@@ -15,32 +15,32 @@ body {
     line-height: 1.6;
 }
 
-.flight-management-container {
+.flight_management_container {
     max-width: 1200px;
     margin: 0 auto;
     padding: 20px;
 }
 
-.flight-management-title {
+.flight_management_title {
     color: var(--accent-color);
     font-size: 2.5rem;
     margin-bottom: 20px;
 }
 
-.filters-container {
+.filters_container {
     display: flex;
     justify-content: space-between;
     align-items: center;
     margin-bottom: 20px;
 }
 
-.search-container {
+.search_container {
     position: relative;
     flex-grow: 1;
     margin-right: 20px;
 }
 
-.search-icon {
+.search_icon {
     position: absolute;
     left: 10px;
     top: 50%;
@@ -48,28 +48,29 @@ body {
     color: var(--accent-color);
 }
 
-.search-input {
-    width: 100%;
+.search_input {
+    width: 90%;
     padding: 10px 10px 10px 40px;
     border: 1px solid var(--border-color);
     border-radius: 4px;
     font-size: 1rem;
 }
 
-.status-select {
+.status_select {
     padding: 10px;
     border: 1px solid var(--border-color);
     border-radius: 4px;
     font-size: 1rem;
     background-color: white;
     color: var(--text-color);
+    margin-right: 12px;
 }
 
-.add-button {
+.add_button {
     background-color: var(--primary-color);
     color: white;
     border: none;
-    padding: 10px 20px;
+    padding: 8px 20px;
     border-radius: 4px;
     font-size: 1rem;
     cursor: pointer;
@@ -77,85 +78,85 @@ body {
     align-items: center;
 }
 
-.add-button:hover {
+.add_button:hover {
     background-color: var(--secondary-color);
 }
 
-.flights-grid {
+.flights_grid {
     display: grid;
     grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
     gap: 20px;
 }
 
-.flight-card {
-    background-color: var(--card-background);
+.flight_card {
+    background-color: var(--card_background);
     border-radius: 8px;
     box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
     padding: 20px;
     transition: transform 0.3s ease;
 }
 
-.flight-card:hover {
+.flight_card:hover {
     transform: translateY(-5px);
 }
 
-.flight-card-header {
+.flight_card_header {
     display: flex;
     justify-content: space-between;
     align-items: center;
     margin-bottom: 15px;
 }
 
-.flight-title {
+.flight_title {
     font-size: 1.2rem;
     color: var(--accent-color);
     margin: 0;
 }
 
-.flight-status {
+.flight_status {
     padding: 5px 10px;
     border-radius: 20px;
     font-size: 0.9rem;
     font-weight: bold;
 }
 
-.status-scheduled {
+.status_scheduled {
     background-color: #ffd700;
     color: #333;
 }
 
-.status-delayed {
+.status_delayed {
     background-color: #ff6b6b;
     color: white;
 }
 
-.status-in-air {
+.status_in_air {
     background-color: #4ecdc4;
     color: white;
 }
 
-.status-landed {
+.status_landed {
     background-color: #45b649;
     color: white;
 }
 
-.status-default {
+.status_default {
     background-color: #95a5a6;
     color: white;
 }
 
-.flight-info p {
+.flight_info p {
     margin: 5px 0;
 }
 
-.flight-actions {
+.flight_actions {
     display: flex;
     justify-content: flex-end;
     margin-top: 15px;
 }
 
-.edit-button,
-.delete-button {
+.edit_button,
+.delete_button {
     background: none;
     border: none;
     cursor: pointer;
@@ -164,26 +165,26 @@ body {
     color: var(--accent-color);
 }
 
-.edit-button:hover,
-.delete-button:hover {
+.edit_button:hover,
+.delete_button:hover {
     color: var(--primary-color);
 }
 
-.no-flights {
+.no_flights {
     text-align: center;
     padding: 40px;
-    background-color: var(--card-background);
+    background-color: var(--card_background);
     border-radius: 8px;
     box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 }
 
-.no-flights-icon {
+.no_flights_icon {
     font-size: 3rem;
     color: var(--accent-color);
     margin-bottom: 20px;
 }
 
-.modal-overlay {
+.modal_overlay {
     position: fixed;
     top: 0;
     left: 0;
@@ -196,7 +197,7 @@ body {
 }
 
 .modal {
-    background-color: var(--card-background);
+    background-color: var(--card_background);
     padding: 30px;
     border-radius: 8px;
     width: 90%;
@@ -210,18 +211,18 @@ body {
     margin-bottom: 20px;
 }
 
-.form-group {
+.form_group {
     margin-bottom: 15px;
 }
 
-.form-group label {
+.form_group label {
     display: block;
     margin-bottom: 5px;
     color: var(--accent-color);
 }
 
-.form-group input,
-.form-group select {
+.form_group input,
+.form_group select {
     width: 100%;
     padding: 8px;
     border: 1px solid var(--border-color);
@@ -229,23 +230,23 @@ body {
     font-size: 1rem;
 }
 
-.form-row {
+.form_row {
     display: flex;
     gap: 15px;
 }
 
-.form-row .form-group {
+.form_row .form_group {
     flex: 1;
 }
 
-.form-actions {
+.form_actions {
     display: flex;
     justify-content: flex-end;
     margin-top: 20px;
 }
 
-.submit-button,
-.cancel-button {
+.submit_button,
+.cancel_button {
     padding: 10px 20px;
     border: none;
     border-radius: 4px;
@@ -253,38 +254,38 @@ body {
     cursor: pointer;
 }
 
-.submit-button {
+.submit_button {
     background-color: var(--primary-color);
     color: white;
     margin-right: 10px;
 }
 
-.submit-button:hover {
+.submit_button:hover {
     background-color: var(--secondary-color);
 }
 
-.cancel-button {
+.cancel_button {
     background-color: #ccc;
     color: var(--text-color);
 }
 
-.cancel-button:hover {
+.cancel_button:hover {
     background-color: #bbb;
 }
 
 @media (max-width: 768px) {
-    .filters-container {
+    .filters_container {
         flex-direction: column;
         align-items: stretch;
     }
 
-    .search-container,
-    .status-select,
-    .add-button {
+    .search_container,
+    .status_select,
+    .add_button {
         margin-bottom: 10px;
     }
 
-    .flights-grid {
+    .flights_grid {
         grid-template-columns: 1fr;
     }
 
@@ -293,7 +294,30 @@ body {
         padding: 20px;
     }
 
-    .form-row {
+    .form_row {
         flex-direction: column;
+    }
+}
+
+.loading {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    height: 200px;
+}
+
+.spinner {
+    animation: spin 1s linear infinite;
+    color: var(--primary-color);
+}
+
+@keyframes spin {
+    0% {
+        transform: rotate(0deg);
+    }
+
+    100% {
+        transform: rotate(360deg);
     }
 }

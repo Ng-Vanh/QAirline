@@ -1,0 +1,260 @@
+:root {
+    --primary: #00b8ff;
+    --primary-dark: #009bd6;
+    --secondary: #00415a;
+    --background: #f0f4f8;
+    --text: #333;
+    --border: #e0e0e0;
+    --success: #4caf50;
+    --error: #f44336;
+}
+
+body {
+    font-family: Arial, sans-serif;
+    background-color: var(--background);
+    color: var(--text);
+    line-height: 1.6;
+    margin: 0;
+    padding: 0;
+}
+
+.airport_management {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 2rem;
+}
+
+.page_title {
+    color: var(--secondary);
+    font-size: 2.5rem;
+    margin-bottom: 2rem;
+}
+
+.controls {
+    margin-bottom: 2rem;
+}
+
+.add_button {
+    background-color: var(--primary);
+    color: white;
+    border: none;
+    padding: 0.5rem 1rem;
+    font-size: 1rem;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    border-radius: 4px;
+}
+
+.add_button:hover {
+    background-color: var(--primary-dark);
+}
+
+.airport_grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+    gap: 2rem;
+}
+
+.airport_card {
+    background-color: white;
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    padding: 1.5rem;
+}
+
+.airport_header {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    margin-bottom: 1rem;
+}
+
+.airport_icon {
+    color: var(--primary);
+}
+
+.airport_header h2 {
+    margin: 0;
+    font-size: 1.5rem;
+    color: var(--secondary);
+}
+
+.airport_city {
+    font-size: 1.1rem;
+    color: var(--text);
+    margin-bottom: 0.5rem;
+}
+
+.airport_code {
+    font-size: 1rem;
+    color: var(--primary-dark);
+    margin-bottom: 1rem;
+}
+
+.airport_actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: 1rem;
+}
+
+.edit_button,
+.delete_button {
+    background: none;
+    border: none;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-size: 1rem;
+    padding: 0.5rem;
+    border-radius: 4px;
+}
+
+.edit_button {
+    color: var(--primary);
+}
+
+.edit_button:hover {
+    background-color: rgba(0, 184, 255, 0.1);
+}
+
+.delete_button {
+    color: var(--error);
+}
+
+.delete_button:hover {
+    background-color: rgba(244, 67, 54, 0.1);
+}
+
+.no_airports {
+    text-align: center;
+    font-size: 1.2rem;
+    color: var(--text);
+    grid-column: 1 / -1;
+    padding: 2rem;
+}
+
+.modal_overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: rgba(0, 0, 0, 0.5);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.modal {
+    background-color: white;
+    border-radius: 8px;
+    padding: 2rem;
+    width: 90%;
+    max-width: 500px;
+    position: relative;
+}
+
+.modal h2 {
+    color: var(--secondary);
+    margin-top: 0;
+    margin-bottom: 1.5rem;
+}
+
+.form_group {
+    margin-bottom: 1rem;
+}
+
+.form_group label {
+    display: block;
+    margin-bottom: 0.5rem;
+    color: var(--secondary);
+}
+
+.form_group input {
+    width: 100%;
+    padding: 0.5rem;
+    border: 1px solid var(--border);
+    border-radius: 4px;
+    font-size: 1rem;
+}
+
+.form_actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: 1rem;
+    margin-top: 1.5rem;
+}
+
+.save_button,
+.cancel_button {
+    padding: 0.5rem 1rem;
+    border: none;
+    border-radius: 4px;
+    font-size: 1rem;
+    cursor: pointer;
+}
+
+.save_button {
+    background-color: var(--primary);
+    color: white;
+}
+
+.save_button:hover {
+    background-color: var(--primary-dark);
+}
+
+.cancel_button {
+    background-color: #ccc;
+    color: var(--text);
+}
+
+.cancel_button:hover {
+    background-color: #bbb;
+}
+
+.close_modal {
+    position: absolute;
+    top: 1rem;
+    right: 1rem;
+    background: none;
+    border: none;
+    cursor: pointer;
+    color: var(--secondary);
+}
+
+.loading {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    height: 200px;
+}
+
+.spinner {
+    animation: spin 1s linear infinite;
+    color: var(--primary);
+}
+
+@keyframes spin {
+    0% {
+        transform: rotate(0deg);
+    }
+
+    100% {
+        transform: rotate(360deg);
+    }
+}
+
+@media (max-width: 768px) {
+    .airport_grid {
+        grid-template-columns: 1fr;
+    }
+
+    .modal {
+        width: 95%;
+        padding: 1.5rem;
+    }
+}

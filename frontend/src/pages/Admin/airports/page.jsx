@@ -6,7 +6,7 @@ import { Edit, Trash2, Plus, Plane, X, Loader } from 'lucide-react';
 import { toast } from "../../../hooks/toast";
 import Toaster from "../../../hooks/Toaster";
 import API_BASE_URL from '../config';
-import './stylesAirport.css';
+import styleAirport from './stylesAirport.module.css';
 
 const AdminAirportManagement = () => {
     const [airports, setAirports] = useState([]);
@@ -99,10 +99,10 @@ const AdminAirportManagement = () => {
     };
 
     return (
-        <div className="airport-management">
-            <h1 className="page-title">Manage Airports</h1>
-            <div className="controls">
-                <button className="add-button" onClick={() => {
+        <div className={styleAirport.airport_management}>
+            <h1 className={styleAirport.page_title}>Manage Airports</h1>
+            <div className={styleAirport.controls}>
+                <button className={styleAirport.add_button} onClick={() => {
                     setEditingAirport(null);
                     setNewAirport({ code: '', name: '', city: '' });
                     setIsDialogOpen(true);
@@ -113,27 +113,27 @@ const AdminAirportManagement = () => {
             </div>
 
             {loading ? (
-                <div className="loading">
-                    <Loader size={48} className="spinner" />
+                <div className={styleAirport.loading}>
+                    <Loader size={48} className={styleAirport.spinner} />
                     <p>Loading airports...</p>
                 </div>
             ) : (
-                <div className="airport-grid">
+                <div className={styleAirport.airport_grid}>
                     {airports.length > 0 ? (
                         airports.map((airport) => (
-                            <div key={airport._id} className="airport-card">
-                                <div className="airport-header">
-                                    <Plane size={24} className="airport-icon" />
+                            <div key={airport._id} className={styleAirport.airport_card}>
+                                <div className={styleAirport.airport_header}>
+                                    <Plane size={24} className={styleAirport.airport_icon} />
                                     <h2>{airport.name}</h2>
                                 </div>
-                                <p className="airport-city">{airport.city}</p>
-                                <p className="airport-code">Code: {airport.code}</p>
-                                <div className="airport-actions">
-                                    <button className="edit-button" onClick={() => handleEdit(airport)}>
+                                <p className={styleAirport.airport_city}>{airport.city}</p>
+                                <p className={styleAirport.airport_code}>Code: {airport.code}</p>
+                                <div className={styleAirport.airport_actions}>
+                                    <button className={styleAirport.edit_button} onClick={() => handleEdit(airport)}>
                                         <Edit size={18} />
                                         Edit
                                     </button>
-                                    <button className="delete-button" onClick={() => handleDelete(airport._id)}>
+                                    <button className={styleAirport.delete_button} onClick={() => handleDelete(airport._id)}>
                                         <Trash2 size={18} />
                                         Delete
                                     </button>
@@ -141,17 +141,17 @@ const AdminAirportManagement = () => {
                             </div>
                         ))
                     ) : (
-                        <p className="no-airports">No airports available</p>
+                        <p className={styleAirport.no_airports}>No airports available</p>
                     )}
                 </div>
             )}
 
             {isDialogOpen && (
-                <div className="modal-overlay">
-                    <div className="modal">
+                <div className={styleAirport.modal_overlay}>
+                    <div className={styleAirport.modal}>
                         <h2>{editingAirport ? "Edit Airport" : "Add New Airport"}</h2>
                         <form onSubmit={handleSubmit}>
-                            <div className="form-group">
+                            <div className={styleAirport.form_group}>
                                 <label htmlFor="code">Airport Code</label>
                                 <input
                                     id="code"
@@ -161,7 +161,7 @@ const AdminAirportManagement = () => {
                                     required
                                 />
                             </div>
-                            <div className="form-group">
+                            <div className={styleAirport.form_group}>
                                 <label htmlFor="name">Airport Name</label>
                                 <input
                                     id="name"
@@ -171,7 +171,7 @@ const AdminAirportManagement = () => {
                                     required
                                 />
                             </div>
-                            <div className="form-group">
+                            <div className={styleAirport.form_group}>
                                 <label htmlFor="city">City</label>
                                 <input
                                     id="city"
@@ -181,16 +181,16 @@ const AdminAirportManagement = () => {
                                     required
                                 />
                             </div>
-                            <div className="form-actions">
-                                <button type="submit" className="save-button">
+                            <div className={styleAirport.form_actions}>
+                                <button type="submit" className={styleAirport.save_button}>
                                     {editingAirport ? "Update Airport" : "Add Airport"}
                                 </button>
-                                <button type="button" className="cancel-button" onClick={() => setIsDialogOpen(false)}>
+                                <button type="button" className={styleAirport.cancel_button} onClick={() => setIsDialogOpen(false)}>
                                     Cancel
                                 </button>
                             </div>
                         </form>
-                        <button className="close-modal" onClick={() => setIsDialogOpen(false)}>
+                        <button className={styleAirport.close_modal} onClick={() => setIsDialogOpen(false)}>
                             <X size={24} />
                         </button>
                     </div>

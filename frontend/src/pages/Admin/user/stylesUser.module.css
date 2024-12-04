@@ -5,8 +5,6 @@
     --background: #f0f4f8;
     --text: #333;
     --border: #e0e0e0;
-    --success: #4caf50;
-    --error: #f44336;
 }
 
 body {
@@ -18,125 +16,122 @@ body {
     padding: 0;
 }
 
-.airport-management {
+.container {
     max-width: 1200px;
     margin: 0 auto;
     padding: 2rem;
 }
 
-.page-title {
+.header {
+    font-size: 2rem;
+    font-weight: bold;
     color: var(--secondary);
-    font-size: 2.5rem;
+    display: flex;
+    align-items: center;
     margin-bottom: 2rem;
 }
 
-.controls {
-    margin-bottom: 2rem;
+.header .icon {
+    margin-right: 0.5rem;
 }
 
-.add-button {
+.actions {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1.5rem;
+}
+
+.search_container {
+    position: relative;
+    width: 250px;
+}
+
+.search_input {
+    width: 100%;
+    padding: 0.5rem 0.5rem 0.5rem 2rem;
+    border: 1px solid var(--primary);
+    border-radius: 4px;
+    font-size: 1rem;
+}
+
+.search_icon {
+    position: absolute;
+    left: 0.5rem;
+    top: 50%;
+    transform: translateY(-50%);
+    color: var(--primary);
+}
+
+.add_button {
     background-color: var(--primary);
     color: white;
     border: none;
     padding: 0.5rem 1rem;
+    border-radius: 4px;
     font-size: 1rem;
     cursor: pointer;
     display: flex;
     align-items: center;
-    gap: 0.5rem;
-    border-radius: 4px;
 }
 
-.add-button:hover {
+.add_button:hover {
     background-color: var(--primary-dark);
 }
 
-.airport-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
-    gap: 2rem;
+.add_button .icon {
+    margin-right: 0.5rem;
 }
 
-.airport-card {
+.table_container {
     background-color: white;
     border-radius: 8px;
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-    padding: 1.5rem;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    overflow: hidden;
 }
 
-.airport-header {
-    display: flex;
-    align-items: center;
-    gap: 1rem;
-    margin-bottom: 1rem;
+table {
+    width: 100%;
+    border-collapse: collapse;
 }
 
-.airport-icon {
-    color: var(--primary);
+thead {
+    background-color: var(--secondary);
+    color: white;
 }
 
-.airport-header h2 {
-    margin: 0;
-    font-size: 1.5rem;
-    color: var(--secondary);
+th,
+td {
+    padding: 1rem;
+    text-align: left;
 }
 
-.airport-city {
-    font-size: 1.1rem;
-    color: var(--text);
-    margin-bottom: 0.5rem;
+tbody tr:nth-child(even) {
+    background-color: #f8f8f8;
 }
 
-.airport-code {
-    font-size: 1rem;
-    color: var(--primary-dark);
-    margin-bottom: 1rem;
+tbody tr:hover {
+    background-color: #e8e8e8;
 }
 
-.airport-actions {
-    display: flex;
-    justify-content: flex-end;
-    gap: 1rem;
-}
-
-.edit-button,
-.delete-button {
+.edit_button,
+.delete_button {
     background: none;
     border: none;
     cursor: pointer;
-    display: flex;
-    align-items: center;
-    gap: 0.5rem;
-    font-size: 1rem;
-    padding: 0.5rem;
-    border-radius: 4px;
+    padding: 0.25rem;
+    margin-right: 0.5rem;
 }
 
-.edit-button {
+.edit_button {
     color: var(--primary);
 }
 
-.edit-button:hover {
-    background-color: rgba(0, 184, 255, 0.1);
+.delete_button {
+    color: #ff4136;
 }
 
-.delete-button {
-    color: var(--error);
-}
-
-.delete-button:hover {
-    background-color: rgba(244, 67, 54, 0.1);
-}
-
-.no-airports {
-    text-align: center;
-    font-size: 1.2rem;
-    color: var(--text);
-    grid-column: 1 / -1;
-    padding: 2rem;
-}
-
-.modal-overlay {
+.dialog_overlay {
     position: fixed;
     top: 0;
     left: 0;
@@ -148,32 +143,31 @@ body {
     align-items: center;
 }
 
-.modal {
+.dialog {
     background-color: white;
-    border-radius: 8px;
     padding: 2rem;
-    width: 90%;
-    max-width: 500px;
-    position: relative;
+    border-radius: 8px;
+    width: 100%;
+    max-width: 400px;
 }
 
-.modal h2 {
-    color: var(--secondary);
+.dialog h2 {
     margin-top: 0;
     margin-bottom: 1.5rem;
+    color: var(--secondary);
 }
 
-.form-group {
+.form_group {
     margin-bottom: 1rem;
 }
 
-.form-group label {
+.form_group label {
     display: block;
     margin-bottom: 0.5rem;
     color: var(--secondary);
 }
 
-.form-group input {
+.form_group input {
     width: 100%;
     padding: 0.5rem;
     border: 1px solid var(--border);
@@ -181,48 +175,38 @@ body {
     font-size: 1rem;
 }
 
-.form-actions {
+.dialog_actions {
     display: flex;
     justify-content: flex-end;
-    gap: 1rem;
     margin-top: 1.5rem;
 }
 
-.save-button,
-.cancel-button {
+.save_button,
+.cancel_button {
     padding: 0.5rem 1rem;
     border: none;
     border-radius: 4px;
     font-size: 1rem;
     cursor: pointer;
+    margin-left: 0.5rem;
 }
 
-.save-button {
+.save_button {
     background-color: var(--primary);
     color: white;
 }
 
-.save-button:hover {
+.save_button:hover {
     background-color: var(--primary-dark);
 }
 
-.cancel-button {
+.cancel_button {
     background-color: #ccc;
     color: var(--text);
 }
 
-.cancel-button:hover {
+.cancel_button:hover {
     background-color: #bbb;
-}
-
-.close-modal {
-    position: absolute;
-    top: 1rem;
-    right: 1rem;
-    background: none;
-    border: none;
-    cursor: pointer;
-    color: var(--secondary);
 }
 
 .loading {
@@ -245,16 +229,5 @@ body {
 
     100% {
         transform: rotate(360deg);
-    }
-}
-
-@media (max-width: 768px) {
-    .airport-grid {
-        grid-template-columns: 1fr;
-    }
-
-    .modal {
-        width: 95%;
-        padding: 1.5rem;
     }
 }

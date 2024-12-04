@@ -1,13 +1,12 @@
-
 'use client';
 
 import { useState, useEffect } from 'react';
 import axios from 'axios';
-import { Edit, Trash2, Search, UserPlus, Users } from 'lucide-react';
+import { Edit, Trash2, Search, UserPlus, Users, Loader } from 'lucide-react';
 import { toast } from "../../../hooks/toast";
 import Toaster from "../../../hooks/Toaster"
 import API_BASE_URL from '../config';
-import './styles.css';
+import userStyle from './stylesUser.module.css';
 
 export default function UserManagement() {
     const [users, setUsers] = useState([]);
@@ -19,9 +18,11 @@ export default function UserManagement() {
         password: '',
     });
     const [searchTerm, setSearchTerm] = useState('');
+    const [loading, setLoading] = useState(true);
 
     const fetchUsers = async () => {
         try {
+            setLoading(true);
             const response = await axios.get(`${API_BASE_URL}/api/users`);
             setUsers(response.data);
         } catch (error) {
@@ -31,6 +32,8 @@ export default function UserManagement() {
                 description: 'Failed to fetch users. Please try again.',
                 status: 'error',
             });
+        } finally {
+            setLoading(false);
         }
     };
 
@@ -113,62 +116,69 @@ export default function UserManagement() {
     };
 
     return (
-        <div className="container">
-            <h1 className="header">
-                <Users className="icon" /> User Management
+        <div className={userStyle.container}>
+            <h1 className={userStyle.header}>
+                <Users className={userStyle.icon} /> User Management
             </h1>
-            <div className="actions">
-                <div className="search-container">
+            <div className={userStyle.actions}>
+                <div className={userStyle.search_container}>
                     <input
                         type="text"
                         placeholder="Search users..."
                         value={searchTerm}
                         onChange={(e) => setSearchTerm(e.target.value)}
-                        className="search-input"
+                        className={userStyle.search_input}
                     />
-                    <Search className="search-icon" />
+                    <Search className={userStyle.search_icon} />
                 </div>
                 <button onClick={() => {
                     resetForm();
                     setIsDialogOpen(true);
-                }} className="add-button">
-                    <UserPlus className="icon" /> Add New User
+                }} className={userStyle.add_button}>
+                    <UserPlus className={userStyle.icon} /> Add New User
                 </button>
             </div>
-            <div className="table-container">
-                <table>
-                    <thead>
-                        <tr>
-                            <th>Name</th>
-                            <th>Username</th>
-                            <th>Actions</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        {filteredUsers.map((user) => (
-                            <tr key={user._id}>
-                                <td>{user.name}</td>
-                                <td>{user.username}</td>
-                                <td>
-                                    <button onClick={() => handleEdit(user)} className="edit-button">
-                                        <Edit className="icon" />
-                                    </button>
-                                    <button onClick={() => handleDelete(user._id)} className="delete-button">
-                                        <Trash2 className="icon" />
-                                    </button>
-                                </td>
+            <div className={userStyle.table_container}>
+                {loading ? (
+                    <div className={userStyle.loading}>
+                        <Loader className={userStyle.spinner} />
+                        <p>Loading users...</p>
+                    </div>
+                ) : (
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Name</th>
+                                <th>Username</th>
+                                <th>Actions</th>
                             </tr>
-                        ))}
-                    </tbody>
-                </table>
+                        </thead>
+                        <tbody>
+                            {filteredUsers.map((user) => (
+                                <tr key={user._id}>
+                                    <td>{user.name}</td>
+                                    <td>{user.username}</td>
+                                    <td>
+                                        <button onClick={() => handleEdit(user)} className={userStyle.edit_button}>
+                                            <Edit className={userStyle.icon} />
+                                        </button>
+                                        <button onClick={() => handleDelete(user._id)} className={userStyle.delete_button}>
+                                            <Trash2 className={userStyle.icon} />
+                                        </button>
+                                    </td>
+                                </tr>
+                            ))}
+                        </tbody>
+                    </table>
+                )}
             </div>
 
             {isDialogOpen && (
-                <div className="dialog-overlay">
-                    <div className="dialog">
+                <div className={userStyle.dialog_overlay}>
+                    <div className={userStyle.dialog}>
                         <h2>{editingUser ? 'Edit User' : 'Add New User'}</h2>
                         <form onSubmit={handleSubmit}>
-                            <div className="form-group">
+                            <div className={userStyle.form_group}>
                                 <label htmlFor="name">Name</label>
                                 <input
                                     id="name"
@@ -178,7 +188,7 @@ export default function UserManagement() {
                                     required
                                 />
                             </div>
-                            <div className="form-group">
+                            <div className={userStyle.form_group}>
                                 <label htmlFor="username">Username</label>
                                 <input
                                     id="username"
@@ -188,7 +198,7 @@ export default function UserManagement() {
                                     required
                                 />
                             </div>
-                            <div className="form-group">
+                            <div className={userStyle.form_group}>
                                 <label htmlFor="password">Password</label>
                                 <input
                                     id="password"
@@ -199,11 +209,11 @@ export default function UserManagement() {
                                     required
                                 />
                             </div>
-                            <div className="dialog-actions">
-                                <button type="submit" className="save-button">
+                            <div className={userStyle.dialog_actions}>
+                                <button type="submit" className={userStyle.save_button}>
                                     Save
                                 </button>
-                                <button type="button" onClick={() => setIsDialogOpen(false)} className="cancel-button">
+                                <button type="button" onClick={() => setIsDialogOpen(false)} className={userStyle.cancel_button}>
                                     Cancel
                                 </button>
                             </div>
@@ -215,4 +225,3 @@ export default function UserManagement() {
         </div>
     );
 }
-

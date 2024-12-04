@@ -14,19 +14,19 @@ body {
     line-height: 1.6;
 }
 
-.cms-container {
+.cms_container {
     max-width: 1200px;
     margin: 0 auto;
     padding: 2rem;
 }
 
-.cms-heading {
+.cms_heading {
     color: var(--secondary);
     font-size: 2.5rem;
     margin-bottom: 2rem;
 }
 
-.add-button {
+.add_button {
     background-color: var(--primary);
     color: white;
     border: none;
@@ -40,7 +40,7 @@ body {
     border-radius: 4px;
 }
 
-.add-button:hover {
+.add_button:hover {
     background-color: var(--primary-dark);
 }
 
@@ -51,12 +51,12 @@ body {
     overflow: hidden;
 }
 
-.tab-list {
+.tab_list {
     display: flex;
     background-color: var(--secondary);
 }
 
-.tab-button {
+.tab_button {
     background-color: transparent;
     color: white;
     border: none;
@@ -67,41 +67,41 @@ body {
     transition: background-color 0.3s ease;
 }
 
-.tab-button:hover {
+.tab_button:hover {
     background-color: rgba(255, 255, 255, 0.1);
 }
 
-.tab-button.active {
+.tab_button.active {
     background-color: var(--primary);
 }
 
-.tab-content {
+.tab_content {
     padding: 2rem;
 }
 
-.cms-table {
+.cms_table {
     width: 100%;
     border-collapse: collapse;
 }
 
-.cms-table th,
-.cms-table td {
+.cms_table th,
+.cms_table td {
     padding: 1rem;
     text-align: left;
     border-bottom: 1px solid var(--border);
 }
 
-.cms-table th {
+.cms_table th {
     background-color: var(--primary);
     color: white;
 }
 
-.table-image {
+.table_image {
     width: 50px;
     height: auto;
 }
 
-.action-button {
+.action_button {
     background: none;
     border: none;
     cursor: pointer;
@@ -109,15 +109,15 @@ body {
     margin-right: 0.5rem;
 }
 
-.edit-button {
+.edit_button {
     color: var(--primary);
 }
 
-.delete-button {
+.delete_button {
     color: #ff4136;
 }
 
-.modal-overlay {
+.modal_overlay {
     position: fixed;
     top: 0;
     left: 0;
@@ -143,19 +143,19 @@ body {
     margin-bottom: 1.5rem;
 }
 
-.form-group {
+.form_group {
     margin-bottom: 1rem;
 }
 
-.form-group label {
+.form_group label {
     display: block;
     margin-bottom: 0.5rem;
     color: var(--secondary);
 }
 
-.form-group input,
-.form-group select,
-.form-group textarea {
+.form_group input,
+.form_group select,
+.form_group textarea {
     width: 100%;
     padding: 0.5rem;
     border: 1px solid var(--border);
@@ -163,20 +163,20 @@ body {
     font-size: 1rem;
 }
 
-.form-group textarea {
+.form_group textarea {
     height: 100px;
 }
 
-.file-input-wrapper {
+.file_input_wrapper {
     position: relative;
 }
 
-.file-input-wrapper input[type="file"] {
+.file_input_wrapper input[type="file"] {
     position: absolute;
     left: -9999px;
 }
 
-.file-input-label {
+.file_input_label {
     display: inline-flex;
     align-items: center;
     gap: 0.5rem;
@@ -187,15 +187,15 @@ body {
     cursor: pointer;
 }
 
-.form-actions {
+.form_actions {
     display: flex;
     justify-content: flex-end;
     gap: 1rem;
     margin-top: 1.5rem;
 }
 
-.save-button,
-.cancel-button {
+.save_button,
+.cancel_button {
     padding: 0.5rem 1rem;
     border: none;
     border-radius: 4px;
@@ -203,20 +203,43 @@ body {
     cursor: pointer;
 }
 
-.save-button {
+.save_button {
     background-color: var(--primary);
     color: white;
 }
 
-.save-button:hover {
+.save_button:hover {
     background-color: var(--primary-dark);
 }
 
-.cancel-button {
+.cancel_button {
     background-color: #ccc;
     color: var(--text);
 }
 
-.cancel-button:hover {
+.cancel_button:hover {
     background-color: #bbb;
+}
+
+.loading {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    height: 200px;
+}
+
+.spinner {
+    animation: spin 1s linear infinite;
+    color: #00b8ff;
+}
+
+@keyframes spin {
+    0% {
+        transform: rotate(0deg);
+    }
+
+    100% {
+        transform: rotate(360deg);
+    }
 }

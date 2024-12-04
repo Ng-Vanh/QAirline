@@ -2,11 +2,11 @@
 
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
-import { Plane, Edit, Trash2, Plus, Calendar, Search, Filter } from 'lucide-react';
+import { Plane, Edit, Trash2, Plus, Calendar, Search, Filter, Loader } from 'lucide-react';
 import { toast } from "../../../hooks/toast";
 import Toaster from "../../../hooks/Toaster";
 import API_BASE_URL from '../config';
-import './stylesFlights.css';
+import flightStyle from './stylesFlights.module.css';
 
 export default function ManageFlights() {
     const [flights, setFlights] = useState([]);
@@ -44,6 +44,7 @@ export default function ManageFlights() {
 
     const fetchFlights = async () => {
         try {
+            setLoading(true);
             const response = await axios.get(`${API_BASE_URL}/api/flights`);
             setFlights(response.data);
         } catch (error) {
@@ -53,6 +54,8 @@ export default function ManageFlights() {
                 description: 'Failed to fetch flights.',
                 status: 'error',
             });
+        } finally {
+            setLoading(false);
         }
     };
 
@@ -71,8 +74,6 @@ export default function ManageFlights() {
                 description: 'Failed to fetch airports or aircrafts.',
                 status: 'error',
             });
-        } finally {
-            setLoading(false);
         }
     };
 
@@ -185,33 +186,33 @@ export default function ManageFlights() {
 
     const getStatusColor = (status) => {
         switch (status) {
-            case "Scheduled": return "status-scheduled";
-            case "Delayed": return "status-delayed";
-            case "On time": return "status-in-air";
-            case "Landed": return "status-landed";
-            default: return "status-default";
+            case "Scheduled": return flightStyle.status_scheduled;
+            case "Delayed": return flightStyle.status_delayed;
+            case "On time": return flightStyle.status_in_air;
+            case "Landed": return flightStyle.status_landed;
+            default: return flightStyle.status_default;
         }
     };
 
     return (
-        <div className="flight-management-container">
-            <h1 className="flight-management-title">Manage Flights</h1>
+        <div className={flightStyle.flight_management_container}>
+            <h1 className={flightStyle.flight_management_title}>Manage Flights</h1>
 
-            <div className="filters-container">
-                <div className="search-container">
-                    <Search className="search-icon" />
+            <div className={flightStyle.filters_container}>
+                <div className={flightStyle.search_container}>
+                    <Search className={flightStyle.search_icon} />
                     <input
                         type="text"
                         placeholder="Search flights..."
                         value={searchTerm}
                         onChange={(e) => setSearchTerm(e.target.value)}
-                        className="search-input"
+                        className={flightStyle.search_input}
                     />
                 </div>
                 <select
                     value={statusFilter}
                     onChange={(e) => setStatusFilter(e.target.value)}
-                    className="status-select"
+                    className={flightStyle.status_select}
                 >
                     <option value="All">All Statuses</option>
                     <option value="Scheduled">Scheduled</option>
@@ -219,7 +220,7 @@ export default function ManageFlights() {
                     <option value="On time">On time</option>
                     <option value="Landed">Landed</option>
                 </select>
-                <button className="add-button" onClick={() => {
+                <button className={flightStyle.add_button} onClick={() => {
                     setEditingFlight(null);
                     setNewFlight({
                         flightCode: "",
@@ -240,48 +241,55 @@ export default function ManageFlights() {
                 </button>
             </div>
 
-            <div className="flights-grid">
-                {filteredFlights.map((flight) => (
-                    <div key={flight._id} className="flight-card">
-                        <div className="flight-card-header">
-                            <h3 className="flight-title">Flight {flight.flightCode || "Unknown"}</h3>
-                            <div className={`flight-status ${getStatusColor(flight.flightStatus)}`}>
-                                {flight.flightStatus || "Unknown"}
+            {loading ? (
+                <div className={flightStyle.loading}>
+                    <Loader className={flightStyle.spinner} />
+                    <p>Loading flights...</p>
+                </div>
+            ) : (
+                <div className={flightStyle.flights_grid}>
+                    {filteredFlights.map((flight) => (
+                        <div key={flight._id} className={flightStyle.flight_card}>
+                            <div className={flightStyle.flight_card_header}>
+                                <h3 className={flightStyle.flight_title}>Flight {flight.flightCode || "Unknown"}</h3>
+                                <div className={` ${flightStyle.flight_status} ${getStatusColor(flight.flightStatus)}`}>
+                                    {flight.flightStatus || "Unknown"}
+                                </div>
+                            </div>
+                            <div className={flightStyle.flight_info}>
+                                <p><strong>From:</strong> {flight.departureAirport?.name || "Unknown"}</p>
+                                <p><strong>To:</strong> {flight.arrivalAirport?.name || "Unknown"}</p>
+                                <p><strong>Departure:</strong> {new Date(flight.departureTime).toLocaleString()}</p>
+                                <p><strong>Arrival:</strong> {new Date(flight.arrivalTime).toLocaleString()}</p>
+                                <p><strong>Aircraft:</strong> {flight.aircraft?.model || "Unknown"}</p>
+                            </div>
+                            <div className={flightStyle.flight_actions}>
+                                <button onClick={() => handleEdit(flight)} className={flightStyle.edit_button}>
+                                    <Edit />
+                                </button>
+                                <button onClick={() => handleDelete(flight._id)} className={flightStyle.delete_button}>
+                                    <Trash2 />
+                                </button>
                             </div>
                         </div>
-                        <div className="flight-info">
-                            <p><strong>From:</strong> {flight.departureAirport?.name || "Unknown"}</p>
-                            <p><strong>To:</strong> {flight.arrivalAirport?.name || "Unknown"}</p>
-                            <p><strong>Departure:</strong> {new Date(flight.departureTime).toLocaleString()}</p>
-                            <p><strong>Arrival:</strong> {new Date(flight.arrivalTime).toLocaleString()}</p>
-                            <p><strong>Aircraft:</strong> {flight.aircraft?.model || "Unknown"}</p>
-                        </div>
-                        <div className="flight-actions">
-                            <button onClick={() => handleEdit(flight)} className="edit-button">
-                                <Edit />
-                            </button>
-                            <button onClick={() => handleDelete(flight._id)} className="delete-button">
-                                <Trash2 />
-                            </button>
-                        </div>
-                    </div>
-                ))}
-            </div>
+                    ))}
+                </div>
+            )}
 
-            {filteredFlights.length === 0 && (
-                <div className="no-flights">
-                    <Calendar className="no-flights-icon" />
+            {!loading && filteredFlights.length === 0 && (
+                <div className={flightStyle.no_flights}>
+                    <Calendar className={flightStyle.no_flights_icon} />
                     <p>No flights found</p>
                     <p>Try adjusting your search or filters.</p>
                 </div>
             )}
 
             {isDialogOpen && (
-                <div className="modal-overlay">
-                    <div className="modal">
+                <div className={flightStyle.modal_overlay}>
+                    <div className={flightStyle.modal}>
                         <h2>{editingFlight ? 'Edit Flight' : 'Add New Flight'}</h2>
                         <form onSubmit={handleSubmit}>
-                            <div className="form-group">
+                            <div className={flightStyle.form_group}>
                                 <label htmlFor="flightCode">Flight Number</label>
                                 <input
                                     id="flightCode"
@@ -292,7 +300,7 @@ export default function ManageFlights() {
                                     required
                                 />
                             </div>
-                            <div className="form-group">
+                            <div className={flightStyle.form_group}>
                                 <label htmlFor="departureAirport">Departure Airport</label>
                                 <select
                                     id="departureAirport"
@@ -309,7 +317,7 @@ export default function ManageFlights() {
                                     ))}
                                 </select>
                             </div>
-                            <div className="form-group">
+                            <div className={flightStyle.form_group}>
                                 <label htmlFor="arrivalAirport">Arrival Airport</label>
                                 <select
                                     id="arrivalAirport"
@@ -326,7 +334,7 @@ export default function ManageFlights() {
                                     ))}
                                 </select>
                             </div>
-                            <div className="form-group">
+                            <div className={flightStyle.form_group}>
                                 <label htmlFor="departureTime">Departure Time</label>
                                 <input
                                     id="departureTime"
@@ -337,7 +345,7 @@ export default function ManageFlights() {
                                     required
                                 />
                             </div>
-                            <div className="form-group">
+                            <div className={flightStyle.form_group}>
                                 <label htmlFor="arrivalTime">Arrival Time</label>
                                 <input
                                     id="arrivalTime"
@@ -348,7 +356,7 @@ export default function ManageFlights() {
                                     required
                                 />
                             </div>
-                            <div className="form-group">
+                            <div className={flightStyle.form_group}>
                                 <label htmlFor="aircraft">Aircraft</label>
                                 <select
                                     id="aircraft"
@@ -365,7 +373,7 @@ export default function ManageFlights() {
                                     ))}
                                 </select>
                             </div>
-                            <div className="form-group">
+                            <div className={flightStyle.form_group}>
                                 <label htmlFor="flightStatus">Flight Status</label>
                                 <select
                                     id="flightStatus"
@@ -380,8 +388,8 @@ export default function ManageFlights() {
                                     <option value="Landed">Landed</option>
                                 </select>
                             </div>
-                            <div className="form-row">
-                                <div className="form-group">
+                            <div className={flightStyle.form_row}>
+                                <div className={flightStyle.form_group}>
                                     <label htmlFor="economyPrice">Economy Price</label>
                                     <input
                                         id="economyPrice"
@@ -391,7 +399,7 @@ export default function ManageFlights() {
                                         placeholder="e.g., 150"
                                     />
                                 </div>
-                                <div className="form-group">
+                                <div className={flightStyle.form_group}>
                                     <label htmlFor="economySeats">Economy Seats</label>
                                     <input
                                         id="economySeats"
@@ -402,8 +410,8 @@ export default function ManageFlights() {
                                     />
                                 </div>
                             </div>
-                            <div className="form-row">
-                                <div className="form-group">
+                            <div className={flightStyle.form_row}>
+                                <div className={flightStyle.form_group}>
                                     <label htmlFor="businessPrice">Business Price</label>
                                     <input
                                         id="businessPrice"
@@ -413,7 +421,7 @@ export default function ManageFlights() {
                                         placeholder="e.g., 350"
                                     />
                                 </div>
-                                <div className="form-group">
+                                <div className={flightStyle.form_group}>
                                     <label htmlFor="businessSeats">Business Seats</label>
                                     <input
                                         id="businessSeats"
@@ -424,11 +432,11 @@ export default function ManageFlights() {
                                     />
                                 </div>
                             </div>
-                            <div className="form-actions">
-                                <button type="submit" className="submit-button">
+                            <div className={flightStyle.form_actions}>
+                                <button type="submit" className={flightStyle.submit_button}>
                                     {editingFlight ? "Update" : "Add"} Flight
                                 </button>
-                                <button type="button" onClick={() => setIsDialogOpen(false)} className="cancel-button">
+                                <button type="button" onClick={() => setIsDialogOpen(false)} className={flightStyle.cancel_button}>
                                     Cancel
                                 </button>
                             </div>

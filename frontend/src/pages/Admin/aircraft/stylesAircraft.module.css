@@ -18,13 +18,13 @@ body {
     padding: 0;
 }
 
-.aircraft-management {
+.aircraft_management {
     max-width: 1200px;
     margin: 0 auto;
     padding: 2rem;
 }
 
-.page-title {
+.page_title {
     color: var(--secondary);
     font-size: 2.5rem;
     margin-bottom: 2rem;
@@ -37,7 +37,7 @@ body {
     margin-bottom: 2rem;
 }
 
-.add-button {
+.add_button {
     background-color: var(--primary);
     color: white;
     border: none;
@@ -50,16 +50,16 @@ body {
     border-radius: 4px;
 }
 
-.add-button:hover {
+.add_button:hover {
     background-color: var(--primary-dark);
 }
 
-.filter-buttons {
+.filter_buttons {
     display: flex;
     gap: 1rem;
 }
 
-.filter-button {
+.filter_button {
     background-color: white;
     color: var(--secondary);
     border: 1px solid var(--secondary);
@@ -69,32 +69,32 @@ body {
     border-radius: 4px;
 }
 
-.filter-button.active {
+.filter_button.active {
     background-color: var(--secondary);
     color: white;
 }
 
-.aircraft-grid {
+.aircraft_grid {
     display: grid;
     grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
     gap: 2rem;
 }
 
-.aircraft-card {
+.aircraft_card {
     background-color: white;
     border-radius: 8px;
     box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
     padding: 1.5rem;
 }
 
-.aircraft-header {
+.aircraft_header {
     display: flex;
     justify-content: space-between;
     align-items: center;
     margin-bottom: 1rem;
 }
 
-.aircraft-header h2 {
+.aircraft_header h2 {
     margin: 0;
     font-size: 1.5rem;
     color: var(--secondary);
@@ -107,35 +107,35 @@ body {
     font-weight: bold;
 }
 
-.badge.in-service {
+.badge.in_service {
     background-color: var(--success);
     color: white;
 }
 
-.badge.out-of-service {
+.badge.out_of_service {
     background-color: var(--error);
     color: white;
 }
 
-.aircraft-code {
+.aircraft_code {
     font-size: 1rem;
     color: var(--primary-dark);
     margin-bottom: 1rem;
 }
 
-.aircraft-details p {
+.aircraft_details p {
     margin: 0.5rem 0;
 }
 
-.aircraft-actions {
+.aircraft_actions {
     display: flex;
     justify-content: flex-end;
     gap: 1rem;
     margin-top: 1rem;
 }
 
-.edit-button,
-.delete-button {
+.edit_button,
+.delete_button {
     background: none;
     border: none;
     cursor: pointer;
@@ -145,15 +145,15 @@ body {
     font-size: 1rem;
 }
 
-.edit-button {
+.edit_button {
     color: var(--primary);
 }
 
-.delete-button {
+.delete_button {
     color: var(--error);
 }
 
-.no-aircraft {
+.no_aircraft {
     text-align: center;
     padding: 4rem;
     background-color: white;
@@ -161,12 +161,12 @@ body {
     box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 }
 
-.no-aircraft svg {
+.no_aircraft svg {
     color: var(--primary);
     margin-bottom: 1rem;
 }
 
-.modal-overlay {
+.modal_overlay {
     position: fixed;
     top: 0;
     left: 0;
@@ -195,24 +195,24 @@ body {
     margin-bottom: 1.5rem;
 }
 
-.form-grid {
+.form_grid {
     display: grid;
     grid-template-columns: repeat(2, 1fr);
     gap: 1rem;
 }
 
-.form-group {
+.form_group {
     margin-bottom: 1rem;
 }
 
-.form-group label {
+.form_group label {
     display: block;
     margin-bottom: 0.5rem;
     color: var(--secondary);
 }
 
-.form-group input,
-.form-group select {
+.form_group input,
+.form_group select {
     width: 100%;
     padding: 0.5rem;
     border: 1px solid var(--border);
@@ -220,15 +220,15 @@ body {
     font-size: 1rem;
 }
 
-.form-actions {
+.form_actions {
     display: flex;
     justify-content: flex-end;
     gap: 1rem;
     margin-top: 1.5rem;
 }
 
-.save-button,
-.cancel-button {
+.save_button,
+.cancel_button {
     padding: 0.5rem 1rem;
     border: none;
     border-radius: 4px;
@@ -236,25 +236,25 @@ body {
     cursor: pointer;
 }
 
-.save-button {
+.save_button {
     background-color: var(--primary);
     color: white;
 }
 
-.save-button:hover {
+.save_button:hover {
     background-color: var(--primary-dark);
 }
 
-.cancel-button {
+.cancel_button {
     background-color: #ccc;
     color: var(--text);
 }
 
-.cancel-button:hover {
+.cancel_button:hover {
     background-color: #bbb;
 }
 
-.close-modal {
+.close_modal {
     position: absolute;
     top: 1rem;
     right: 1rem;
@@ -281,11 +281,34 @@ body {
         align-items: stretch;
     }
 
-    .filter-buttons {
+    .filter_buttons {
         margin-top: 1rem;
     }
 
-    .form-grid {
+    .form_grid {
         grid-template-columns: 1fr;
+    }
+}
+
+.loading {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    height: 200px;
+}
+
+.spinner {
+    animation: spin 1s linear infinite;
+    color: #00b8ff;
+}
+
+@keyframes spin {
+    0% {
+        transform: rotate(0deg);
+    }
+
+    100% {
+        transform: rotate(360deg);
     }
 }
