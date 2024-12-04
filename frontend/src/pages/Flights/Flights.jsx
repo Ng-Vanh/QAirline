@@ -31,6 +31,7 @@ export default function Flights() {
   const [currentStep, setCurrentStep] = useState(0)
   const [maxReachedStep, setMaxReachedStep] = useState(0)
   const [previousLegArrivalTime, setPreviousLegArrivalTime] = useState(null)
+  const [doneChoosing, setDoneChoosing] = useState(false)
 
   const getTotalRoutes = () => {
     if (searchType === 'oneWay') return 1
@@ -66,6 +67,13 @@ export default function Flights() {
     }
   }
 
+
+  const resetState = () => {
+    setSearchResults([])
+    clearCart()
+    setDoneChoosing(false)
+  }
+
   const handleSearch = async () => {
     console.log('Searching for:', searchType)
     setIsLoading(true)
@@ -74,6 +82,7 @@ export default function Flights() {
     setCurrentStep(0)
     setMaxReachedStep(0)
     setPreviousLegArrivalTime(null)
+    setDoneChoosing(false)
 
     let searchPromises = []
 
@@ -124,6 +133,14 @@ export default function Flights() {
       passengers: searchCriteria.passengerCount
     };
 
+    // if (Object.keys(selectedFlights).length >= getTotalRoutes() - 1) {
+    //   setDoneChoosing(true);
+    // }
+
+    if (currentStep === getTotalRoutes() - 1) {
+      setDoneChoosing(true);
+    }
+
     setSelectedFlights(prev => ({
       ...prev,
       [currentStep]: newItem
@@ -163,15 +180,50 @@ export default function Flights() {
   const renderFlightResults = (flights, routeIndex) => {
     const routeInfo = getRouteInfo(routeIndex);
 
+    if (Object.keys(selectedFlights).length === getTotalRoutes()) {
+      console.log("Already selected all flights", getTotalRoutes());
+      console.log("Status of doneChoosing: ", doneChoosing);
+    }
+
+    console.log("this is step: ", currentStep);
+
+    // if (Object.keys(selectedFlights).length === getTotalRoutes()) {
+    //   return renderBookedFlights();
+    // }
+
     const filteredFlights = routeIndex > 0 && previousLegArrivalTime
       ? flights.filter(flight => new Date(flight.departureTime) > new Date(previousLegArrivalTime))
       : flights;
 
-    return (
+    if (doneChoosing) {
+      // if (Object.keys(selectedFlights).length === getTotalRoutes()) {
+      return renderBookedFlights();
+      // }
+    }
+
+    // setDoneChoosing(false)
+    return ( // flights here
       <div className={FlightsStyle.flight_results}>
+
+
         <h2 className={FlightsStyle.flight_results_title}>
           {filteredFlights.length > 0 ? `${filteredFlights.length} Flights found` : 'No flights found'} for {routeInfo.departureCity} to {routeInfo.destinationCity}, {routeInfo.departureDate}
         </h2>
+
+        <div className={FlightsStyle.navigation_buttons_section}>
+
+          <button className={`${FlightsStyle.button} ${FlightsStyle.button_outline} ${FlightsStyle.navigation_buttons}`} onClick={handleBack} disabled={currentStep === 0}>
+            <ArrowLeft className={FlightsStyle.button_icon} />
+            Back
+          </button>
+
+          <button className={`${FlightsStyle.button} ${FlightsStyle.button_outline} ${FlightsStyle.navigation_buttons}`} onClick={handleNext} disabled={currentStep >= maxReachedStep || currentStep >= getTotalRoutes() - 1}>
+            Next
+            <ArrowRight className={FlightsStyle.button_icon} />
+          </button>
+
+        </div>
+
         {filteredFlights.length > 0 ? (
           filteredFlights.map((flight) => {
             const isSelected = selectedFlights[routeIndex]?.flight._id === flight._id;
@@ -187,11 +239,18 @@ export default function Flights() {
                     <div className={FlightsStyle.flight_route}>
                       <h4>{flight.departureAirportDetails.city} ({flight.departureAirportDetails.code})</h4>
                       <p>{new Date(flight.departureTime).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</p>
+                      <p>
+                        {`${new Date(flight.departureTime).getDate()}/${new Date(flight.departureTime).getMonth() + 1}/${new Date(flight.departureTime).getFullYear()}`}
+                      </p>
+
                     </div>
                     <Plane className={FlightsStyle.flight_icon} />
                     <div className={FlightsStyle.flight_route}>
                       <h4>{flight.arrivalAirportDetails.city} ({flight.arrivalAirportDetails.code})</h4>
                       <p>{new Date(flight.arrivalTime).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</p>
+                      <p>
+                        {`${new Date(flight.arrivalTime).getDate()}/${new Date(flight.arrivalTime).getMonth() + 1}/${new Date(flight.arrivalTime).getFullYear()}`}
+                      </p>
                     </div>
                   </div>
                   <div className={FlightsStyle.flight_actions}>
@@ -248,8 +307,33 @@ export default function Flights() {
   };
 
   const handlePreviousStep = () => {
-    if (currentSearchStep > 0) {
-      setCurrentSearchStep(currentSearchStep - 1)
+    setDoneChoosing(false);
+    // if (currentSearchStep > 0) {
+    //   setCurrentSearchStep(currentSearchStep - 1)
+    // }
+    if (currentStep >= 0) {
+      let newStep = currentStep;
+      // if (searchType === 'multiCity') {
+      //   newStep = currentStep - 1;
+      // }
+      // else {
+      //   newStep = currentStep;
+      // }
+
+      console.log("back step: ", newStep);
+      setCurrentStep(newStep);
+      setSelectedFlights(prev => {
+        const newSelectedFlights = { ...prev };
+        // delete newSelectedFlights[currentStep];
+        return newSelectedFlights;
+      });
+      setMaxReachedStep(newStep);
+      if (newStep > 0) {
+        const previousFlight = selectedFlights[newStep - 1]?.flight;
+        setPreviousLegArrivalTime(previousFlight ? previousFlight.arrivalTime : null);
+      } else {
+        setPreviousLegArrivalTime(null);
+      }
     }
   }
 
@@ -267,6 +351,24 @@ export default function Flights() {
   const renderBookedFlights = () => (
     <div className={FlightsStyle.booked_flights}>
       <h2 className={FlightsStyle.flight_results_title}>Here are your booked flights</h2>
+
+      {/* <div className={FlightsStyle.navigation_buttons}>
+        <button
+          className={`${FlightsStyle.button} ${FlightsStyle.button_outline}`}
+          onClick={handlePreviousStep}
+        > 
+          <ArrowLeft className={FlightsStyle.button_icon} />
+          Back to Flight Selection
+        </button>
+      </div> */}
+
+      <div className={FlightsStyle.navigation_buttons_section}>
+        <button className={`${FlightsStyle.button} ${FlightsStyle.button_outline} ${FlightsStyle.navigation_buttons}`} onClick={handlePreviousStep}>
+          <ArrowLeft className={FlightsStyle.button_icon} />
+          Back to flights selection
+        </button>
+      </div>
+
       {Object.entries(selectedFlights).map(([index, item]) => (
         <div key={index} className={`${FlightsStyle.flight_card} ${FlightsStyle.fade_in}`}>
           <div className={FlightsStyle.flight_card_content}>
@@ -278,11 +380,17 @@ export default function Flights() {
               <div className={FlightsStyle.flight_route}>
                 <h4>{item.flight.departureAirportDetails.city} ({item.flight.departureAirportDetails.code})</h4>
                 <p>{new Date(item.flight.departureTime).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</p>
+                <p>
+                  {`${new Date(item.flight.departureTime).getDate()}/${new Date(item.flight.departureTime).getMonth() + 1}/${new Date(item.flight.departureTime).getFullYear()}`}
+                </p>
               </div>
               <Plane className={FlightsStyle.flight_icon} />
               <div className={FlightsStyle.flight_route}>
                 <h4>{item.flight.arrivalAirportDetails.city} ({item.flight.arrivalAirportDetails.code})</h4>
                 <p>{new Date(item.flight.arrivalTime).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</p>
+                <p>
+                  {`${new Date(item.flight.arrivalTime).getDate()}/${new Date(item.flight.arrivalTime).getMonth() + 1}/${new Date(item.flight.arrivalTime).getFullYear()}`}
+                </p>
               </div>
             </div>
             <div className={FlightsStyle.flight_actions}>
@@ -293,14 +401,9 @@ export default function Flights() {
           </div>
         </div>
       ))}
-      <button
-        className={`${FlightsStyle.button} ${FlightsStyle.button_outline}`}
-        onClick={handlePreviousStep}
-      >
-        <ArrowLeft className={FlightsStyle.button_icon} />
-        Back to Flight Selection
-      </button>
+
     </div>
+    // setDoneChoosing(true)
   );
 
   const handleFillPassengerInfo = () => {
@@ -328,7 +431,8 @@ export default function Flights() {
         )
       );
 
-      const passengerIDs = createdPassengers.map(p => p._id);
+      const passengerIDs = createdPassengers.map(p => p.passenger._id);
+      console.log("Here are passenger ids: ", passengerIDs);
 
       const bookingPromises = Object.values(selectedFlights).map(item =>
         fetch('https://qairline-t28f.onrender.com/api/bookings/', {
@@ -339,7 +443,7 @@ export default function Flights() {
             flightID: item.flight._id,
             flightClass: item.class,
             passengerCount: item.passengers,
-            passengerIDs: passengerIDs
+            passengerIDs: passengerIDs,
           })
         }).then(res => res.json())
       );
@@ -358,9 +462,12 @@ export default function Flights() {
       console.error('Error during booking process:', error);
       alert('An error occurred while confirming your booking. Please try again.');
     }
+
+    resetState();
   };
 
   const handleBack = () => {
+    setDoneChoosing(false);
     if (currentStep > 0) {
       setCurrentStep(currentStep - 1);
       if (currentStep > 1) {
@@ -373,6 +480,7 @@ export default function Flights() {
   };
 
   const handleNext = () => {
+    setDoneChoosing(false);
     if (currentStep < maxReachedStep) {
       setCurrentStep(currentStep + 1);
     }
@@ -387,19 +495,28 @@ export default function Flights() {
         <div className={FlightsStyle.tabs}>
           <button
             className={`${FlightsStyle.tab} ${searchType === 'oneWay' ? FlightsStyle.active : ''}`}
-            onClick={() => setSearchType('oneWay')}
+            onClick={() => {
+              resetState();
+              setSearchType('oneWay');
+            }}
           >
             One Way
           </button>
           <button
             className={`${FlightsStyle.tab} ${searchType === 'roundTrip' ? FlightsStyle.active : ''}`}
-            onClick={() => setSearchType('roundTrip')}
+            onClick={() => {
+              resetState();
+              setSearchType('roundTrip');
+            }}
           >
             Round Trip
           </button>
           <button
             className={`${FlightsStyle.tab} ${searchType === 'multiCity' ? FlightsStyle.active : ''}`}
-            onClick={() => setSearchType('multiCity')}
+            onClick={() => {
+              resetState();
+              setSearchType('multiCity');
+            }}
           >
             Multi-City
           </button>
@@ -414,124 +531,134 @@ export default function Flights() {
             transition={{ duration: 0.3 }}
           >
             {searchType === 'oneWay' && (
-              <div className={FlightsStyle.form_grid}>
-                <div className={FlightsStyle.form_row}>
-                  <div className={FlightsStyle.form_group}>
-                    <label className={FlightsStyle.label} htmlFor="departureCity">From</label>
-                    <div className={FlightsStyle.input_wrapper}>
-                      <MapPin className={FlightsStyle.input_icon} />
-                      <input
-                        id="departureCity"
-                        className={FlightsStyle.input}
-                        value={searchCriteria.departureCity}
-                        onChange={(e) => setSearchCriteria({ ...searchCriteria, departureCity: e.target.value })}
-                        placeholder="Departure City"
-                      />
+              <div className={FlightsStyle.form_group}>
+                <div className={FlightsStyle.form_grid}>
+                  <div className={FlightsStyle.form_row}>
+                    <div className={FlightsStyle.form_group}>
+                      <label className={FlightsStyle.label} htmlFor="departureCity">From</label>
+                      <div className={FlightsStyle.input_wrapper}>
+                        <MapPin className={FlightsStyle.input_icon} />
+                        <input
+                          id="departureCity"
+                          className={FlightsStyle.input}
+                          value={searchCriteria.departureCity}
+                          onChange={(e) => setSearchCriteria({ ...searchCriteria, departureCity: e.target.value })}
+                          placeholder="Departure City"
+                        />
+                      </div>
                     </div>
+                    <div className={FlightsStyle.form_group}>
+                      <label className={FlightsStyle.label} htmlFor="destinationCity">To</label>
+                      <div className={FlightsStyle.input_wrapper}>
+                        <MapPin className={FlightsStyle.input_icon} />
+                        <input
+                          id="destinationCity"
+                          className={FlightsStyle.input}
+                          value={searchCriteria.destinationCity}
+                          onChange={(e) => setSearchCriteria({ ...searchCriteria, destinationCity: e.target.value })}
+                          placeholder="Destination City"
+                        />
+                      </div>
+                    </div>
+
                   </div>
-                  <div className={FlightsStyle.form_group}>
-                    <label className={FlightsStyle.label} htmlFor="destinationCity">To</label>
-                    <div className={FlightsStyle.input_wrapper}>
-                      <MapPin className={FlightsStyle.input_icon} />
-                      <input
-                        id="destinationCity"
-                        className={FlightsStyle.input}
-                        value={searchCriteria.destinationCity}
-                        onChange={(e) => setSearchCriteria({ ...searchCriteria, destinationCity: e.target.value })}
-                        placeholder="Destination City"
-                      />
+                  <div className={FlightsStyle.form_row}>
+                    <div className={FlightsStyle.form_group}>
+                      <label className={FlightsStyle.label} htmlFor="departureDate">Departure Date</label>
+                      <div className={FlightsStyle.input_wrapper}>
+                        <Calendar className={FlightsStyle.input_icon} />
+                        <input
+                          id="departureDate"
+                          className={FlightsStyle.input}
+                          type="date"
+                          value={searchCriteria.departureDate}
+                          onChange={(e) => setSearchCriteria({ ...searchCriteria, departureDate: e.target.value })}
+                        />
+                      </div>
                     </div>
-                  </div>
-                  <div className={FlightsStyle.form_group}>
-                    <label className={FlightsStyle.label} htmlFor="departureDate">Departure Date</label>
-                    <div className={FlightsStyle.input_wrapper}>
-                      <Calendar className={FlightsStyle.input_icon} />
-                      <input
-                        id="departureDate"
-                        className={FlightsStyle.input}
-                        type="date"
-                        value={searchCriteria.departureDate}
-                        onChange={(e) => setSearchCriteria({ ...searchCriteria, departureDate: e.target.value })}
-                      />
+
+                    {/* <div className={FlightsStyle.form_row}> */}
+                    <div className={FlightsStyle.form_group}>
+                      <label className={FlightsStyle.label} htmlFor="passengerCount">Passengers</label>
+                      <div className={FlightsStyle.input_wrapper}>
+                        <Users className={FlightsStyle.input_icon} />
+                        <input
+                          id="passengerCount"
+                          className={FlightsStyle.input}
+                          type="number"
+                          value={searchCriteria.passengerCount}
+                          onChange={(e) => setSearchCriteria({ ...searchCriteria, passengerCount: parseInt(e.target.value) })}
+                          min={1}
+                        />
+                      </div>
                     </div>
+                    {/* </div> */}
                   </div>
                 </div>
-                <div className={FlightsStyle.form_row}>
-                  <div className={FlightsStyle.form_group}>
-                    <label className={FlightsStyle.label} htmlFor="passengerCount">Passengers</label>
-                    <div className={FlightsStyle.input_wrapper}>
-                      <Users className={FlightsStyle.input_icon} />
-                      <input
-                        id="passengerCount"
-                        className={FlightsStyle.input}
-                        type="number"
-                        value={searchCriteria.passengerCount}
-                        onChange={(e) => setSearchCriteria({ ...searchCriteria, passengerCount: parseInt(e.target.value) })}
-                        min={1}
-                      />
-                    </div>
-                  </div>
-                </div>
+
               </div>
             )}
 
             {searchType === 'roundTrip' && (
-              <div className={FlightsStyle.form_grid}>
-                <div className={FlightsStyle.form_row}>
-                  <div className={FlightsStyle.form_group}>
-                    <label className={FlightsStyle.label} htmlFor="departureCity">From</label>
-                    <div className={FlightsStyle.input_wrapper}>
-                      <MapPin className={FlightsStyle.input_icon} />
-                      <input
-                        id="departureCity"
-                        className={FlightsStyle.input}
-                        value={searchCriteria.departureCity}
-                        onChange={(e) => setSearchCriteria({ ...searchCriteria, departureCity: e.target.value })}
-                        placeholder="Departure City"
-                      />
+              <div className={FlightsStyle.form_group}>
+                <div className={FlightsStyle.form_grid}>
+                  <div className={FlightsStyle.form_row}>
+                    <div className={FlightsStyle.form_group}>
+                      <label className={FlightsStyle.label} htmlFor="departureCity">From</label>
+                      <div className={FlightsStyle.input_wrapper}>
+                        <MapPin className={FlightsStyle.input_icon} />
+                        <input
+                          id="departureCity"
+                          className={FlightsStyle.input}
+                          value={searchCriteria.departureCity}
+                          onChange={(e) => setSearchCriteria({ ...searchCriteria, departureCity: e.target.value })}
+                          placeholder="Departure City"
+                        />
+                      </div>
+                    </div>
+                    <div className={FlightsStyle.form_group}>
+                      <label className={FlightsStyle.label} htmlFor="destinationCity">To</label>
+                      <div className={FlightsStyle.input_wrapper}>
+                        <MapPin className={FlightsStyle.input_icon} />
+                        <input
+                          id="destinationCity"
+                          className={FlightsStyle.input}
+                          value={searchCriteria.destinationCity}
+                          onChange={(e) => setSearchCriteria({ ...searchCriteria, destinationCity: e.target.value })}
+                          placeholder="Destination City"
+                        />
+                      </div>
                     </div>
                   </div>
-                  <div className={FlightsStyle.form_group}>
-                    <label className={FlightsStyle.label} htmlFor="destinationCity">To</label>
-                    <div className={FlightsStyle.input_wrapper}>
-                      <MapPin className={FlightsStyle.input_icon} />
-                      <input
-                        id="destinationCity"
-                        className={FlightsStyle.input}
-                        value={searchCriteria.destinationCity}
-                        onChange={(e) => setSearchCriteria({ ...searchCriteria, destinationCity: e.target.value })}
-                        placeholder="Destination City"
-                      />
+                  <div className={FlightsStyle.form_row}>
+                    <div className={FlightsStyle.form_group}>
+                      <label className={FlightsStyle.label} htmlFor="departureDate">Departure Date</label>
+                      <div className={FlightsStyle.input_wrapper}>
+                        <Calendar className={FlightsStyle.input_icon} />
+                        <input
+                          id="departureDate"
+                          className={FlightsStyle.input}
+                          type="date"
+                          value={searchCriteria.departureDate}
+                          onChange={(e) => setSearchCriteria({ ...searchCriteria, departureDate: e.target.value })}
+                        />
+                      </div>
+                    </div>
+                    <div className={FlightsStyle.form_group}>
+                      <label className={FlightsStyle.label} htmlFor="returnDate">Return Date</label>
+                      <div className={FlightsStyle.input_wrapper}>
+                        <Calendar className={FlightsStyle.input_icon} />
+                        <input
+                          id="returnDate"
+                          className={FlightsStyle.input}
+                          type="date"
+                          value={returnDate}
+                          onChange={(e) => setReturnDate(e.target.value)}
+                        />
+                      </div>
                     </div>
                   </div>
-                </div>
-                <div className={FlightsStyle.form_row}>
-                  <div className={FlightsStyle.form_group}>
-                    <label className={FlightsStyle.label} htmlFor="departureDate">Departure Date</label>
-                    <div className={FlightsStyle.input_wrapper}>
-                      <Calendar className={FlightsStyle.input_icon} />
-                      <input
-                        id="departureDate"
-                        className={FlightsStyle.input}
-                        type="date"
-                        value={searchCriteria.departureDate}
-                        onChange={(e) => setSearchCriteria({ ...searchCriteria, departureDate: e.target.value })}
-                      />
-                    </div>
-                  </div>
-                  <div className={FlightsStyle.form_group}>
-                    <label className={FlightsStyle.label} htmlFor="returnDate">Return Date</label>
-                    <div className={FlightsStyle.input_wrapper}>
-                      <Calendar className={FlightsStyle.input_icon} />
-                      <input
-                        id="returnDate"
-                        className={FlightsStyle.input}
-                        type="date"
-                        value={returnDate}
-                        onChange={(e) => setReturnDate(e.target.value)}
-                      />
-                    </div>
-                  </div>
+
                 </div>
                 <div className={FlightsStyle.form_row}>
                   <div className={FlightsStyle.form_group}>
@@ -550,6 +677,7 @@ export default function Flights() {
                   </div>
                 </div>
               </div>
+
             )}
 
             {searchType === 'multiCity' && (
@@ -660,20 +788,11 @@ export default function Flights() {
       {currentStep < getTotalRoutes() && searchResults.length > 0 && (
         <div className={FlightsStyle.flight_results_container}>
           {renderFlightResults(searchResults[currentStep] || [], currentStep)}
-          <div className={FlightsStyle.navigation_buttons}>
-            <button className={`${FlightsStyle.button} ${FlightsStyle.button_outline}`} onClick={handleBack} disabled={currentStep === 0}>
-              <ArrowLeft className={FlightsStyle.button_icon} />
-              Back
-            </button>
-            <button className={`${FlightsStyle.button} ${FlightsStyle.button_outline}`} onClick={handleNext} disabled={currentStep === maxReachedStep}>
-              Next
-              <ArrowRight className={FlightsStyle.button_icon} />
-            </button>
-          </div>
+
         </div>
       )}
 
-      {currentStep === getTotalRoutes() - 1 && Object.keys(selectedFlights).length === getTotalRoutes() && (
+      {/* {currentStep === getTotalRoutes() - 1 && Object.keys(selectedFlights).length === getTotalRoutes() && (
         <div className={FlightsStyle.booked_flights_container}>
           {renderBookedFlights()}
           <button className={`${FlightsStyle.button} ${FlightsStyle.button_outline}`} onClick={handlePreviousStep}>
@@ -681,7 +800,7 @@ export default function Flights() {
             Back to Flight Selection
           </button>
         </div>
-      )}
+      )} */}
 
       <button className={FlightsStyle.cart_button} onClick={() => setIsCartOpen(!isCartOpen)}>
         <ShoppingCart className={FlightsStyle.button_icon} />
@@ -694,13 +813,27 @@ export default function Flights() {
           <div className={FlightsStyle.cart_scroll_area}>
             {Object.entries(selectedFlights).map(([index, item]) => (
               <div key={index} className={FlightsStyle.cart_item}>
-                <div>
-                  <p>{item.flight.flightCode}: {item.flight.departureAirportDetails.city} to {item.flight.arrivalAirportDetails.city}</p>
-                  <p>Class: {item.class}</p>
-                  <p>Passengers: {item.passengers}</p>
-                  <p>Price: ${item.flight.flightClass[item.class].price * item.passengers}</p>
+                <div className={FlightsStyle['flight-details']}>
+                  <p className={FlightsStyle['flight-code']}>
+                    {item.flight.flightCode}: {item.flight.departureAirportDetails.city} to {item.flight.arrivalAirportDetails.city}
+                  </p>
+                  <p className="class">
+                    <span>Class:</span> {item.class}
+                  </p>
+                  <p className="passengers">
+                    <span>Passengers:</span> {item.passengers}
+                  </p>
+                  <p className="price">
+                    <span>Price:</span> ${item.flight.flightClass[item.class].price * item.passengers}
+                  </p>
                 </div>
-                <button className={`${FlightsStyle.button} ${FlightsStyle.button_outline}`} onClick={() => removeFromCart(parseInt(index))}>
+                <div className={FlightsStyle['separator']} />
+                {/* <div className={FlightsStyle['footer']}>
+        <p>Total: ${item.flight.flightClass[item.class].price * item.passengers}</p>
+        <p>Booking ID: {item.bookingId}</p>
+      </div> */}
+
+                <button className={`${FlightsStyle.button} ${FlightsStyle.button_outline} ${FlightsStyle.button_remove_flight_cart}`} onClick={() => removeFromCart(parseInt(index))}>
                   <X className={FlightsStyle.button_icon} />
                   Remove
                 </button>
@@ -713,11 +846,11 @@ export default function Flights() {
           </div>
           <div className={FlightsStyle.cart_actions}>
             <button className={`${FlightsStyle.button} ${FlightsStyle.button_primary} ${FlightsStyle.button_full}`} onClick={handleFillPassengerInfo}>
-              Fill Passenger Info
+              <h3>Fill Passenger Info</h3>
             </button>
-            <button className={`${FlightsStyle.button} ${FlightsStyle.button_outline} ${FlightsStyle.button_full}`} onClick={clearCart}>
+            <button className={`${FlightsStyle.button} ${FlightsStyle.button_outline} ${FlightsStyle.button_full} ${FlightsStyle.button_remove_flight_cart}`} onClick={clearCart}>
               <Trash2 className={FlightsStyle.button_icon} />
-              Clear Cart
+              <h2 div className={FlightsStyle.clear_cart_button}>Clear Cart</h2>
             </button>
           </div>
         </div>
@@ -799,5 +932,6 @@ export default function Flights() {
       )}
     </div>
   )
+
 }
 
