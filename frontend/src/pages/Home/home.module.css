@@ -1,0 +1,38 @@
+.container {
+    /* max-width: 1200px; */
+    width: 100%;
+    margin: 0 auto;
+    padding: 0 0;
+    overflow-x: hidden;
+}
+
+
+body {
+    margin: 0;
+    margin: 0 40px;
+    box-sizing: border-box;
+    overflow-x: hidden;
+    /* Ngăn cuộn ngang toàn trang */
+}
+
+
+.topSection {
+    position: relative;
+    height: 400px;
+    margin-bottom: 200px;
+    /* margin-top: 80px; */
+    width: 100vw;
+}
+
+.contentSection,
+.popular {
+    margin-bottom: 3rem;
+    margin: 0 80px;
+}
+
+.contentSection h2 {
+    font-size: 1.5rem;
+    color: #333333;
+    margin-bottom: 1.5rem;
+    text-align: left;
+}

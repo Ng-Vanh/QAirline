@@ -1,0 +1,106 @@
+.sectionContainer {
+    position: relative;
+}
+
+.scrollContainer {
+    display: flex;
+    overflow-x: auto;
+    scroll-snap-type: x mandatory;
+    scrollbar-width: none;
+    -ms-overflow-style: none;
+    padding-bottom: 20px;
+}
+
+.scrollContainer::-webkit-scrollbar {
+    display: none;
+}
+
+.card {
+    flex: 0 0 auto;
+    width: calc(25% - 20px);
+    margin-right: 20px;
+    scroll-snap-align: start;
+    background-color: #ffffff;
+    border-radius: 12px;
+    box-shadow: 0 4px 6px rgba(0, 102, 204, 0.1);
+    overflow: hidden;
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 6px 12px rgba(0, 102, 204, 0.15);
+}
+
+.imageWrapper {
+    position: relative;
+    height: 200px;
+    overflow: hidden;
+}
+
+.image {
+    width: 100%;
+    /* Chiều rộng ảnh chiếm toàn bộ vùng chứa */
+    height: 100%;
+    /* Chiều cao ảnh chiếm toàn bộ vùng chứa */
+    object-fit: contain;
+    /* Đảm bảo ảnh giữ tỷ lệ nhưng bao phủ toàn bộ vùng chứa */
+    border-radius: 8px;
+    /* (Tùy chọn) Bo góc hình ảnh */
+}
+
+.content {
+    padding: 1.5rem;
+}
+
+.card h3 {
+    font-size: 1.25rem;
+    margin-bottom: 0.5rem;
+    color: #333333;
+}
+
+.card p {
+    font-size: 0.875rem;
+    color: #666666;
+    line-height: 1.5;
+}
+
+.scrollButton {
+    position: absolute;
+    top: 50%;
+    right: 10px;
+    transform: translateY(-50%);
+    background-color: rgba(255, 255, 255, 0.8);
+    border: none;
+    border-radius: 50%;
+    width: 40px;
+    height: 40px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    transition: background-color 0.3s ease;
+}
+
+.scrollButton:hover {
+    background-color: rgba(255, 255, 255, 1);
+}
+
+@media (max-width: 1200px) {
+    .card {
+        width: calc(33.33% - 20px);
+    }
+}
+
+@media (max-width: 900px) {
+    .card {
+        width: calc(50% - 20px);
+    }
+}
+
+@media (max-width: 600px) {
+    .card {
+        width: calc(100% - 20px);
+    }
+}
