@@ -305,7 +305,7 @@ input:-webkit-autofill {
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
 }
 
-.clear_cart_button {
+.white_text {
   color: white;
 }
 
@@ -362,7 +362,7 @@ input:-webkit-autofill {
 .cart_item {
   display: flex;
   justify-content: space-between;
-  align-items: center;
+  align-items: stretch;
   padding: 1rem 0;
   border-bottom: 1px solid #e5e7eb;
 }
@@ -527,8 +527,6 @@ input:-webkit-autofill {
   }
 }
 
-
-
 .form_row .form_group {
   flex: 1;
 }
@@ -615,7 +613,6 @@ Trash2 {
   color: #4f46e5;
 }
 
-/* flights.module.css */
 .cart_details {
   font-family: 'Roboto', sans-serif;
   color: #333 !important;
@@ -684,12 +681,22 @@ Trash2 {
 }
 
 .navigation_buttons, 
-.button_remove_flight_cart {
+.clear_button {
   background-color: #5b52d5;
+  color: white;
+}
+
+.full_height_container {
+  display: flex;
+  /* flex-direction: column; */
+}
+
+.cart_item .details_container {
+  margin: 0;
 }
 
 .navigation_buttons:hover, 
-.button_remove_flight_cart:hover {
+.clear_button:hover {
   background-color: #4c43d3;
 }
 
