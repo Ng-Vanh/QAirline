@@ -207,11 +207,16 @@ input:-webkit-autofill {
 }
 
 .flight_duration {
-  font-size: 0.875rem;
+  font-size: 0.9rem;
   font-weight: 500;
 }
 
+.center_text {
+  text-align: center;
+}
+
 .flight_details {
+  position: relative;
   display: flex;
   justify-content: space-between;
   align-items: center;
@@ -219,6 +224,20 @@ input:-webkit-autofill {
   border-radius: 0.5rem;
   padding: 1rem;
   margin-bottom: 1rem;
+}
+
+.details_container {
+  margin-top: 1rem;
+  margin-bottom: 1rem;
+  background-color: #f8f9fa;
+  padding: 1rem;
+  border-radius: 3px;
+}
+
+.middle_container {
+  position: absolute;
+  left: 50%;
+  transform: translate(-50%);
 }
 
 .flight_route {
@@ -241,9 +260,20 @@ input:-webkit-autofill {
 }
 
 .flight_actions {
+  position: relative;
   display: flex;
   justify-content: space-between;
   gap: 0.5rem;
+}
+
+.class_buttons_container {
+  justify-content: right;
+  gap: 10px;
+  display: flex;
+}
+
+.capitalize {
+  text-transform: capitalize;
 }
 
 .seats_available {
@@ -399,6 +429,17 @@ input:-webkit-autofill {
   cursor: pointer;
 }
 
+.bottom_button {
+  margin-top: 1em;
+  background-color: #0066cc;
+  color: white;
+  width: 100%;
+}
+
+.bottom_button:hover {
+  background-color: #0578ec;
+}
+
 .close_button:hover {
   color: #4f46e5;
 }
@@ -462,6 +503,12 @@ input:-webkit-autofill {
   margin-bottom: 1rem;
 }
 
+.flight_header_left_container {
+  align-items: center;
+  display: flex;
+  flex-direction: column;
+}
+
 .form_row {
   display: flex;
   gap: 1rem;
@@ -513,8 +560,9 @@ input:-webkit-autofill {
 } */
 
 .passenger_form {
-  margin-bottom: 1rem;
+  margin-top: 1rem;
 }
+
 
 .passenger_form input {
   width: 100%;
@@ -649,4 +697,20 @@ Trash2 {
   background-color: gray;
   cursor: not-allowed;
   color: #d3d3d3;
+}
+
+input:-webkit-autofill,
+input:-webkit-autofill:hover, 
+input:-webkit-autofill:focus,
+textarea:-webkit-autofill,
+textarea:-webkit-autofill:hover,
+textarea:-webkit-autofill:focus,
+select:-webkit-autofill,
+select:-webkit-autofill:hover,
+select:-webkit-autofill:focus {
+  caret-color: #fff;
+  -webkit-text-fill-color: white;
+  -webkit-box-shadow: white;
+  color: white;
+  transition: background-color 1s 5000s;
 }

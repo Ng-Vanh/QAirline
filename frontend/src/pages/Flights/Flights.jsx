@@ -232,19 +232,28 @@ export default function Flights() {
               <div key={flight._id} className={`${FlightsStyle.flight_card} ${FlightsStyle.fade_in} ${isSelected ? FlightsStyle.selected_flight : ''}`}>
                 <div className={FlightsStyle.flight_card_content}>
                   <div className={FlightsStyle.flight_header}>
-                    <h3>{flight.flightCode}</h3>
+                    <div className={FlightsStyle.flight_header_left_container}>
+                      <h3>{flight.flightCode}</h3>
+                      <h4>{flight.aircraft}</h4>
+                    </div>
+
                     <span className={FlightsStyle.flight_duration}>{flight.flightDuration}</span>
                   </div>
                   <div className={FlightsStyle.flight_details}>
+
                     <div className={FlightsStyle.flight_route}>
                       <h4>{flight.departureAirportDetails.city} ({flight.departureAirportDetails.code})</h4>
                       <p>{new Date(flight.departureTime).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</p>
                       <p>
                         {`${new Date(flight.departureTime).getDate()}/${new Date(flight.departureTime).getMonth() + 1}/${new Date(flight.departureTime).getFullYear()}`}
                       </p>
-
                     </div>
-                    <Plane className={FlightsStyle.flight_icon} />
+
+                    <div className={FlightsStyle.middle_container}>
+                      <Plane className={FlightsStyle.flight_icon} />
+                    </div>
+
+
                     <div className={FlightsStyle.flight_route}>
                       <h4>{flight.arrivalAirportDetails.city} ({flight.arrivalAirportDetails.code})</h4>
                       <p>{new Date(flight.arrivalTime).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</p>
@@ -252,22 +261,10 @@ export default function Flights() {
                         {`${new Date(flight.arrivalTime).getDate()}/${new Date(flight.arrivalTime).getMonth() + 1}/${new Date(flight.arrivalTime).getFullYear()}`}
                       </p>
                     </div>
+
                   </div>
+
                   <div className={FlightsStyle.flight_actions}>
-                    <button
-                      className={`${FlightsStyle.button} ${isSelected && selectedClass === 'economy' ? FlightsStyle.button_selected : FlightsStyle.button_primary} ${isSelected && selectedClass === 'economy' ? FlightsStyle.selected_class : ''}`}
-                      onClick={() => handleAddToCart(flight, 'economy')}
-                    >
-                      Economy: ${flight.flightClass.economy.price}
-                      <span className={FlightsStyle.seats_available}>({flight.flightClass.economy.seatsAvailable} seats left)</span>
-                    </button>
-                    <button
-                      className={`${FlightsStyle.button} ${isSelected && selectedClass === 'business' ? FlightsStyle.button_selected : FlightsStyle.button_secondary} ${isSelected && selectedClass === 'business' ? FlightsStyle.selected_class : ''}`}
-                      onClick={() => handleAddToCart(flight, 'business')}
-                    >
-                      Business: ${flight.flightClass.business.price}
-                      <span className={FlightsStyle.seats_available}>({flight.flightClass.business.seatsAvailable} seats left)</span>
-                    </button>
                     <button className={`${FlightsStyle.button} ${FlightsStyle.button_outline}`} onClick={() => {
                       setSelectedFlight(flight)
                       setShowFlightDetails(true)
@@ -275,6 +272,29 @@ export default function Flights() {
                       <Info className={FlightsStyle.button_icon} />
                       Details
                     </button>
+
+                    <div className={FlightsStyle.class_buttons_container}>
+                      <button
+                        className={`${FlightsStyle.button} ${isSelected && selectedClass === 'economy' ? FlightsStyle.button_selected : FlightsStyle.button_primary} ${isSelected && selectedClass === 'economy' ? FlightsStyle.selected_class : ''}`}
+                        onClick={() => handleAddToCart(flight, 'economy')}
+                      >
+                        Economy: ${flight.flightClass.economy.price}
+                        <span className={FlightsStyle.seats_available}>({flight.flightClass.economy.seatsAvailable} seats left)</span>
+                      </button>
+                      <button
+                        className={`${FlightsStyle.button} ${isSelected && selectedClass === 'business' ? FlightsStyle.button_selected : FlightsStyle.button_secondary} ${isSelected && selectedClass === 'business' ? FlightsStyle.selected_class : ''}`}
+                        onClick={() => handleAddToCart(flight, 'business')}
+                      >
+                        Business: ${flight.flightClass.business.price}
+                        <span className={FlightsStyle.seats_available}>({flight.flightClass.business.seatsAvailable} seats left)</span>
+                      </button>
+
+                    </div>
+
+
+
+
+
                   </div>
                 </div>
               </div>
@@ -384,7 +404,12 @@ export default function Flights() {
                   {`${new Date(item.flight.departureTime).getDate()}/${new Date(item.flight.departureTime).getMonth() + 1}/${new Date(item.flight.departureTime).getFullYear()}`}
                 </p>
               </div>
-              <Plane className={FlightsStyle.flight_icon} />
+
+              <div className={FlightsStyle.middle_container}>
+                <Plane className={FlightsStyle.flight_icon} />
+              </div>
+
+
               <div className={FlightsStyle.flight_route}>
                 <h4>{item.flight.arrivalAirportDetails.city} ({item.flight.arrivalAirportDetails.code})</h4>
                 <p>{new Date(item.flight.arrivalTime).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</p>
@@ -394,8 +419,10 @@ export default function Flights() {
               </div>
             </div>
             <div className={FlightsStyle.flight_actions}>
-              <p>Class: {item.class}</p>
-              <p>Passengers: {item.passengers}</p>
+              <p className={FlightsStyle.capitalize}>Class: {item.class}</p>
+              <div className={FlightsStyle.middle_container}>
+                <p>Passengers: {item.passengers}</p>
+              </div>
               <p>Total: ${item.flight.flightClass[item.class].price * item.passengers}</p>
             </div>
           </div>
@@ -820,9 +847,11 @@ export default function Flights() {
                   <p className="class">
                     <span>Class:</span> {item.class}
                   </p>
+
                   <p className="passengers">
                     <span>Passengers:</span> {item.passengers}
                   </p>
+
                   <p className="price">
                     <span>Price:</span> ${item.flight.flightClass[item.class].price * item.passengers}
                   </p>
@@ -860,9 +889,9 @@ export default function Flights() {
         <div className={FlightsStyle.modal}>
           <div className={FlightsStyle.modal_content}>
             <button className={FlightsStyle.close_button} onClick={() => setShowPassengerInfo(false)}>×</button>
-            <h2>Passenger Information</h2>
+            <h2 className={FlightsStyle.center_text}>Passenger Information</h2>
             {passengers.map((passenger, index) => (
-              <div key={index} className={FlightsStyle.passenger_form}>
+              <div key={index} className={`${FlightsStyle.passenger_form} ${FlightsStyle.details_container}`}>
                 <h3>Passenger {index + 1}</h3>
                 <input
                   type="text"
@@ -878,7 +907,7 @@ export default function Flights() {
                 />
               </div>
             ))}
-            <button className={`${FlightsStyle.button} ${FlightsStyle.button_primary}`} onClick={handleConfirmBooking}>
+            <button className={`${FlightsStyle.button} ${FlightsStyle.button_primary} ${FlightsStyle.bottom_button}`} onClick={handleConfirmBooking}>
               Confirm Booking
             </button>
           </div>
@@ -888,9 +917,9 @@ export default function Flights() {
       {showFlightDetails && (
         <div className={FlightsStyle.modal}>
           <div className={FlightsStyle.modal_content}>
-            <h2>Flight Details</h2>
+            <h2 className={FlightsStyle.center_text}>Flight Details</h2>
             {selectedFlight && (
-              <div>
+              <div className={FlightsStyle.details_container}>
                 <p><strong>Flight Code:</strong> {selectedFlight.flightCode}</p>
                 <p><strong>From:</strong> {selectedFlight.departureAirportDetails.city} ({selectedFlight.departureAirportDetails.code})</p>
                 <p><strong>To:</strong> {selectedFlight.arrivalAirportDetails.city} ({selectedFlight.arrivalAirportDetails.code})</p>
@@ -910,7 +939,7 @@ export default function Flights() {
                 </ul>
               </div>
             )}
-            <button className={`${FlightsStyle.button} ${FlightsStyle.button_primary}`} onClick={() => setShowFlightDetails(false)}>Close</button>
+            <button className={`${FlightsStyle.button} ${FlightsStyle.bottom_button}`} onClick={() => setShowFlightDetails(false)}>Close</button>
           </div>
         </div>
       )}

@@ -45,6 +45,12 @@
   color: #ffffff;
 }
 
+.booking_count {
+  font-weight: 100;
+  font-size: 1rem;
+  margin: 0.3em;
+}
+
 .booking_list {
   display: grid;
   gap: 2rem;
@@ -216,7 +222,7 @@
 }
 
 .duration {
-  font-size: 0.875rem;
+  font-size: 0.8rem;
   color: #7f8c8d;
   margin-top: 0.5rem;
 }
@@ -355,8 +361,8 @@
   background-color: #ecf0f1;
   color: #7f8c8d;
   border: none;
-  padding: 0.75rem 1.5rem;
-  border-radius: 25px;
+  padding: 0.75rem 1rem;
+  border-radius: 10px;
   cursor: pointer;
   transition: all 0.3s ease;
   font-weight: bold;
@@ -488,7 +494,7 @@
 
 .booking_date {
   text-align: center;
-  font-size: 0.9rem;
+  font-size: 1rem;
   color: white;
   margin-top: 0rem;
   padding-top: 0.2rem;

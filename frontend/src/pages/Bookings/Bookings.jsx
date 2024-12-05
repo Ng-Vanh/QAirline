@@ -99,6 +99,7 @@ export default function Bookings() {
 
         return (
             <AnimatePresence>
+                <div className={BookingsStyle.booking_count}>Showing {bookings.length} bookings</div>
                 <div className={BookingsStyle.booking_list}>
                     {sortedBookings.map((booking) => (
                         <motion.div
@@ -166,8 +167,6 @@ export default function Bookings() {
                                     </div>
                                     <div className={BookingsStyle.booking_footer}>
                                         <p className={BookingsStyle.booking_date}>Booked on: {formatDate(booking.bookingDate)}</p>
-
-
                                     </div>
 
                                 </div>
