@@ -71,7 +71,11 @@ exports.searchFlights = async (req, res) => {
         $match: {
           'departureAirportDetails.city': departureCity,  
           'arrivalAirportDetails.city': destinationCity,
-          departureTime: { $gte: departureDateObj },  
+          // departureTime: { $gte: departureDateObj }, 
+          departureTime: {
+            $gte: new Date(departureDateObj.setHours(0, 0, 0, 0)),
+            $lt: new Date(departureDateObj.setHours(23, 59, 59, 999))
+          }
         }
       },
       {
