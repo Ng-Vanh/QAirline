@@ -1,0 +1,83 @@
+.searchBar {
+    position: absolute;
+    bottom: 20px;
+    left: 50%;
+    transform: translateX(-50%);
+    display: flex;
+    background-color: rgba(255, 255, 255, 0.9);
+    padding: 1.5rem;
+    border-radius: 12px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    backdrop-filter: blur(10px);
+}
+
+.inputGroup {
+    margin-right: 1rem;
+}
+
+.input {
+    padding: 0.75rem;
+    border: 1px solid #e0e0e0;
+    border-radius: 6px;
+    font-size: 0.875rem;
+    transition: border-color 0.3s ease;
+}
+
+.input:focus {
+    outline: none;
+    border-color: #0066cc;
+}
+
+.passengers {
+    display: flex;
+    align-items: center;
+    background-color: #f0f8ff;
+    padding: 0.5rem;
+    border-radius: 6px;
+}
+
+.passengers button {
+    background-color: #0066cc;
+    color: white;
+    border: none;
+    width: 24px;
+    height: 24px;
+    border-radius: 50%;
+    font-size: 1rem;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: background-color 0.3s ease;
+}
+
+.passengers button:hover {
+    background-color: #0052a3;
+}
+
+.passengers span {
+    margin: 0 0.5rem;
+    font-size: 0.875rem;
+}
+
+.searchButton {
+    background-color: #0066cc;
+    color: white;
+    border: none;
+    padding: 0.75rem 1.5rem;
+    border-radius: 6px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    font-size: 0.875rem;
+    font-weight: bold;
+    transition: background-color 0.3s ease;
+}
+
+.searchButton:hover {
+    background-color: #0052a3;
+}
+
+.icon {
+    margin-right: 0.5rem;
+}
