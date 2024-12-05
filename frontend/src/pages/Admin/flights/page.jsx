@@ -3,8 +3,7 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import { Plane, Edit, Trash2, Plus, Calendar, Search, Filter, Loader } from 'lucide-react';
-import { toast } from "../../../hooks/toast";
-import Toaster from "../../../hooks/Toaster";
+import * as Toast from '@radix-ui/react-toast';
 import API_BASE_URL from '../config';
 import flightStyle from './stylesFlights.module.css';
 
@@ -33,6 +32,10 @@ export default function ManageFlights() {
     const [isDialogOpen, setIsDialogOpen] = useState(false);
     const [loading, setLoading] = useState(true);
 
+    // Toast state
+    const [toastMessage, setToastMessage] = useState({ title: '', description: '', type: '' });
+    const [toastOpen, setToastOpen] = useState(false);
+
     useEffect(() => {
         fetchFlights();
         fetchAirportsAndAircrafts();
@@ -42,6 +45,11 @@ export default function ManageFlights() {
         filterFlights();
     }, [flights, searchTerm, statusFilter]);
 
+    const showToast = (title, description, type) => {
+        setToastMessage({ title, description, type });
+        setToastOpen(true);
+    };
+
     const fetchFlights = async () => {
         try {
             setLoading(true);
@@ -49,11 +57,7 @@ export default function ManageFlights() {
             setFlights(response.data);
         } catch (error) {
             console.error('Error fetching flights:', error);
-            toast({
-                title: 'Error',
-                description: 'Failed to fetch flights.',
-                status: 'error',
-            });
+            showToast('Error', 'Failed to fetch flights.', 'error');
         } finally {
             setLoading(false);
         }
@@ -69,11 +73,7 @@ export default function ManageFlights() {
             setAircrafts(aircraftsResponse.data || []);
         } catch (error) {
             console.error('Error fetching airports or aircrafts:', error);
-            toast({
-                title: 'Error',
-                description: 'Failed to fetch airports or aircrafts.',
-                status: 'error',
-            });
+            showToast('Error', 'Failed to fetch airports or aircrafts.', 'error');
         }
     };
 
@@ -125,28 +125,16 @@ export default function ManageFlights() {
 
             if (editingFlight) {
                 await axios.put(`${API_BASE_URL}/api/flights/${editingFlight._id}`, payload);
-                toast({
-                    title: 'Success',
-                    description: 'Flight updated successfully.',
-                    status: 'success',
-                });
+                showToast('Success', 'Flight updated successfully.', 'success');
             } else {
                 await axios.post(`${API_BASE_URL}/api/flights`, payload);
-                toast({
-                    title: 'Success',
-                    description: 'Flight added successfully.',
-                    status: 'success',
-                });
+                showToast('Success', 'Flight added successfully.', 'success');
             }
             fetchFlights();
             setIsDialogOpen(false);
         } catch (error) {
             console.error('Error:', error);
-            toast({
-                title: 'Error',
-                description: 'Failed to process request. Please check your input.',
-                status: 'error',
-            });
+            showToast('Error', 'Failed to process request. Please check your input.', 'error');
         }
     };
 
@@ -168,19 +156,11 @@ export default function ManageFlights() {
     const handleDelete = async (id) => {
         try {
             await axios.delete(`${API_BASE_URL}/api/flights/${id}`);
-            toast({
-                title: 'Success',
-                description: 'Flight deleted successfully.',
-                status: 'success',
-            });
+            showToast('Success', 'Flight deleted successfully.', 'success');
             fetchFlights();
         } catch (error) {
             console.error('Error deleting flight:', error);
-            toast({
-                title: 'Error',
-                description: 'Failed to delete flight.',
-                status: 'error',
-            });
+            showToast('Error', 'Failed to delete flight.', 'error');
         }
     };
 
@@ -283,6 +263,8 @@ export default function ManageFlights() {
                     <p>Try adjusting your search or filters.</p>
                 </div>
             )}
+
+
 
             {isDialogOpen && (
                 <div className={flightStyle.modal_overlay}>
@@ -444,8 +426,23 @@ export default function ManageFlights() {
                     </div>
                 </div>
             )}
-            <Toaster />
+
+            <Toast.Provider>
+                <Toast.Root
+                    className={`${flightStyle.toast} ${toastMessage.type === 'success' ? flightStyle.success : flightStyle.error
+                        }`}
+                    open={toastOpen}
+                    onOpenChange={setToastOpen}
+                >
+                    <Toast.Title className={flightStyle.toastTitle}>{toastMessage.title}</Toast.Title>
+                    <Toast.Description className={flightStyle.toastDescription}>
+                        {toastMessage.description}
+                    </Toast.Description>
+                </Toast.Root>
+                <Toast.Viewport className={flightStyle.toastViewport} />
+            </Toast.Provider>
         </div>
     );
 }
+
 

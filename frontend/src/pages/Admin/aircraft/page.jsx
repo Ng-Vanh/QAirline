@@ -3,8 +3,7 @@
 import { useEffect, useState } from 'react';
 import axios from 'axios';
 import { Plane, Edit, Trash2, Plus, X, Loader } from 'lucide-react';
-import { toast } from "../../../hooks/toast";
-import Toaster from "../../../hooks/Toaster";
+import * as Toast from '@radix-ui/react-toast';
 import API_BASE_URL from '../config';
 import aircraftStyle from './stylesAircraft.module.css';
 
@@ -29,6 +28,10 @@ export default function ManageAircraft() {
     const [editingAircraft, setEditingAircraft] = useState(null);
     const [isDialogOpen, setIsDialogOpen] = useState(false);
 
+    // Radix Toast state
+    const [toastMessage, setToastMessage] = useState({ title: '', description: '', type: '' });
+    const [toastOpen, setToastOpen] = useState(false);
+
     const fetchAircrafts = async () => {
         try {
             const response = await axios.get(`${API_BASE_URL}/api/aircrafts`);
@@ -38,17 +41,18 @@ export default function ManageAircraft() {
             console.error('Error fetching aircrafts:', err);
             setError('Failed to fetch aircrafts.');
             setLoading(false);
-            toast({
-                title: 'Error',
-                description: 'Failed to fetch aircrafts.',
-                status: 'error',
-            });
+            showToast('Error', 'Failed to fetch aircrafts.', 'error');
         }
     };
 
     useEffect(() => {
         fetchAircrafts();
     }, []);
+
+    const showToast = (title, description, type) => {
+        setToastMessage({ title, description, type });
+        setToastOpen(true);
+    };
 
     const handleInputChange = (e) => {
         const { name, value } = e.target;
@@ -65,28 +69,16 @@ export default function ManageAircraft() {
         try {
             if (editingAircraft) {
                 await axios.put(`${API_BASE_URL}/api/aircrafts/${editingAircraft._id}`, newAircraft);
-                toast({
-                    title: 'Aircraft Updated',
-                    description: `Aircraft ${newAircraft.code} has been updated.`,
-                    status: 'success',
-                });
+                showToast('Aircraft Updated', `Aircraft ${newAircraft.code} has been updated.`, 'success');
             } else {
                 await axios.post(`${API_BASE_URL}/api/aircrafts`, newAircraft);
-                toast({
-                    title: 'Aircraft Added',
-                    description: `Aircraft ${newAircraft.code} has been added.`,
-                    status: 'success',
-                });
+                showToast('Aircraft Added', `Aircraft ${newAircraft.code} has been added.`, 'success');
             }
             fetchAircrafts();
             resetForm();
         } catch (err) {
             console.error('Error saving aircraft:', err);
-            toast({
-                title: 'Error',
-                description: 'Failed to save aircraft.',
-                status: 'error',
-            });
+            showToast('Error', 'Failed to save aircraft.', 'error');
         }
     };
 
@@ -115,31 +107,13 @@ export default function ManageAircraft() {
     };
 
     const handleDelete = async (id) => {
-        if (!id) {
-            console.error("No ID provided for deletion");
-            toast({
-                title: "Error",
-                description: "Invalid aircraft ID.",
-                status: "error",
-            });
-            return;
-        }
-
         try {
             await axios.delete(`${API_BASE_URL}/api/aircrafts/${id}`);
-            toast({
-                title: "Aircraft Deleted",
-                description: "Aircraft has been removed successfully.",
-                status: "success",
-            });
+            showToast('Aircraft Deleted', 'Aircraft has been removed successfully.', 'success');
             setAircrafts((prev) => prev.filter((a) => a._id !== id));
         } catch (err) {
-            console.error("Error deleting aircraft:", err);
-            toast({
-                title: "Error",
-                description: err.response?.data?.message || "Failed to delete aircraft.",
-                status: "error",
-            });
+            console.error('Error deleting aircraft:', err);
+            showToast('Error', err.response?.data?.message || 'Failed to delete aircraft.', 'error');
         }
     };
 
@@ -153,11 +127,7 @@ export default function ManageAircraft() {
                 setAircrafts(response.data);
             } catch (err) {
                 console.error('Error filtering aircrafts:', err);
-                toast({
-                    title: 'Error',
-                    description: `Failed to filter aircrafts by type: ${type}.`,
-                    status: 'error',
-                });
+                showToast('Error', `Failed to filter aircrafts by type: ${type}.`, 'error');
             }
         }
     };
@@ -181,25 +151,25 @@ export default function ManageAircraft() {
                 </button>
                 <div className={aircraftStyle.filter_buttons}>
                     <button
-                        className={`${aircraftStyle.filter_button}  ${filterType === 'All' ? aircraftStyle.active : ''}`}
+                        className={`${aircraftStyle.filter_button} ${filterType === 'All' ? aircraftStyle.active : ''}`}
                         onClick={() => handleFilter('All')}
                     >
                         All
                     </button>
                     <button
-                        className={`${aircraftStyle.filter_button}  ${filterType === 'Narrow Body' ? aircraftStyle.active : ''}`}
+                        className={`${aircraftStyle.filter_button} ${filterType === 'Narrow Body' ? aircraftStyle.active : ''}`}
                         onClick={() => handleFilter('Narrow Body')}
                     >
                         Narrow Body
                     </button>
                     <button
-                        className={`${aircraftStyle.filter_button}  ${filterType === 'Wide Body' ? aircraftStyle.active : ''}`}
+                        className={`${aircraftStyle.filter_button} ${filterType === 'Wide Body' ? aircraftStyle.active : ''}`}
                         onClick={() => handleFilter('Wide Body')}
                     >
                         Wide Body
                     </button>
                     <button
-                        className={`${aircraftStyle.filter_button}  ${filterType === 'Regional Jet' ? aircraftStyle.active : ''}`}
+                        className={`${aircraftStyle.filter_button} ${filterType === 'Regional Jet' ? aircraftStyle.active : ''}`}
                         onClick={() => handleFilter('Regional Jet')}
                     >
                         Regional Jet
@@ -247,6 +217,7 @@ export default function ManageAircraft() {
                     <p>Add your first aircraft to start managing your fleet.</p>
                 </div>
             )}
+
 
             {isDialogOpen && (
                 <div className={aircraftStyle.modal_overlay}>
@@ -399,8 +370,25 @@ export default function ManageAircraft() {
                     </div>
                 </div>
             )}
-            <Toaster />
+
+            <Toast.Provider>
+                <Toast.Root
+                    className={`${aircraftStyle.toast} ${toastMessage.type === 'success' ? aircraftStyle.success : aircraftStyle.error}`}
+                    open={toastOpen}
+                    onOpenChange={setToastOpen}
+                >
+                    <Toast.Title className={aircraftStyle.toastTitle}>
+                        {toastMessage.title}
+                    </Toast.Title>
+                    <Toast.Description className={aircraftStyle.toastDescription}>
+                        {toastMessage.description}
+                    </Toast.Description>
+                </Toast.Root>
+                <Toast.Viewport className={aircraftStyle.toastViewport} />
+            </Toast.Provider>
         </div>
     );
 }
+
+
 
