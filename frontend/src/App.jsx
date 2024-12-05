@@ -13,6 +13,7 @@ import ManageAircraft from './pages/Admin/aircraft/page';
 import ManageFlights from './pages/Admin/flights/page';
 import AdminAirportManagement from './pages/Admin/airports/page';
 import Admin from './pages/Admin/index';
+import AdminLoginPage from './pages/Admin/login/page';
 import AdminSidebar from './components/AdminSidebar';
 import Header from './components/Header';
 import Footer from './components/Footer';
@@ -23,12 +24,15 @@ const App = () => {
             <div>
                 {/* <Navbar /> */}
                 {/* <Header></Header> */}
-                <Routes>
+                {/* <Routes>
                     <Route path="/" element={<Home />} />
                     <Route path="/flights" element={<Flights />} />
                     <Route path="/booking" element={<Booking />} />
                     <Route path="/login" element={<Login />} />
+                    <Route path="/admin/login" element={<AdminLoginPage />} />
+                    <Route path="/admin" element={<Navigate to="/admin/login" />} />
                     <Route path="/admin/*" element={<Admin />}>
+                        <Route path="login" element={<AdminLoginPage />} />
                         <Route path="dashboard" element={<AdminDashboard />} />
                         <Route path="users" element={<UserManagement />} />
                         <Route path="flights" element={<ManageFlights />} />
@@ -38,15 +42,27 @@ const App = () => {
                         <Route path="reports" element={<Reports />} />
                         <Route path="*" element={<Navigate to="/admin/reports" />} />
                     </Route>
+                </Routes> */}
+                <Routes>
+                    {/* Public Routes */}
+                    <Route path="/" element={<Home />} />
+                    <Route path="/flights" element={<Flights />} />
+                    <Route path="/booking" element={<Booking />} />
+                    <Route path="/login" element={<Login />} />
 
-
-                    {/* <Route path="/admin/reports" element={<Reports />} />
-                    <Route path="/admin/cms" element={<CMSPage />} />
-                    <Route path="/admin/users" element={<UserManagement />} />
-                    <Route path="/admin/aircraft" element={<ManageAircraft />} />
-                    <Route path="/admin/flights" element={<ManageFlights />} />
-                    <Route path="/admin/airports" element={<AdminAirportManagement />} /> */}
-
+                    {/* Admin Routes */}
+                    <Route path="/admin/login" element={<AdminLoginPage />} />
+                    <Route path="/admin/*" element={<Admin />}>
+                        <Route index element={<Navigate to="reports" />} />
+                        {/* <Route path="dashboard" element={<AdminDashboard />} /> */}
+                        <Route path="users" element={<UserManagement />} />
+                        <Route path="flights" element={<ManageFlights />} />
+                        <Route path="aircraft" element={<ManageAircraft />} />
+                        <Route path="airports" element={<AdminAirportManagement />} />
+                        <Route path="cms" element={<CMSPage />} />
+                        <Route path="reports" element={<Reports />} />
+                        <Route path="*" element={<Navigate to="reports" />} />
+                    </Route>
                 </Routes>
             </div>
         </Router>

@@ -3,8 +3,7 @@
 import { useState, useEffect } from 'react';
 import axios from 'axios';
 import { Plus, Edit, Trash2, ImageIcon, Loader } from 'lucide-react';
-import { toast } from "../../../hooks/toast";
-import Toaster from "../../../hooks/Toaster";
+import * as Toast from '@radix-ui/react-toast';
 import API_BASE_URL from '../config';
 import cmsStyle from './stylesCMS.module.css';
 
@@ -18,6 +17,10 @@ export default function CMSPage() {
     const [isDialogOpen, setIsDialogOpen] = useState(false);
     const [loading, setLoading] = useState(true);
 
+    // Toast state
+    const [toastMessage, setToastMessage] = useState({ title: '', description: '', type: '' });
+    const [toastOpen, setToastOpen] = useState(false);
+
     const fetchContent = async () => {
         setLoading(true);
         try {
@@ -30,10 +33,7 @@ export default function CMSPage() {
             setAlerts(allContent.filter(item => item.contentType === 'Alerts'));
         } catch (error) {
             console.error('Error fetching content:', error);
-            toast({
-                title: 'Error',
-                description: 'Failed to load content from the server.',
-            });
+            showToast('Error', 'Failed to load content from the server.', 'error');
         } finally {
             setLoading(false);
         }
@@ -42,6 +42,11 @@ export default function CMSPage() {
     useEffect(() => {
         fetchContent();
     }, []);
+
+    const showToast = (title, description, type) => {
+        setToastMessage({ title, description, type });
+        setToastOpen(true);
+    };
 
     const handleAdd = () => {
         setEditingItem({
@@ -59,43 +64,32 @@ export default function CMSPage() {
         setIsDialogOpen(true);
     };
 
-    const handleDelete = async (id, contentType) => {
+    const handleDelete = async (id) => {
         try {
             await axios.delete(`${API_BASE_URL}/api/content/${id}`);
             fetchContent();
-            toast({
-                title: 'Content Deleted',
-                description: 'The content was successfully deleted.',
-            });
+            showToast('Content Deleted', 'The content was successfully deleted.', 'success');
         } catch (error) {
             console.error('Error deleting content:', error);
-            toast({
-                title: 'Error',
-                description: 'Failed to delete content.',
-            });
+            showToast('Error', 'Failed to delete content.', 'error');
         }
     };
 
     const handleSave = async (e) => {
         e.preventDefault();
         try {
-            const response = editingItem._id
-                ? await axios.put(`${API_BASE_URL}/api/content/${editingItem._id}`, editingItem)
-                : await axios.post(`${API_BASE_URL}/api/content`, editingItem);
-
+            if (editingItem._id) {
+                await axios.put(`${API_BASE_URL}/api/content/${editingItem._id}`, editingItem);
+            } else {
+                await axios.post(`${API_BASE_URL}/api/content`, editingItem);
+            }
             fetchContent();
             setEditingItem(null);
             setIsDialogOpen(false);
-            toast({
-                title: 'Content Saved',
-                description: 'Your changes have been saved successfully.',
-            });
+            showToast('Content Saved', 'Your changes have been saved successfully.', 'success');
         } catch (error) {
             console.error('Error saving content:', error);
-            toast({
-                title: 'Error',
-                description: 'Failed to save changes.',
-            });
+            showToast('Error', 'Failed to save changes.', 'error');
         }
     };
 
@@ -141,12 +135,11 @@ export default function CMSPage() {
                                 <Edit size={18} />
                             </button>
                             <button
-                                onClick={() => handleDelete(item._id, item.contentType)}
+                                onClick={() => handleDelete(item._id)}
                                 className={`${cmsStyle.action_button} ${cmsStyle.delete_button}`}
                             >
                                 <Trash2 size={18} />
                             </button>
-
                         </td>
                     </tr>
                 ))}
@@ -217,7 +210,9 @@ export default function CMSPage() {
                                 <select
                                     id="contentType"
                                     value={editingItem.contentType}
-                                    onChange={(e) => setEditingItem({ ...editingItem, contentType: e.target.value })}
+                                    onChange={(e) =>
+                                        setEditingItem({ ...editingItem, contentType: e.target.value })
+                                    }
                                     required
                                 >
                                     <option value="">Select</option>
@@ -232,7 +227,9 @@ export default function CMSPage() {
                                 <input
                                     id="title"
                                     value={editingItem.title}
-                                    onChange={(e) => setEditingItem({ ...editingItem, title: e.target.value })}
+                                    onChange={(e) =>
+                                        setEditingItem({ ...editingItem, title: e.target.value })
+                                    }
                                     required
                                 />
                             </div>
@@ -241,7 +238,9 @@ export default function CMSPage() {
                                 <textarea
                                     id="description"
                                     value={editingItem.description}
-                                    onChange={(e) => setEditingItem({ ...editingItem, description: e.target.value })}
+                                    onChange={(e) =>
+                                        setEditingItem({ ...editingItem, description: e.target.value })
+                                    }
                                 />
                             </div>
                             <div className={cmsStyle.form_group}>
@@ -260,15 +259,40 @@ export default function CMSPage() {
                                 </div>
                             </div>
                             <div className={cmsStyle.form_actions}>
-                                <button type="submit" className={cmsStyle.save_button}>Save</button>
-                                <button type="button" onClick={() => setIsDialogOpen(false)} className={cmsStyle.cancel_button}>Cancel</button>
+                                <button type="submit" className={cmsStyle.save_button}>
+                                    Save
+                                </button>
+                                <button
+                                    type="button"
+                                    onClick={() => setIsDialogOpen(false)}
+                                    className={cmsStyle.cancel_button}
+                                >
+                                    Cancel
+                                </button>
                             </div>
                         </form>
                     </div>
                 </div>
             )}
-            <Toaster />
+
+            <Toast.Provider>
+                <Toast.Root
+                    className={`${cmsStyle.toast} ${toastMessage.type === 'success'
+                            ? cmsStyle.success
+                            : cmsStyle.error
+                        }`}
+                    open={toastOpen}
+                    onOpenChange={setToastOpen}
+                >
+                    <Toast.Title className={cmsStyle.toastTitle}>
+                        {toastMessage.title}
+                    </Toast.Title>
+                    <Toast.Description className={cmsStyle.toastDescription}>
+                        {toastMessage.description}
+                    </Toast.Description>
+                </Toast.Root>
+                <Toast.Viewport className={cmsStyle.toastViewport} />
+            </Toast.Provider>
         </div>
     );
 }
-

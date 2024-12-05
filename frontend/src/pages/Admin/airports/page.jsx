@@ -3,8 +3,7 @@
 import { useState, useEffect } from 'react';
 import axios from 'axios';
 import { Edit, Trash2, Plus, Plane, X, Loader } from 'lucide-react';
-import { toast } from "../../../hooks/toast";
-import Toaster from "../../../hooks/Toaster";
+import * as Toast from '@radix-ui/react-toast';
 import API_BASE_URL from '../config';
 import styleAirport from './stylesAirport.module.css';
 
@@ -15,6 +14,10 @@ const AdminAirportManagement = () => {
     const [isDialogOpen, setIsDialogOpen] = useState(false);
     const [loading, setLoading] = useState(true);
 
+    // Toast state
+    const [toastMessage, setToastMessage] = useState({ title: '', description: '', type: '' });
+    const [toastOpen, setToastOpen] = useState(false);
+
     const fetchAirports = async () => {
         try {
             setLoading(true);
@@ -22,11 +25,7 @@ const AdminAirportManagement = () => {
             setAirports(response.data.airports || []);
         } catch (error) {
             console.error("Error fetching airports:", error);
-            toast({
-                title: "Error",
-                description: "Failed to fetch airports. Please try again.",
-                status: "error",
-            });
+            showToast("Error", "Failed to fetch airports. Please try again.", "error");
         } finally {
             setLoading(false);
         }
@@ -35,6 +34,11 @@ const AdminAirportManagement = () => {
     useEffect(() => {
         fetchAirports();
     }, []);
+
+    const showToast = (title, description, type) => {
+        setToastMessage({ title, description, type });
+        setToastOpen(true);
+    };
 
     const handleInputChange = (e) => {
         const { name, value } = e.target;
@@ -46,18 +50,10 @@ const AdminAirportManagement = () => {
         try {
             if (editingAirport) {
                 await axios.put(`${API_BASE_URL}/api/airports/${editingAirport._id}`, newAirport);
-                toast({
-                    title: "Airport Updated",
-                    description: "Airport details updated successfully.",
-                    status: "success",
-                });
+                showToast("Airport Updated", "Airport details updated successfully.", "success");
             } else {
                 await axios.post(`${API_BASE_URL}/api/airports`, newAirport);
-                toast({
-                    title: "Airport Added",
-                    description: "New airport added successfully.",
-                    status: "success",
-                });
+                showToast("Airport Added", "New airport added successfully.", "success");
             }
             fetchAirports();
             setNewAirport({ code: '', name: '', city: '' });
@@ -65,11 +61,7 @@ const AdminAirportManagement = () => {
             setIsDialogOpen(false);
         } catch (error) {
             console.error("Error saving airport:", error);
-            toast({
-                title: "Error",
-                description: "Failed to save airport details.",
-                status: "error",
-            });
+            showToast("Error", "Failed to save airport details.", "error");
         }
     };
 
@@ -83,18 +75,10 @@ const AdminAirportManagement = () => {
         try {
             await axios.delete(`${API_BASE_URL}/api/airports/${id}`);
             setAirports(airports.filter(airport => airport._id !== id));
-            toast({
-                title: "Airport Deleted",
-                description: "Airport has been removed successfully.",
-                status: "success",
-            });
+            showToast("Airport Deleted", "Airport has been removed successfully.", "success");
         } catch (error) {
             console.error("Error deleting airport:", error);
-            toast({
-                title: "Error",
-                description: "Failed to delete airport.",
-                status: "error",
-            });
+            showToast("Error", "Failed to delete airport.", "error");
         }
     };
 
@@ -102,11 +86,14 @@ const AdminAirportManagement = () => {
         <div className={styleAirport.airport_management}>
             <h1 className={styleAirport.page_title}>Manage Airports</h1>
             <div className={styleAirport.controls}>
-                <button className={styleAirport.add_button} onClick={() => {
-                    setEditingAirport(null);
-                    setNewAirport({ code: '', name: '', city: '' });
-                    setIsDialogOpen(true);
-                }}>
+                <button
+                    className={styleAirport.add_button}
+                    onClick={() => {
+                        setEditingAirport(null);
+                        setNewAirport({ code: '', name: '', city: '' });
+                        setIsDialogOpen(true);
+                    }}
+                >
                     <Plus size={18} />
                     Add New Airport
                 </button>
@@ -129,11 +116,17 @@ const AdminAirportManagement = () => {
                                 <p className={styleAirport.airport_city}>{airport.city}</p>
                                 <p className={styleAirport.airport_code}>Code: {airport.code}</p>
                                 <div className={styleAirport.airport_actions}>
-                                    <button className={styleAirport.edit_button} onClick={() => handleEdit(airport)}>
+                                    <button
+                                        className={styleAirport.edit_button}
+                                        onClick={() => handleEdit(airport)}
+                                    >
                                         <Edit size={18} />
                                         Edit
                                     </button>
-                                    <button className={styleAirport.delete_button} onClick={() => handleDelete(airport._id)}>
+                                    <button
+                                        className={styleAirport.delete_button}
+                                        onClick={() => handleDelete(airport._id)}
+                                    >
                                         <Trash2 size={18} />
                                         Delete
                                     </button>
@@ -185,18 +178,43 @@ const AdminAirportManagement = () => {
                                 <button type="submit" className={styleAirport.save_button}>
                                     {editingAirport ? "Update Airport" : "Add Airport"}
                                 </button>
-                                <button type="button" className={styleAirport.cancel_button} onClick={() => setIsDialogOpen(false)}>
+                                <button
+                                    type="button"
+                                    className={styleAirport.cancel_button}
+                                    onClick={() => setIsDialogOpen(false)}
+                                >
                                     Cancel
                                 </button>
                             </div>
                         </form>
-                        <button className={styleAirport.close_modal} onClick={() => setIsDialogOpen(false)}>
+                        <button
+                            className={styleAirport.close_modal}
+                            onClick={() => setIsDialogOpen(false)}
+                        >
                             <X size={24} />
                         </button>
                     </div>
                 </div>
             )}
-            <Toaster />
+
+            <Toast.Provider>
+                <Toast.Root
+                    className={`${styleAirport.toast} ${toastMessage.type === "success"
+                            ? styleAirport.success
+                            : styleAirport.error
+                        }`}
+                    open={toastOpen}
+                    onOpenChange={setToastOpen}
+                >
+                    <Toast.Title className={styleAirport.toastTitle}>
+                        {toastMessage.title}
+                    </Toast.Title>
+                    <Toast.Description className={styleAirport.toastDescription}>
+                        {toastMessage.description}
+                    </Toast.Description>
+                </Toast.Root>
+                <Toast.Viewport className={styleAirport.toastViewport} />
+            </Toast.Provider>
         </div>
     );
 };

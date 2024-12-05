@@ -40,7 +40,7 @@ export default function AdminSidebar() {
         <aside style={styles.aside}>
             <nav style={styles.nav}>
                 {/* Dashboard */}
-                <Link
+                {/* <Link
                     to="/admin/dashboard"
                     style={styles.link}
                     onMouseEnter={(e) => (e.currentTarget.style.backgroundColor = styles.linkHover.backgroundColor)}
@@ -48,7 +48,7 @@ export default function AdminSidebar() {
                 >
                     <Home size={20} />
                     <span>Dashboard</span>
-                </Link>
+                </Link> */}
 
                 {/* User Management */}
                 <Link

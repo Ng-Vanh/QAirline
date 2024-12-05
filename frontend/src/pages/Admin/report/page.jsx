@@ -3,8 +3,7 @@
 import React, { useEffect, useState } from 'react';
 import axios from 'axios';
 import { Calendar, Users, DollarSign, TrendingUp, Loader } from 'lucide-react';
-import { toast } from "../../../hooks/toast";
-import Toaster from "../../../hooks/Toaster";
+import * as Toast from '@radix-ui/react-toast';
 import API_BASE_URL from '../config';
 import reportStyle from './stylesReports.module.css';
 
@@ -13,6 +12,10 @@ export default function Reports() {
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
     const [cardWidth, setCardWidth] = useState('300px');
+
+    // Toast state
+    const [toastMessage, setToastMessage] = useState({ title: '', description: '', type: '' });
+    const [toastOpen, setToastOpen] = useState(false);
 
     useEffect(() => {
         const fetchStatistics = async () => {
@@ -24,11 +27,7 @@ export default function Reports() {
             } catch (error) {
                 console.error('Error fetching statistics:', error);
                 setError('Failed to load data. Please try again later.');
-                toast({
-                    title: 'Error',
-                    description: 'Failed to fetch statistics. Please try again.',
-                    status: 'error',
-                });
+                showToast('Error', 'Failed to fetch statistics. Please try again.', 'error');
             } finally {
                 setLoading(false);
             }
@@ -36,6 +35,11 @@ export default function Reports() {
 
         fetchStatistics();
     }, []);
+
+    const showToast = (title, description, type) => {
+        setToastMessage({ title, description, type });
+        setToastOpen(true);
+    };
 
     const renderCard = (title, value, icon, subtext) => (
         <div className={reportStyle.card} style={{ width: cardWidth }}>
@@ -78,13 +82,41 @@ export default function Reports() {
                 <div className={reportStyle.error}>{error}</div>
             ) : stats ? (
                 <div className={reportStyle.grid}>
-                    {renderCard("Total Bookings", stats.totalBookings.toLocaleString(), <Calendar size={24} />, "+20% from last month")}
-                    {renderCard("Total Revenue", `$${stats.totalRevenue.toLocaleString()}`, <DollarSign size={24} />, "+15% from last month")}
-                    {renderCard("Total Users", stats.totalUsers.toLocaleString(), <Users size={24} />, "+10% from last week")}
+                    {renderCard(
+                        "Total Bookings",
+                        stats.totalBookings.toLocaleString(),
+                        <Calendar size={24} />,
+                        "+20% from last month"
+                    )}
+                    {renderCard(
+                        "Total Revenue",
+                        `$${stats.totalRevenue.toLocaleString()}`,
+                        <DollarSign size={24} />,
+                        "+15% from last month"
+                    )}
+                    {renderCard(
+                        "Total Users",
+                        stats.totalUsers.toLocaleString(),
+                        <Users size={24} />,
+                        "+10% from last week"
+                    )}
                 </div>
             ) : null}
-            <Toaster />
+
+            <Toast.Provider>
+                <Toast.Root
+                    className={`${reportStyle.toast} ${toastMessage.type === 'success' ? reportStyle.success : reportStyle.error
+                        }`}
+                    open={toastOpen}
+                    onOpenChange={setToastOpen}
+                >
+                    <Toast.Title className={reportStyle.toastTitle}>{toastMessage.title}</Toast.Title>
+                    <Toast.Description className={reportStyle.toastDescription}>
+                        {toastMessage.description}
+                    </Toast.Description>
+                </Toast.Root>
+                <Toast.Viewport className={reportStyle.toastViewport} />
+            </Toast.Provider>
         </div>
     );
 }
-
