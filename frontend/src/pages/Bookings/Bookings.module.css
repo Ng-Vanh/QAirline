@@ -19,7 +19,7 @@
   display: flex;
   justify-content: center;
   margin-bottom: 2rem;
-  background-color: #ffffff;
+  background-color: white;
   border-radius: 8px;
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
   overflow: hidden;
@@ -52,19 +52,23 @@
 
 .booking_card_container {
   background-color: transparent;
-}
-
-.booking_card {
-  background-color: #ffffff;
-  border-radius: 12px;
-  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-  overflow: hidden;
   transition: transform 0.3s ease, box-shadow 0.3s ease;
 }
 
-.booking_card:hover {
+.booking_card_container:hover {
   transform: translateY(-5px);
-  box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15);
+}
+
+.booking_card {
+  z-index: 5;
+  background-color: transparent;
+  border-radius: 12px 12px 12px 12px;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  overflow: hidden;
+}
+
+.booking_card_can_cancel {
+  border-radius: 12px 12px 0px 12px;
 }
 
 .booking_header {
@@ -95,6 +99,7 @@
   overflow: hidden;
   white-space: nowrap;
   z-index: 0;
+  word-spacing: 1vw;
 }
 
 .booking_header_economy {
@@ -125,12 +130,14 @@
 
 .flight_status {
   padding: 0.5rem 1rem;
-  border-radius: 20px;
+  border-radius: 10px;
   font-size: 0.875rem;
   font-weight: bold;
   text-transform: uppercase;
   z-index: 2;
   border: 1px, solid, white;
+  /* margin-right: 0rem; */
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
 }
 
 .status_scheduled {
@@ -154,6 +161,7 @@
 }
 
 .booking_content {
+  background-color: white;
   padding: 1.5rem;
 }
 
@@ -287,6 +295,7 @@
   background-color: #e74c3c;
   color: #ffffff;
   border-radius: 0;
+  border-radius: 0 0 12px 12px ;
 }
 
 .button_danger:hover {
@@ -443,7 +452,7 @@
 }
 
 .passenger_button {
-  background-color: rgba(255, 255, 255, 0.2);
+  background-color: rgba(255, 255, 255, 0.3);
   color: #ffffff;
   border: none;
   padding: 0.5rem 1rem;
@@ -453,7 +462,20 @@
   font-size: 0.9rem;
   display: flex;
   align-items: center;
-  z-index: 2;
+  z-index: 5;
+  position: absolute;
+  transform: translate(-50%, -50%);
+  left: 50%;
+  top: 50%
+}
+
+.header_ends {
+  z-index: 4;
+  justify-content: space-between;
+  align-items: center;
+  display: flex;
+  position: relative;
+  width: 100%;
 }
 
 .passenger_button:hover {
