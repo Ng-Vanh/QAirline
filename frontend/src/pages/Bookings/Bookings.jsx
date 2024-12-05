@@ -12,7 +12,7 @@ export default function Bookings() {
     const [error, setError] = useState(null)
     const [selectedBooking, setSelectedBooking] = useState(null)
     const [showModal, setShowModal] = useState(false)
-    const [sortBy, setSortBy] = useState('date')
+    const [sortBy, setSortBy] = useState('departureDate')
 
     const userID = '674f27aae3e51236a5d700d4'
 
@@ -67,10 +67,10 @@ export default function Bookings() {
     }
 
     const sortedBookings = [...bookings].sort((a, b) => {
-        if (sortBy === 'date') {
-            return new Date(b.departureTime).getTime() - new Date(a.departureTime).getTime()
+        if (sortBy === 'departureDate') {
+            return new Date(b.departureTime) - new Date(a.departureTime)
         } else {
-            return a.flightCode.localeCompare(b.flightCode)
+            return new Date(b.bookingDate) - new Date(a.bookingDate)
         }
     })
 
@@ -109,7 +109,8 @@ export default function Bookings() {
                             transition={{ duration: 0.3 }}
                         >
                             <div className={BookingsStyle.booking_card_container}>
-                                <div className={BookingsStyle.booking_card}>
+                                <div className={`${BookingsStyle.booking_card} ${activeTab === 'upcoming' && canCancelBooking(booking.bookingDate) ? BookingsStyle.booking_card_can_cancel : ''}`}>
+
 
                                     <div className={`${BookingsStyle.booking_header} ${BookingsStyle[`booking_header_${booking.flightClass}`]}`}>
 
@@ -117,9 +118,15 @@ export default function Bookings() {
                                             {booking.flightClass} {booking.flightClass}
                                         </div>
 
-                                        <div className={BookingsStyle.flight_code_container}>
-                                            <span className={BookingsStyle.flight_code}>{booking.flightCode}</span>
-                                            <span className={BookingsStyle.aircraft_model}>{booking.aircraftModel}</span>
+                                        <div className={BookingsStyle.header_ends}>
+                                            <div className={BookingsStyle.flight_code_container}>
+                                                <span className={BookingsStyle.flight_code}>{booking.flightCode}</span>
+                                                <span className={BookingsStyle.aircraft_model}>{booking.aircraftModel}</span>
+                                            </div>
+
+                                            <span className={`${BookingsStyle.flight_status} ${BookingsStyle[`status_${booking.flightStatus.toLowerCase().replace(' ', '_')}`]}`}>
+                                                {booking.flightStatus}
+                                            </span>
                                         </div>
 
                                         <button
@@ -132,11 +139,6 @@ export default function Bookings() {
                                             <Users className={BookingsStyle.passenger_icon} size={16} />
                                             {booking.passengerCount} Passenger{booking.passengerCount > 1 ? 's' : ''}
                                         </button>
-
-
-                                        <span className={`${BookingsStyle.flight_status} ${BookingsStyle[`status_${booking.flightStatus.toLowerCase().replace(' ', '_')}`]}`}>
-                                            {booking.flightStatus}
-                                        </span>
 
 
 
@@ -153,6 +155,7 @@ export default function Bookings() {
                                             <div className={BookingsStyle.flight_duration}>
                                                 <Plane className={BookingsStyle.flight_icon} />
                                                 <span className={BookingsStyle.duration}>{booking.flightDuration}</span>
+                                                
                                             </div>
                                             <div className={BookingsStyle.airport_info}>
                                                 <p className={BookingsStyle.city}>{booking.arrivalAirport.city}</p>
@@ -184,6 +187,8 @@ export default function Bookings() {
                 </div>
             </AnimatePresence>
         )
+
+
     }
 
     return (
@@ -211,8 +216,8 @@ export default function Bookings() {
                     value={sortBy}
                     onChange={(e) => setSortBy(e.target.value)}
                 >
-                    <option value="date">Sort by Date</option>
-                    <option value="flightCode">Sort by Flight Code</option>
+                    <option value="departureDate">Sort by departure date</option>
+                    <option value="bookingDate">Sort by booking date</option>
                 </select>
             </div>
 
