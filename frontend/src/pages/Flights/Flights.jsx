@@ -116,7 +116,7 @@ export default function Flights() {
         setCurrentStep(0)
         setMaxReachedStep(getTotalRoutes() - 1)
       } else {
-        alert('No flights found for the given criteria. Please try different search parameters.')
+        // alert('No flights found for the given criteria. Please try different search parameters.')
       }
     } catch (error) {
       console.error('Error searching flights:', error)
@@ -180,6 +180,7 @@ export default function Flights() {
   const renderFlightResults = (flights, routeIndex) => {
     const routeInfo = getRouteInfo(routeIndex);
 
+    const gtty = routeInfo.departureCity;
     if (Object.keys(selectedFlights).length === getTotalRoutes()) {
       console.log("Already selected all flights", getTotalRoutes());
       console.log("Status of doneChoosing: ", doneChoosing);
@@ -205,12 +206,25 @@ export default function Flights() {
     return ( // flights here
       <div className={FlightsStyle.flight_results}>
 
-
         <h2 className={FlightsStyle.flight_results_title}>
-          {filteredFlights.length > 0 ? `${filteredFlights.length} Flights found` : 'No flights found'} for {routeInfo.departureCity} to {routeInfo.destinationCity}, {routeInfo.departureDate}
+          {filteredFlights.length > 0
+            ? `${filteredFlights.length} Flights found `
+            : 'No flights found '}
+          for {filteredFlights.length > 0
+            ? `${filteredFlights[0].departureAirportDetails.city} to ${filteredFlights[0].arrivalAirportDetails.city},`
+            : ' your selected route'}
+          {filteredFlights.length > 0
+            ? `${new Date(filteredFlights[0].departureTime).getDate()}/${new Date(filteredFlights[0].departureTime).getMonth() + 1}/${new Date(filteredFlights[0].departureTime).getFullYear()}`
+            : ''}
         </h2>
 
-        <div className={FlightsStyle.navigation_buttons_section}>
+        {/* <h2 className={FlightsStyle.flight_results_title}> */}
+        {/* {filteredFlights.length > 0 ? `${filteredFlights.length} Flights found` : 'No flights found'} for {filteredFlights[0].departureAirportDetails.city} to {filteredFlights[0].arrivalAirportDetails.city}, {`${new Date(filteredFlights[0].departureTime).getDate()}/${new Date(filteredFlights[0].departureTime).getMonth() + 1}/${new Date(filteredFlights[0].departureTime).getFullYear()}`} */}
+
+        {/* {filteredFlights.length > 0 ? `${filteredFlights.length} Flights found` : 'No flights found'} for {searchCriteria.departureCity} to {searchCriteria.destinationCity}, {searchCriteria.departureDate} */}
+        {/* </h2> */}
+
+        {/* <div className={FlightsStyle.navigation_buttons_section}>
 
           <button className={`${FlightsStyle.button} ${FlightsStyle.button_outline} ${FlightsStyle.navigation_buttons}`} onClick={handleBack} disabled={currentStep === 0}>
             <ArrowLeft className={FlightsStyle.button_icon} />
@@ -222,7 +236,23 @@ export default function Flights() {
             <ArrowRight className={FlightsStyle.button_icon} />
           </button>
 
-        </div>
+        </div> */}
+
+        {filteredFlights.length > 0 && (
+          <div className={FlightsStyle.navigation_buttons_section}>
+
+            <button className={`${FlightsStyle.button} ${FlightsStyle.button_outline} ${FlightsStyle.navigation_buttons}`} onClick={handleBack} disabled={currentStep === 0}>
+              <ArrowLeft className={FlightsStyle.button_icon} />
+              Back
+            </button>
+
+            <button className={`${FlightsStyle.button} ${FlightsStyle.button_outline} ${FlightsStyle.navigation_buttons}`} onClick={handleNext} disabled={currentStep >= maxReachedStep || currentStep >= getTotalRoutes() - 1}>
+              Next
+              <ArrowRight className={FlightsStyle.button_icon} />
+            </button>
+
+          </div>
+        )}
 
         {filteredFlights.length > 0 ? (
           filteredFlights.map((flight) => {
@@ -290,11 +320,6 @@ export default function Flights() {
                       </button>
 
                     </div>
-
-
-
-
-
                   </div>
                 </div>
               </div>
@@ -840,7 +865,8 @@ export default function Flights() {
           <div className={FlightsStyle.cart_scroll_area}>
             {Object.entries(selectedFlights).map(([index, item]) => (
               <div key={index} className={FlightsStyle.cart_item}>
-                <div className={FlightsStyle['flight-details']}>
+                <div className={`${FlightsStyle['flight-details']} ${FlightsStyle.details_container}`}>
+
                   <p className={FlightsStyle['flight-code']}>
                     {item.flight.flightCode}: {item.flight.departureAirportDetails.city} to {item.flight.arrivalAirportDetails.city}
                   </p>
@@ -855,17 +881,16 @@ export default function Flights() {
                   <p className="price">
                     <span>Price:</span> ${item.flight.flightClass[item.class].price * item.passengers}
                   </p>
+
                 </div>
                 <div className={FlightsStyle['separator']} />
-                {/* <div className={FlightsStyle['footer']}>
-        <p>Total: ${item.flight.flightClass[item.class].price * item.passengers}</p>
-        <p>Booking ID: {item.bookingId}</p>
-      </div> */}
 
-                <button className={`${FlightsStyle.button} ${FlightsStyle.button_outline} ${FlightsStyle.button_remove_flight_cart}`} onClick={() => removeFromCart(parseInt(index))}>
-                  <X className={FlightsStyle.button_icon} />
-                  Remove
-                </button>
+                <div className={FlightsStyle.full_height_container}>
+                  <button className={`${FlightsStyle.button} ${FlightsStyle.clear_button}`} onClick={() => removeFromCart(parseInt(index))}>
+                    <X />
+                  </button>
+                </div>
+
               </div>
             ))}
           </div>
@@ -877,9 +902,9 @@ export default function Flights() {
             <button className={`${FlightsStyle.button} ${FlightsStyle.button_primary} ${FlightsStyle.button_full}`} onClick={handleFillPassengerInfo}>
               <h3>Fill Passenger Info</h3>
             </button>
-            <button className={`${FlightsStyle.button} ${FlightsStyle.button_outline} ${FlightsStyle.button_full} ${FlightsStyle.button_remove_flight_cart}`} onClick={clearCart}>
+            <button className={`${FlightsStyle.button} ${FlightsStyle.button_outline} ${FlightsStyle.button_full} ${FlightsStyle.clear_button}`} onClick={clearCart}>
               <Trash2 className={FlightsStyle.button_icon} />
-              <h2 div className={FlightsStyle.clear_cart_button}>Clear Cart</h2>
+              <h2 div className={FlightsStyle.white_text}>Clear Cart</h2>
             </button>
           </div>
         </div>
@@ -908,7 +933,7 @@ export default function Flights() {
               </div>
             ))}
             <button className={`${FlightsStyle.button} ${FlightsStyle.button_primary} ${FlightsStyle.bottom_button}`} onClick={handleConfirmBooking}>
-              Confirm Booking
+              <h2 className={FlightsStyle.white_text}>Confirm Booking</h2>
             </button>
           </div>
         </div>
