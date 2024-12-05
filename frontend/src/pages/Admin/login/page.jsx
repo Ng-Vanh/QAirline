@@ -4,7 +4,7 @@ import { Lock, User, Eye, EyeOff } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import styles from "./loginStyle.module.css";
 
-const AdminLoginPage = () => {
+const AdminLoginPage = ({ onLoginSuccess }) => {
     const [username, setUsername] = useState("");
     const [password, setPassword] = useState("");
     const [isPasswordVisible, setIsPasswordVisible] = useState(false);
@@ -22,7 +22,7 @@ const AdminLoginPage = () => {
                 status: "success",
             });
             setIsToastOpen(true);
-
+            onLoginSuccess();
             setTimeout(() => {
                 setIsLoading(false);
                 navigate("/admin");
