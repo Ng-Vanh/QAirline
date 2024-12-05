@@ -1,6 +1,6 @@
-import React from 'react';
+'use client'
 
-const Booking = () => {
+export default function Bookings() {
     return (
         <div>
             <h1>Booking Page</h1>
@@ -8,5 +8,3 @@ const Booking = () => {
         </div>
     );
 };
-
-export default Booking;
