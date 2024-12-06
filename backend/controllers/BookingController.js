@@ -46,7 +46,7 @@ exports.createBooking = async (req, res) => {
       passengerCount,
       passengers: passengerIDs,
       bookingDate: new Date(),
-      totalPrice 
+      totalPrice
     });
 
     await newBooking.save();
@@ -70,7 +70,7 @@ exports.createBooking = async (req, res) => {
 exports.getUserBookings = async (req, res) => {
   try {
     const userID = req.params.userID;
-    const { type } = req.query; 
+    const { type } = req.query;
 
     let matchCondition = { userID: new mongoose.Types.ObjectId(userID) };
 
@@ -108,11 +108,8 @@ exports.getUserBookings = async (req, res) => {
     /*xxxxxxxxxxxxxxxxxxxxxxx*/
     const bookings = await Booking.aggregate([
       {
-        $match: matchCondition
-      },
-      {
         $lookup: {
-          from: 'flights', 
+          from: 'flights',
           localField: 'flightID',
           foreignField: '_id',
           as: 'flight',
@@ -121,23 +118,23 @@ exports.getUserBookings = async (req, res) => {
       },
       {
         $unwind: {
-          path: '$flight',             
-          preserveNullAndEmptyArrays: true 
+          path: '$flight',
+          preserveNullAndEmptyArrays: true
         }
       },
-  {
-    $lookup: {
-      from: 'passengers',             
-      localField: 'passengers',     
-      foreignField: '_id',           
-      as: 'passengerDetails'         
-    }
-  },
+      {
+        $lookup: {
+          from: 'passengers',
+          localField: 'passengers',
+          foreignField: '_id',
+          as: 'passengerDetails'
+        }
+      },
       {
         $lookup: {
           from: 'airports',
           localField: 'flight.departureAirport',
-          foreignField: '_id', 
+          foreignField: '_id',
           as: 'departureAirport'
         }
       },
@@ -176,6 +173,9 @@ exports.getUserBookings = async (req, res) => {
         }
       },
       {
+        $match: matchCondition,
+      },
+      {
         $project: {
           userID: 1,
           flightID: 1,
@@ -183,7 +183,7 @@ exports.getUserBookings = async (req, res) => {
           departureAirport: 1,
           arrivalAirport: 1,
           departureTime: '$flight.departureTime',
-          arrivalTime: '$flight.arrivalTime', 
+          arrivalTime: '$flight.arrivalTime',
           flightDuration: '$flight.flightDuration',
           flightCode: '$flight.flightCode',
           // aircraft: 1,
@@ -192,7 +192,8 @@ exports.getUserBookings = async (req, res) => {
           aircraftID: '$aircraft._id',
           aircraftModel: '$aircraft.model',
           passengerCount: 1,
-          passengerDetails: 1
+          passengerDetails: 1,
+          bookingDate: 1
         }
       }
     ]);
@@ -292,7 +293,7 @@ exports.updateBooking = async (req, res) => {
         if (classPrice === undefined) {
           return res.status(400).json({ message: `Price not available for class ${newFlightClass}` });
         }
-        booking.flightClass = newFlightClass; 
+        booking.flightClass = newFlightClass;
         booking.totalPrice = booking.passengerCount * classPrice;
 
       }
@@ -303,7 +304,7 @@ exports.updateBooking = async (req, res) => {
 
       if (flightClass) {
         if (oldFlight.flightClass[booking.flightClass]) {
-          oldFlight.flightClass[booking.flightClass].seatsAvailable += booking.passengerCount; 
+          oldFlight.flightClass[booking.flightClass].seatsAvailable += booking.passengerCount;
 
           const newAvailableSeats = oldFlight.flightClass[flightClass]?.seatsAvailable;
           if (newAvailableSeats === undefined) {
@@ -394,10 +395,10 @@ exports.getPopularFlights = async (req, res) => {
           from: 'flights',
           localField: 'flightID',
           foreignField: '_id',
-          as: 'flightInfo' 
+          as: 'flightInfo'
         }
       },
-      { 
+      {
         $unwind: '$flightInfo'
       },
       {
@@ -408,7 +409,7 @@ exports.getPopularFlights = async (req, res) => {
           as: 'departureAirportInfo'
         }
       },
-      { 
+      {
         $unwind: { path: '$departureAirportInfo', preserveNullAndEmptyArrays: true }
       },
       {
@@ -419,7 +420,7 @@ exports.getPopularFlights = async (req, res) => {
           as: 'arrivalAirportInfo'
         }
       },
-      { 
+      {
         $unwind: { path: '$arrivalAirportInfo', preserveNullAndEmptyArrays: true }
       },
       {

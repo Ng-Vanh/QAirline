@@ -24,7 +24,9 @@ export default function CMSPage() {
     const fetchContent = async () => {
         setLoading(true);
         try {
+
             const response = await axios.get(`${API_BASE_URL}/api/content`);
+
             const allContent = response.data;
 
             setIntroduction(allContent.filter(item => item.contentType === 'Introduction'));
