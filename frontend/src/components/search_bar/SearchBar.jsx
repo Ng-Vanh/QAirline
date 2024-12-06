@@ -6,6 +6,9 @@ import styles from './SearchBar.module.css';
 
 export default function SearchBar() {
     const [passengers, setPassengers] = useState(1);
+    const navigateToSearchFlights = () => {
+        window.location.href = '/flights';
+    }
 
     return (
         <div className={styles.searchBar}>
@@ -26,7 +29,7 @@ export default function SearchBar() {
                     <button onClick={() => setPassengers(prev => prev + 1)}>+</button>
                 </div>
             </div>
-            <button className={styles.searchButton}>
+            <button className={styles.searchButton} onClick={navigateToSearchFlights}>
                 <Search className={styles.icon} />
                 Search Flights
             </button>
