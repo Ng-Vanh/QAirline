@@ -1,6 +1,7 @@
 import Navbar from '../../components/navbar/Navbar';
 import Slideshow from '../../components/slide/Slideshow';
-import SearchBar from '../../components/search_bar/SearchBar';
+// import SearchBar from '../../components/search_bar/SearchBar';
+import SearchBar from '../Flights/Flights';
 import PopularFlights from '../../components/popular_flight/PopularFlights';
 import ContentSection from '../../components/contentSession/ContentSession';
 import Footer from '../../components/Footer';
@@ -13,7 +14,10 @@ export default function Home() {
             <main className={styles.mainContent}>
                 <section id="home" className={styles.topSection}>
                     <Slideshow />
-                    <SearchBar />
+                    <div className={styles.searchBarStyles}>
+                        <SearchBar />
+                    </div>
+
                 </section>
                 <section className={styles.popular}>
                     <PopularFlights />
