@@ -22,7 +22,7 @@ const swaggerOptions = {
       description: 'API Documentation for Airport management system',
     },
   },
-  apis: ['./routes/*.js'], // Path to your route files
+  apis: ['./routes/**/*.js'], // Path to your route files
 };
 const swaggerDocs = swaggerJSDoc(swaggerOptions);
 
