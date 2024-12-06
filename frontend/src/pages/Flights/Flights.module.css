@@ -85,7 +85,7 @@ body {
 .input {
   width: 100%;
   padding: 0.75rem 1rem 0.75rem 2.5rem;
-  background-color: rgba(255, 255, 255, 0.1)  !important;
+  background-color: rgba(255, 255, 255, 0.1) !important;
   border: 1px solid rgba(255, 255, 255, 0.2);
   border-radius: 0.375rem;
   color: #ffffff;
@@ -94,7 +94,7 @@ body {
 }
 
 input:-webkit-autofill {
-  background-color: rgba(255, 255, 255, 0.1) !important; 
+  background-color: rgba(255, 255, 255, 0.1) !important;
   color: #ffffff !important;
 }
 
@@ -314,6 +314,7 @@ input:-webkit-autofill {
     transform: scale(0.8);
     opacity: 0;
   }
+
   100% {
     transform: scale(1);
     opacity: 1;
@@ -325,6 +326,7 @@ input:-webkit-autofill {
     transform: scale(1);
     opacity: 1;
   }
+
   100% {
     transform: scale(0.8);
     opacity: 0;
@@ -449,6 +451,7 @@ input:-webkit-autofill {
     opacity: 0;
     transform: translateY(20px);
   }
+
   to {
     opacity: 1;
     transform: translateY(0);
@@ -476,8 +479,13 @@ input:-webkit-autofill {
 }
 
 @keyframes spin {
-  0% { transform: rotate(0deg); }
-  100% { transform: rotate(360deg); }
+  0% {
+    transform: rotate(0deg);
+  }
+
+  100% {
+    transform: rotate(360deg);
+  }
 }
 
 .navigation_buttons_section {
@@ -592,8 +600,12 @@ input:-webkit-autofill {
   margin: 0;
 }
 
-button, input, optgroup, select, textarea {
-  font-family: inherit; 
+button,
+input,
+optgroup,
+select,
+textarea {
+  font-family: inherit;
   font-feature-settings: inherit;
   font-variation-settings: inherit;
   font-size: 100%;
@@ -603,7 +615,7 @@ button, input, optgroup, select, textarea {
   color: inherit;
   margin: 0;
   padding: 0;
-} 
+}
 
 h2 {
   color: #4f46e5;
@@ -680,7 +692,7 @@ Trash2 {
   font-weight: bold;
 }
 
-.navigation_buttons, 
+.navigation_buttons,
 .clear_button {
   background-color: #5b52d5;
   color: white;
@@ -695,7 +707,7 @@ Trash2 {
   margin: 0;
 }
 
-.navigation_buttons:hover, 
+.navigation_buttons:hover,
 .clear_button:hover {
   background-color: #4c43d3;
 }
@@ -707,7 +719,7 @@ Trash2 {
 }
 
 input:-webkit-autofill,
-input:-webkit-autofill:hover, 
+input:-webkit-autofill:hover,
 input:-webkit-autofill:focus,
 textarea:-webkit-autofill,
 textarea:-webkit-autofill:hover,
@@ -720,4 +732,8 @@ select:-webkit-autofill:focus {
   -webkit-box-shadow: white;
   color: white;
   transition: background-color 1s 5000s;
+}
+
+.not_in_flights {
+  background: linear-gradient(135deg, #4a55bd2b, #645ebbc2);
 }
