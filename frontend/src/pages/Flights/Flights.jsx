@@ -32,12 +32,70 @@ export default function Flights() {
   const [maxReachedStep, setMaxReachedStep] = useState(0)
   const [previousLegArrivalTime, setPreviousLegArrivalTime] = useState(null)
   const [doneChoosing, setDoneChoosing] = useState(false)
+  const [isAutoSearch, setIsAutoSearch] = useState(true)
+
+  const isFlightsPage = () => {
+    return window.location.pathname === '/flights'
+  }
 
   const getTotalRoutes = () => {
     if (searchType === 'oneWay') return 1
     if (searchType === 'roundTrip') return 2
     return multiCityFlights.length
   }
+
+  const retrieveUrlData = async () => {
+    const searchParams = new URLSearchParams(window.location.search)
+
+    const type = searchParams.get('searchType');
+    if (type) setSearchType(type);
+
+    const departureCityParam = searchParams.get('departureCity');
+    const destinationCityParam = searchParams.get('destinationCity');
+    const departureDateParam = searchParams.get('departureDate');
+    const passengerCountParam = searchParams.get('passengerCount');
+    const returnDateParam = searchParams.get('returnDate');
+    const multiCityFlightsParam = searchParams.get('multiCityFlights');
+
+    if (departureCityParam || destinationCityParam || departureDateParam || passengerCountParam) {
+      console.log("YES, url has data")
+      console.log(departureCityParam)
+      console.log(destinationCityParam)
+      console.log(departureDateParam)
+      console.log(passengerCountParam)
+      console.log({
+        departureCity: departureCityParam || '',
+        destinationCity: destinationCityParam || '',
+        departureDate: departureDateParam || '',
+        passengerCount: passengerCountParam ? parseInt(passengerCountParam) : 1,
+      });
+
+      setSearchCriteria({
+        departureCity: departureCityParam || '',
+        destinationCity: destinationCityParam || '',
+        departureDate: departureDateParam || '',
+        passengerCount: passengerCountParam ? parseInt(passengerCountParam) : 1,
+      });
+      console.log(searchCriteria)
+      console.log('-----------------------')
+    }
+
+    if (returnDateParam) setReturnDate(returnDateParam);
+
+    if (multiCityFlightsParam) {
+      try {
+        const parsedMultiCityFlights = JSON.parse(multiCityFlightsParam);
+        setMultiCityFlights(parsedMultiCityFlights);
+      } catch (error) {
+        console.error('Error parsing multiCityFlights:', error);
+      }
+    }
+
+    if (type) {
+      handleSearch()
+    }
+  }
+
 
   const searchFlights = async (criteria) => {
     console.log('Searching flights with criteria:', criteria)
@@ -67,6 +125,137 @@ export default function Flights() {
     }
   }
 
+  // useEffect(() => {
+  //   retrieveUrlData()
+  // }, []);
+
+  // useEffect(() => {
+  //   if (isFlightsPage()) {
+  //     const searchParams = new URLSearchParams(window.location.search)
+
+  //     const type = searchParams.get('searchType');
+  //     if (type) setSearchType(type);
+
+  //     const departureCityParam = searchParams.get('departureCity');
+  //     const destinationCityParam = searchParams.get('destinationCity');
+  //     const departureDateParam = searchParams.get('departureDate');
+  //     const passengerCountParam = searchParams.get('passengerCount');
+  //     const returnDateParam = searchParams.get('returnDate');
+  //     const multiCityFlightsParam = searchParams.get('multiCityFlights');
+
+  //     if (departureCityParam || destinationCityParam || departureDateParam || passengerCountParam) {
+  //       console.log("YES, url has data")
+  //       console.log(departureCityParam)
+  //       console.log(destinationCityParam)
+  //       console.log(departureDateParam)
+  //       console.log(passengerCountParam)
+  //       console.log({
+  //         departureCity: departureCityParam || '',
+  //         destinationCity: destinationCityParam || '',
+  //         departureDate: departureDateParam || '',
+  //         passengerCount: passengerCountParam ? parseInt(passengerCountParam) : 1,
+  //       });
+
+  //       setSearchCriteria({
+  //         departureCity: departureCityParam || '',
+  //         destinationCity: destinationCityParam || '',
+  //         departureDate: departureDateParam || '',
+  //         passengerCount: passengerCountParam ? parseInt(passengerCountParam) : 1,
+  //       });
+  //       console.log(searchCriteria)
+  //       console.log('-----------------------')
+  //     }
+
+  //     if (returnDateParam) setReturnDate(returnDateParam);
+
+  //     if (multiCityFlightsParam) {
+  //       try {
+  //         const parsedMultiCityFlights = JSON.parse(multiCityFlightsParam);
+  //         setMultiCityFlights(parsedMultiCityFlights);
+  //       } catch (error) {
+  //         console.error('Error parsing multiCityFlights:', error);
+  //       }
+  //     }
+  //   }
+  // }, []);
+
+
+  useEffect(() => {
+    if (isFlightsPage()) {
+      const searchParams = new URLSearchParams(window.location.search);
+
+      const type = searchParams.get('searchType');
+      if (type) setSearchType(type);
+
+      const departureCityParam = searchParams.get('departureCity');
+      const destinationCityParam = searchParams.get('destinationCity');
+      const departureDateParam = searchParams.get('departureDate');
+      const passengerCountParam = searchParams.get('passengerCount');
+      const returnDateParam = searchParams.get('returnDate');
+      const multiCityFlightsParam = searchParams.get('multiCityFlights');
+
+      if (departureCityParam || destinationCityParam || departureDateParam || passengerCountParam) {
+        console.log("YES, url has data");
+        console.log(departureCityParam);
+        console.log(destinationCityParam);
+        console.log(departureDateParam);
+        console.log(passengerCountParam);
+
+        const newSearchCriteria = {
+          departureCity: departureCityParam || '',
+          destinationCity: destinationCityParam || '',
+          departureDate: departureDateParam || '',
+          passengerCount: passengerCountParam ? parseInt(passengerCountParam) : 1,
+        };
+
+        setSearchCriteria(newSearchCriteria); // Update state
+        console.log('Setting search criteria:', searchCriteria);  // Log what you are setting
+      }
+
+      if (returnDateParam) setReturnDate(returnDateParam);
+
+      if (multiCityFlightsParam) {
+        try {
+          console.log("this is multicity flights")
+          const parsedMultiCityFlights = JSON.parse(multiCityFlightsParam);
+          setMultiCityFlights(parsedMultiCityFlights);
+          console.log(parsedMultiCityFlights);
+        } catch (error) {
+          console.error('Error parsing multiCityFlights:', error);
+        }
+      }
+
+      if (type) {
+        setIsAutoSearch(true);
+      }
+      else {
+        setIsAutoSearch(false);
+      }
+    }
+  }, []);
+
+  const checkValidParams = () => {
+    if (searchType != 'multiCity') {
+      return (searchCriteria && searchCriteria.departureCity && searchCriteria.departureDate && searchCriteria.destinationCity && searchCriteria.passengerCount)
+    }
+    else {
+      return (multiCityFlights.length >= 2 && multiCityFlights[0].departureCity && multiCityFlights[0].departureDate && searchCriteria.passengerCount)
+    }
+  }
+
+  useEffect(() => {
+    if (isFlightsPage() && isAutoSearch) {
+      if (checkValidParams()) {
+        handleSearch();
+        setIsAutoSearch(false);
+      }
+    }
+  }, [searchCriteria, returnDate, multiCityFlights]);
+
+  // useEffect(() => {
+  //   handleSearch()
+  //   console.log('Updated Search Criteria:', searchCriteria)
+  // }, [searchCriteria])  // This effect runs every time `searchCriteria` changes
 
   const resetState = () => {
     setSearchResults([])
@@ -75,6 +264,22 @@ export default function Flights() {
   }
 
   const handleSearch = async () => {
+    if (!isFlightsPage()) {
+      const params = new URLSearchParams()
+      params.set('searchType', searchType)
+      params.set('departureCity', searchCriteria.departureCity)
+      params.set('destinationCity', searchCriteria.destinationCity)
+      params.set('departureDate', searchCriteria.departureDate)
+      params.set('passengerCount', searchCriteria.passengerCount.toString())
+      if (searchType === 'roundTrip') {
+        params.set('returnDate', returnDate)
+      } else if (searchType === 'multiCity') {
+        params.set('multiCityFlights', JSON.stringify(multiCityFlights))
+      }
+      window.location.href = `/flights?${params.toString()}`
+      return
+    }
+
     console.log('Searching for:', searchType)
     setIsLoading(true)
     setSearchResults([])
@@ -211,7 +416,7 @@ export default function Flights() {
             ? `${filteredFlights.length} Flights found `
             : 'No flights found '}
           for {filteredFlights.length > 0
-            ? `${filteredFlights[0].departureAirportDetails.city} to ${filteredFlights[0].arrivalAirportDetails.city},`
+            ? `${filteredFlights[0].departureAirportDetails.city} to ${filteredFlights[0].arrivalAirportDetails.city}, `
             : ' your selected route'}
           {filteredFlights.length > 0
             ? `${new Date(filteredFlights[0].departureTime).getDate()}/${new Date(filteredFlights[0].departureTime).getMonth() + 1}/${new Date(filteredFlights[0].departureTime).getFullYear()}`
@@ -538,298 +743,305 @@ export default function Flights() {
     }
   };
 
+  const renderSearchArea = () => (
+    <div className={`${FlightsStyle.search_area} ${isFlightsPage() === true ? '' : FlightsStyle.not_in_flights}`}>
+      <div className={FlightsStyle.tabs}>
+        <button
+          className={`${FlightsStyle.tab} ${searchType === 'oneWay' ? FlightsStyle.active : ''}`}
+          onClick={() => {
+            resetState();
+            setSearchType('oneWay');
+          }}
+        >
+          One Way
+        </button>
+        <button
+          className={`${FlightsStyle.tab} ${searchType === 'roundTrip' ? FlightsStyle.active : ''}`}
+          onClick={() => {
+            resetState();
+            setSearchType('roundTrip');
+          }}
+        >
+          Round Trip
+        </button>
+        <button
+          className={`${FlightsStyle.tab} ${searchType === 'multiCity' ? FlightsStyle.active : ''}`}
+          onClick={() => {
+            resetState();
+            setSearchType('multiCity');
+          }}
+        >
+          Multi-City
+        </button>
+      </div>
+
+      <AnimatePresence mode="wait">
+        <motion.div
+          key={searchType}
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          exit={{ opacity: 0, y: -20 }}
+          transition={{ duration: 0.3 }}
+        >
+          {searchType === 'oneWay' && (
+            <div className={FlightsStyle.form_group}>
+              <div className={FlightsStyle.form_grid}>
+                <div className={FlightsStyle.form_row}>
+                  <div className={FlightsStyle.form_group}>
+                    <label className={FlightsStyle.label} htmlFor="departureCity">From</label>
+                    <div className={FlightsStyle.input_wrapper}>
+                      <MapPin className={FlightsStyle.input_icon} />
+                      <input
+                        id="departureCity"
+                        className={FlightsStyle.input}
+                        value={searchCriteria.departureCity}
+                        onChange={(e) => setSearchCriteria({ ...searchCriteria, departureCity: e.target.value })}
+                        placeholder="Departure City"
+                      />
+                    </div>
+                  </div>
+                  <div className={FlightsStyle.form_group}>
+                    <label className={FlightsStyle.label} htmlFor="destinationCity">To</label>
+                    <div className={FlightsStyle.input_wrapper}>
+                      <MapPin className={FlightsStyle.input_icon} />
+                      <input
+                        id="destinationCity"
+                        className={FlightsStyle.input}
+                        value={searchCriteria.destinationCity}
+                        onChange={(e) => setSearchCriteria({ ...searchCriteria, destinationCity: e.target.value })}
+                        placeholder="Destination City"
+                      />
+                    </div>
+                  </div>
+
+                </div>
+                <div className={FlightsStyle.form_row}>
+                  <div className={FlightsStyle.form_group}>
+                    <label className={FlightsStyle.label} htmlFor="departureDate">Departure Date</label>
+                    <div className={FlightsStyle.input_wrapper}>
+                      <Calendar className={FlightsStyle.input_icon} />
+                      <input
+                        id="departureDate"
+                        className={FlightsStyle.input}
+                        type="date"
+                        value={searchCriteria.departureDate}
+                        onChange={(e) => setSearchCriteria({ ...searchCriteria, departureDate: e.target.value })}
+                      />
+                    </div>
+                  </div>
+
+                  {/* <div className={FlightsStyle.form_row}> */}
+                  <div className={FlightsStyle.form_group}>
+                    <label className={FlightsStyle.label} htmlFor="passengerCount">Passengers</label>
+                    <div className={FlightsStyle.input_wrapper}>
+                      <Users className={FlightsStyle.input_icon} />
+                      <input
+                        id="passengerCount"
+                        className={FlightsStyle.input}
+                        type="number"
+                        value={searchCriteria.passengerCount}
+                        onChange={(e) => setSearchCriteria({ ...searchCriteria, passengerCount: parseInt(e.target.value) })}
+                        min={1}
+                      />
+                    </div>
+                  </div>
+                  {/* </div> */}
+                </div>
+              </div>
+
+            </div>
+          )}
+
+          {searchType === 'roundTrip' && (
+            <div className={FlightsStyle.form_group}>
+              <div className={FlightsStyle.form_grid}>
+                <div className={FlightsStyle.form_row}>
+                  <div className={FlightsStyle.form_group}>
+                    <label className={FlightsStyle.label} htmlFor="departureCity">From</label>
+                    <div className={FlightsStyle.input_wrapper}>
+                      <MapPin className={FlightsStyle.input_icon} />
+                      <input
+                        id="departureCity"
+                        className={FlightsStyle.input}
+                        value={searchCriteria.departureCity}
+                        onChange={(e) => setSearchCriteria({ ...searchCriteria, departureCity: e.target.value })}
+                        placeholder="Departure City"
+                      />
+                    </div>
+                  </div>
+                  <div className={FlightsStyle.form_group}>
+                    <label className={FlightsStyle.label} htmlFor="destinationCity">To</label>
+                    <div className={FlightsStyle.input_wrapper}>
+                      <MapPin className={FlightsStyle.input_icon} />
+                      <input
+                        id="destinationCity"
+                        className={FlightsStyle.input}
+                        value={searchCriteria.destinationCity}
+                        onChange={(e) => setSearchCriteria({ ...searchCriteria, destinationCity: e.target.value })}
+                        placeholder="Destination City"
+                      />
+                    </div>
+                  </div>
+                </div>
+                <div className={FlightsStyle.form_row}>
+                  <div className={FlightsStyle.form_group}>
+                    <label className={FlightsStyle.label} htmlFor="departureDate">Departure Date</label>
+                    <div className={FlightsStyle.input_wrapper}>
+                      <Calendar className={FlightsStyle.input_icon} />
+                      <input
+                        id="departureDate"
+                        className={FlightsStyle.input}
+                        type="date"
+                        value={searchCriteria.departureDate}
+                        onChange={(e) => setSearchCriteria({ ...searchCriteria, departureDate: e.target.value })}
+                      />
+                    </div>
+                  </div>
+                  <div className={FlightsStyle.form_group}>
+                    <label className={FlightsStyle.label} htmlFor="returnDate">Return Date</label>
+                    <div className={FlightsStyle.input_wrapper}>
+                      <Calendar className={FlightsStyle.input_icon} />
+                      <input
+                        id="returnDate"
+                        className={FlightsStyle.input}
+                        type="date"
+                        value={returnDate}
+                        onChange={(e) => setReturnDate(e.target.value)}
+                      />
+                    </div>
+                  </div>
+                </div>
+
+              </div>
+              <div className={FlightsStyle.form_row}>
+                <div className={FlightsStyle.form_group}>
+                  <label className={FlightsStyle.label} htmlFor="passengerCount">Passengers</label>
+                  <div className={FlightsStyle.input_wrapper}>
+                    <Users className={FlightsStyle.input_icon} />
+                    <input
+                      id="passengerCount"
+                      className={FlightsStyle.input}
+                      type="number"
+                      value={searchCriteria.passengerCount}
+                      onChange={(e) => setSearchCriteria({ ...searchCriteria, passengerCount: parseInt(e.target.value) })}
+                      min={1}
+                    />
+                  </div>
+                </div>
+              </div>
+            </div>
+
+          )}
+
+          {searchType === 'multiCity' && (
+            <div className={FlightsStyle.multi_city_flights}>
+              {multiCityFlights.map((flight, index) => (
+                <div key={index} className={FlightsStyle.form_row}>
+                  <div className={FlightsStyle.form_group}>
+                    <label className={FlightsStyle.label} htmlFor={`departureCity-${index}`}>From</label>
+                    <div className={FlightsStyle.input_wrapper}>
+                      <MapPin className={FlightsStyle.input_icon} />
+                      <input
+                        id={`departureCity-${index}`}
+                        className={FlightsStyle.input}
+                        value={flight.departureCity}
+                        onChange={(e) => {
+                          const newFlights = [...multiCityFlights];
+                          newFlights[index].departureCity = e.target.value;
+                          setMultiCityFlights(newFlights);
+                        }}
+                        placeholder="Departure City"
+                      />
+                    </div>
+                  </div>
+                  <div className={FlightsStyle.form_group}>
+                    <label className={FlightsStyle.label} htmlFor={`destinationCity-${index}`}>To</label>
+                    <div className={FlightsStyle.input_wrapper}>
+                      <MapPin className={FlightsStyle.input_icon} />
+                      <input
+                        id={`destinationCity-${index}`}
+                        className={FlightsStyle.input}
+                        value={flight.destinationCity}
+                        onChange={(e) => {
+                          const newFlights = [...multiCityFlights];
+                          newFlights[index].destinationCity = e.target.value;
+                          setMultiCityFlights(newFlights);
+                        }}
+                        placeholder="Destination City"
+                      />
+                    </div>
+                  </div>
+                  <div className={FlightsStyle.form_group}>
+                    <label className={FlightsStyle.label} htmlFor={`departureDate-${index}`}>Date</label>
+                    <div className={FlightsStyle.input_wrapper}>
+                      <Calendar className={FlightsStyle.input_icon} />
+                      <input
+                        id={`departureDate-${index}`}
+                        className={FlightsStyle.input}
+                        type="date"
+                        value={flight.departureDate}
+                        onChange={(e) => {
+                          const newFlights = [...multiCityFlights];
+                          newFlights[index].departureDate = e.target.value;
+                          setMultiCityFlights(newFlights);
+                        }}
+                      />
+                    </div>
+                  </div>
+                </div>
+              ))}
+              <div className={FlightsStyle.multi_city_actions}>
+                <button
+                  className={`${FlightsStyle.button} ${FlightsStyle.button_secondary}`}
+                  onClick={() => setMultiCityFlights([...multiCityFlights, { departureCity: '', destinationCity: '', departureDate: '' }])}
+                >
+                  Add Flight
+                </button>
+                <button
+                  className={`${FlightsStyle.button} ${FlightsStyle.button_outline}`}
+                  onClick={() => setMultiCityFlights(multiCityFlights.slice(0, -1))}
+                  disabled={multiCityFlights.length <= 2}
+                >
+                  Remove Flight
+                </button>
+              </div>
+              <div className={FlightsStyle.form_row}>
+                <div className={FlightsStyle.form_group}>
+                  <label className={FlightsStyle.label} htmlFor="passengerCount">Passengers</label>
+                  <div className={FlightsStyle.input_wrapper}>
+                    <Users className={FlightsStyle.input_icon} />
+                    <input
+                      id="passengerCount"
+                      className={FlightsStyle.input}
+                      type="number"
+                      value={searchCriteria.passengerCount}
+                      onChange={(e) => setSearchCriteria({ ...searchCriteria, passengerCount: parseInt(e.target.value) })}
+                      min={1}
+                    />
+                  </div>
+                </div>
+              </div>
+            </div>
+          )}
+        </motion.div>
+      </AnimatePresence>
+
+      <button className={`${FlightsStyle.button} ${FlightsStyle.button_primary} ${FlightsStyle.button_full}`} onClick={handleSearch}>
+        <Search className={FlightsStyle.button_icon} />
+        Search Flights
+      </button>
+    </div>
+  )
+
+  if (!isFlightsPage()) {
+    return renderSearchArea();
+  }
 
   return (
     <div className={FlightsStyle.container}>
       <h1 className={FlightsStyle.search_title}>Find Your Perfect Flight</h1>
 
-      <div className={FlightsStyle.search_area}>
-        <div className={FlightsStyle.tabs}>
-          <button
-            className={`${FlightsStyle.tab} ${searchType === 'oneWay' ? FlightsStyle.active : ''}`}
-            onClick={() => {
-              resetState();
-              setSearchType('oneWay');
-            }}
-          >
-            One Way
-          </button>
-          <button
-            className={`${FlightsStyle.tab} ${searchType === 'roundTrip' ? FlightsStyle.active : ''}`}
-            onClick={() => {
-              resetState();
-              setSearchType('roundTrip');
-            }}
-          >
-            Round Trip
-          </button>
-          <button
-            className={`${FlightsStyle.tab} ${searchType === 'multiCity' ? FlightsStyle.active : ''}`}
-            onClick={() => {
-              resetState();
-              setSearchType('multiCity');
-            }}
-          >
-            Multi-City
-          </button>
-        </div>
-
-        <AnimatePresence mode="wait">
-          <motion.div
-            key={searchType}
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: -20 }}
-            transition={{ duration: 0.3 }}
-          >
-            {searchType === 'oneWay' && (
-              <div className={FlightsStyle.form_group}>
-                <div className={FlightsStyle.form_grid}>
-                  <div className={FlightsStyle.form_row}>
-                    <div className={FlightsStyle.form_group}>
-                      <label className={FlightsStyle.label} htmlFor="departureCity">From</label>
-                      <div className={FlightsStyle.input_wrapper}>
-                        <MapPin className={FlightsStyle.input_icon} />
-                        <input
-                          id="departureCity"
-                          className={FlightsStyle.input}
-                          value={searchCriteria.departureCity}
-                          onChange={(e) => setSearchCriteria({ ...searchCriteria, departureCity: e.target.value })}
-                          placeholder="Departure City"
-                        />
-                      </div>
-                    </div>
-                    <div className={FlightsStyle.form_group}>
-                      <label className={FlightsStyle.label} htmlFor="destinationCity">To</label>
-                      <div className={FlightsStyle.input_wrapper}>
-                        <MapPin className={FlightsStyle.input_icon} />
-                        <input
-                          id="destinationCity"
-                          className={FlightsStyle.input}
-                          value={searchCriteria.destinationCity}
-                          onChange={(e) => setSearchCriteria({ ...searchCriteria, destinationCity: e.target.value })}
-                          placeholder="Destination City"
-                        />
-                      </div>
-                    </div>
-
-                  </div>
-                  <div className={FlightsStyle.form_row}>
-                    <div className={FlightsStyle.form_group}>
-                      <label className={FlightsStyle.label} htmlFor="departureDate">Departure Date</label>
-                      <div className={FlightsStyle.input_wrapper}>
-                        <Calendar className={FlightsStyle.input_icon} />
-                        <input
-                          id="departureDate"
-                          className={FlightsStyle.input}
-                          type="date"
-                          value={searchCriteria.departureDate}
-                          onChange={(e) => setSearchCriteria({ ...searchCriteria, departureDate: e.target.value })}
-                        />
-                      </div>
-                    </div>
-
-                    {/* <div className={FlightsStyle.form_row}> */}
-                    <div className={FlightsStyle.form_group}>
-                      <label className={FlightsStyle.label} htmlFor="passengerCount">Passengers</label>
-                      <div className={FlightsStyle.input_wrapper}>
-                        <Users className={FlightsStyle.input_icon} />
-                        <input
-                          id="passengerCount"
-                          className={FlightsStyle.input}
-                          type="number"
-                          value={searchCriteria.passengerCount}
-                          onChange={(e) => setSearchCriteria({ ...searchCriteria, passengerCount: parseInt(e.target.value) })}
-                          min={1}
-                        />
-                      </div>
-                    </div>
-                    {/* </div> */}
-                  </div>
-                </div>
-
-              </div>
-            )}
-
-            {searchType === 'roundTrip' && (
-              <div className={FlightsStyle.form_group}>
-                <div className={FlightsStyle.form_grid}>
-                  <div className={FlightsStyle.form_row}>
-                    <div className={FlightsStyle.form_group}>
-                      <label className={FlightsStyle.label} htmlFor="departureCity">From</label>
-                      <div className={FlightsStyle.input_wrapper}>
-                        <MapPin className={FlightsStyle.input_icon} />
-                        <input
-                          id="departureCity"
-                          className={FlightsStyle.input}
-                          value={searchCriteria.departureCity}
-                          onChange={(e) => setSearchCriteria({ ...searchCriteria, departureCity: e.target.value })}
-                          placeholder="Departure City"
-                        />
-                      </div>
-                    </div>
-                    <div className={FlightsStyle.form_group}>
-                      <label className={FlightsStyle.label} htmlFor="destinationCity">To</label>
-                      <div className={FlightsStyle.input_wrapper}>
-                        <MapPin className={FlightsStyle.input_icon} />
-                        <input
-                          id="destinationCity"
-                          className={FlightsStyle.input}
-                          value={searchCriteria.destinationCity}
-                          onChange={(e) => setSearchCriteria({ ...searchCriteria, destinationCity: e.target.value })}
-                          placeholder="Destination City"
-                        />
-                      </div>
-                    </div>
-                  </div>
-                  <div className={FlightsStyle.form_row}>
-                    <div className={FlightsStyle.form_group}>
-                      <label className={FlightsStyle.label} htmlFor="departureDate">Departure Date</label>
-                      <div className={FlightsStyle.input_wrapper}>
-                        <Calendar className={FlightsStyle.input_icon} />
-                        <input
-                          id="departureDate"
-                          className={FlightsStyle.input}
-                          type="date"
-                          value={searchCriteria.departureDate}
-                          onChange={(e) => setSearchCriteria({ ...searchCriteria, departureDate: e.target.value })}
-                        />
-                      </div>
-                    </div>
-                    <div className={FlightsStyle.form_group}>
-                      <label className={FlightsStyle.label} htmlFor="returnDate">Return Date</label>
-                      <div className={FlightsStyle.input_wrapper}>
-                        <Calendar className={FlightsStyle.input_icon} />
-                        <input
-                          id="returnDate"
-                          className={FlightsStyle.input}
-                          type="date"
-                          value={returnDate}
-                          onChange={(e) => setReturnDate(e.target.value)}
-                        />
-                      </div>
-                    </div>
-                  </div>
-
-                </div>
-                <div className={FlightsStyle.form_row}>
-                  <div className={FlightsStyle.form_group}>
-                    <label className={FlightsStyle.label} htmlFor="passengerCount">Passengers</label>
-                    <div className={FlightsStyle.input_wrapper}>
-                      <Users className={FlightsStyle.input_icon} />
-                      <input
-                        id="passengerCount"
-                        className={FlightsStyle.input}
-                        type="number"
-                        value={searchCriteria.passengerCount}
-                        onChange={(e) => setSearchCriteria({ ...searchCriteria, passengerCount: parseInt(e.target.value) })}
-                        min={1}
-                      />
-                    </div>
-                  </div>
-                </div>
-              </div>
-
-            )}
-
-            {searchType === 'multiCity' && (
-              <div className={FlightsStyle.multi_city_flights}>
-                {multiCityFlights.map((flight, index) => (
-                  <div key={index} className={FlightsStyle.form_row}>
-                    <div className={FlightsStyle.form_group}>
-                      <label className={FlightsStyle.label} htmlFor={`departureCity-${index}`}>From</label>
-                      <div className={FlightsStyle.input_wrapper}>
-                        <MapPin className={FlightsStyle.input_icon} />
-                        <input
-                          id={`departureCity-${index}`}
-                          className={FlightsStyle.input}
-                          value={flight.departureCity}
-                          onChange={(e) => {
-                            const newFlights = [...multiCityFlights];
-                            newFlights[index].departureCity = e.target.value;
-                            setMultiCityFlights(newFlights);
-                          }}
-                          placeholder="Departure City"
-                        />
-                      </div>
-                    </div>
-                    <div className={FlightsStyle.form_group}>
-                      <label className={FlightsStyle.label} htmlFor={`destinationCity-${index}`}>To</label>
-                      <div className={FlightsStyle.input_wrapper}>
-                        <MapPin className={FlightsStyle.input_icon} />
-                        <input
-                          id={`destinationCity-${index}`}
-                          className={FlightsStyle.input}
-                          value={flight.destinationCity}
-                          onChange={(e) => {
-                            const newFlights = [...multiCityFlights];
-                            newFlights[index].destinationCity = e.target.value;
-                            setMultiCityFlights(newFlights);
-                          }}
-                          placeholder="Destination City"
-                        />
-                      </div>
-                    </div>
-                    <div className={FlightsStyle.form_group}>
-                      <label className={FlightsStyle.label} htmlFor={`departureDate-${index}`}>Date</label>
-                      <div className={FlightsStyle.input_wrapper}>
-                        <Calendar className={FlightsStyle.input_icon} />
-                        <input
-                          id={`departureDate-${index}`}
-                          className={FlightsStyle.input}
-                          type="date"
-                          value={flight.departureDate}
-                          onChange={(e) => {
-                            const newFlights = [...multiCityFlights];
-                            newFlights[index].departureDate = e.target.value;
-                            setMultiCityFlights(newFlights);
-                          }}
-                        />
-                      </div>
-                    </div>
-                  </div>
-                ))}
-                <div className={FlightsStyle.multi_city_actions}>
-                  <button
-                    className={`${FlightsStyle.button} ${FlightsStyle.button_secondary}`}
-                    onClick={() => setMultiCityFlights([...multiCityFlights, { departureCity: '', destinationCity: '', departureDate: '' }])}
-                  >
-                    Add Flight
-                  </button>
-                  <button
-                    className={`${FlightsStyle.button} ${FlightsStyle.button_outline}`}
-                    onClick={() => setMultiCityFlights(multiCityFlights.slice(0, -1))}
-                    disabled={multiCityFlights.length <= 2}
-                  >
-                    Remove Flight
-                  </button>
-                </div>
-                <div className={FlightsStyle.form_row}>
-                  <div className={FlightsStyle.form_group}>
-                    <label className={FlightsStyle.label} htmlFor="passengerCount">Passengers</label>
-                    <div className={FlightsStyle.input_wrapper}>
-                      <Users className={FlightsStyle.input_icon} />
-                      <input
-                        id="passengerCount"
-                        className={FlightsStyle.input}
-                        type="number"
-                        value={searchCriteria.passengerCount}
-                        onChange={(e) => setSearchCriteria({ ...searchCriteria, passengerCount: parseInt(e.target.value) })}
-                        min={1}
-                      />
-                    </div>
-                  </div>
-                </div>
-              </div>
-            )}
-          </motion.div>
-        </AnimatePresence>
-
-        <button className={`${FlightsStyle.button} ${FlightsStyle.button_primary} ${FlightsStyle.button_full}`} onClick={handleSearch}>
-          <Search className={FlightsStyle.button_icon} />
-          Search Flights
-        </button>
-      </div>
+      {renderSearchArea()}
 
       {isLoading && (
         <div className={FlightsStyle.loader_container}>
