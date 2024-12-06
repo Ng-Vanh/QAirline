@@ -29,6 +29,7 @@ export default function Navbar() {
                 {isDropdownOpen && (
                     <div className={styles.dropdown}>
                         <button>Profile</button>
+                        <button>My booking</button>
                         <button>Settings</button>
                         <button>Logout</button>
                     </div>
