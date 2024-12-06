@@ -55,6 +55,7 @@ export default function Navbar() {
                         <button onClick={navigateToMyBooking}>My booking</button>
                         <button>Settings</button>
                         <button>Logout</button>
+
                     </div>
                 )}
             </div>
