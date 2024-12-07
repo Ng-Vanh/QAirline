@@ -140,6 +140,7 @@ export default function UserManagement() {
                                 <tr>
                                     <th>Name</th>
                                     <th>Username</th>
+                                    <th>Password</th>
                                     <th>Actions</th>
                                 </tr>
                             </thead>
@@ -148,6 +149,7 @@ export default function UserManagement() {
                                     <tr key={user._id}>
                                         <td>{user.name}</td>
                                         <td>{user.username}</td>
+                                        <td>{user.password}</td>
                                         <td>
                                             <button
                                                 onClick={() => handleEdit(user)}
