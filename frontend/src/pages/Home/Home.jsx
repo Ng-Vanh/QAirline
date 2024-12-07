@@ -14,9 +14,12 @@ export default function Home() {
             <main className={styles.mainContent}>
                 <section id="home" className={styles.topSection}>
                     <Slideshow />
-                    <div className={styles.searchBarStyles}>
-                        <SearchBar />
+                    <div className={styles.searchBarContainer}>
+                        <div className={styles.searchBarStyles}>
+                            <SearchBar />
+                        </div>
                     </div>
+
 
                 </section>
                 <section className={styles.popular}>
