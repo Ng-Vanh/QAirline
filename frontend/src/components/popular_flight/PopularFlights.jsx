@@ -29,26 +29,26 @@ export default function PopularFlights() {
         fetchPopularFlights();
     }, []);
 
-    if (loading) {
-        return <p>Loading popular flights...</p>;
-    }
-
-    if (error) {
-        return <p>Error: {error}</p>;
-    }
-
     return (
         <section id="popular-flights" className={styles.popularFlights}>
             <h2>Popular Flights</h2>
-            <div className={styles.flightList}>
-                {flights.map((flight, index) => (
-                    <div key={index} className={styles.flightCard}>
-                        <Plane className={styles.icon} />
-                        <h3>{flight.departureCity} to {flight.arrivalCity}</h3>
-                        <p>{flight.flightCount} flights</p>
-                    </div>
-                ))}
-            </div>
+            {loading ? (
+                <div className={styles.spinnerContainer}>
+                    <div className={styles.spinner}></div>
+                </div>
+            ) : error ? (
+                <p className={styles.error}>Error: {error}</p>
+            ) : (
+                <div className={styles.flightList}>
+                    {flights.map((flight, index) => (
+                        <div key={index} className={styles.flightCard}>
+                            <Plane className={styles.icon} />
+                            <h3>{flight.departureCity} to {flight.arrivalCity}</h3>
+                            <p>{flight.flightCount} flights</p>
+                        </div>
+                    ))}
+                </div>
+            )}
         </section>
     );
 }
