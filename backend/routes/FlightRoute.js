@@ -15,16 +15,6 @@ router.put('/:id', FlightController.updateFlight);
 // GET route for getting a flight by ID
 router.get('/:id', FlightController.getFlightById);
 
-/**
- * @swagger
- * /api/flights:
- *   get:
- *     summary: Get all flights
- *     description: Retrieves all available flights
- *     responses:
- *       200:
- *         description: A list of flights
- */
 // GET route for getting all flights
 router.get('/', FlightController.getAllFlights);
 
