@@ -261,6 +261,10 @@ export default function Flights() {
     setSearchResults([])
     clearCart()
     setDoneChoosing(false)
+    setMultiCityFlights([
+      { departureCity: searchCriteria.departureCity, destinationCity: searchCriteria.destinationCity, departureDate: searchCriteria.departureDate },
+      { departureCity: '', destinationCity: '', departureDate: '' }
+    ])
   }
 
   const handleSearch = async () => {
@@ -792,6 +796,7 @@ export default function Flights() {
                     <div className={FlightsStyle.input_wrapper}>
                       <MapPin className={FlightsStyle.input_icon} />
                       <input
+                        spellCheck={false}
                         id="departureCity"
                         className={FlightsStyle.input}
                         value={searchCriteria.departureCity}
@@ -805,6 +810,7 @@ export default function Flights() {
                     <div className={FlightsStyle.input_wrapper}>
                       <MapPin className={FlightsStyle.input_icon} />
                       <input
+                        spellCheck={false}
                         id="destinationCity"
                         className={FlightsStyle.input}
                         value={searchCriteria.destinationCity}
@@ -821,6 +827,7 @@ export default function Flights() {
                     <div className={FlightsStyle.input_wrapper}>
                       <Calendar className={FlightsStyle.input_icon} />
                       <input
+                        spellCheck={false}
                         id="departureDate"
                         className={FlightsStyle.input}
                         type="date"
@@ -836,6 +843,7 @@ export default function Flights() {
                     <div className={FlightsStyle.input_wrapper}>
                       <Users className={FlightsStyle.input_icon} />
                       <input
+                        spellCheck={false}
                         id="passengerCount"
                         className={FlightsStyle.input}
                         type="number"
@@ -861,6 +869,7 @@ export default function Flights() {
                     <div className={FlightsStyle.input_wrapper}>
                       <MapPin className={FlightsStyle.input_icon} />
                       <input
+                        spellCheck={false}
                         id="departureCity"
                         className={FlightsStyle.input}
                         value={searchCriteria.departureCity}
@@ -874,6 +883,7 @@ export default function Flights() {
                     <div className={FlightsStyle.input_wrapper}>
                       <MapPin className={FlightsStyle.input_icon} />
                       <input
+                        spellCheck={false}
                         id="destinationCity"
                         className={FlightsStyle.input}
                         value={searchCriteria.destinationCity}
@@ -889,6 +899,7 @@ export default function Flights() {
                     <div className={FlightsStyle.input_wrapper}>
                       <Calendar className={FlightsStyle.input_icon} />
                       <input
+                        spellCheck={false}
                         id="departureDate"
                         className={FlightsStyle.input}
                         type="date"
@@ -902,6 +913,7 @@ export default function Flights() {
                     <div className={FlightsStyle.input_wrapper}>
                       <Calendar className={FlightsStyle.input_icon} />
                       <input
+                        spellCheck={false}
                         id="returnDate"
                         className={FlightsStyle.input}
                         type="date"
@@ -919,6 +931,7 @@ export default function Flights() {
                   <div className={FlightsStyle.input_wrapper}>
                     <Users className={FlightsStyle.input_icon} />
                     <input
+                      spellCheck={false}
                       id="passengerCount"
                       className={FlightsStyle.input}
                       type="number"
@@ -934,62 +947,71 @@ export default function Flights() {
           )}
 
           {searchType === 'multiCity' && (
-            <div className={FlightsStyle.multi_city_flights}>
-              {multiCityFlights.map((flight, index) => (
-                <div key={index} className={FlightsStyle.form_row}>
-                  <div className={FlightsStyle.form_group}>
-                    <label className={FlightsStyle.label} htmlFor={`departureCity-${index}`}>From</label>
-                    <div className={FlightsStyle.input_wrapper}>
-                      <MapPin className={FlightsStyle.input_icon} />
-                      <input
-                        id={`departureCity-${index}`}
-                        className={FlightsStyle.input}
-                        value={flight.departureCity}
-                        onChange={(e) => {
-                          const newFlights = [...multiCityFlights];
-                          newFlights[index].departureCity = e.target.value;
-                          setMultiCityFlights(newFlights);
-                        }}
-                        placeholder="Departure City"
-                      />
+            <div className={`${FlightsStyle.multi_city_flights}`}>
+              <div className={FlightsStyle.scrollable}>
+                {multiCityFlights.map((flight, index) => (
+                  <div key={index} className={`${FlightsStyle.leg_container}`}>
+                    <div className={`${FlightsStyle.form_row}`}>
+                      <div className={FlightsStyle.form_group}>
+
+                        <label className={FlightsStyle.label} htmlFor={`departureCity-${index}`}>From</label>
+                        <div className={FlightsStyle.input_wrapper}>
+                          <MapPin className={FlightsStyle.input_icon} />
+                          <input
+                            spellCheck={false}
+                            id={`departureCity-${index}`}
+                            className={FlightsStyle.input}
+                            value={flight.departureCity}
+                            onChange={(e) => {
+                              const newFlights = [...multiCityFlights];
+                              newFlights[index].departureCity = e.target.value;
+                              setMultiCityFlights(newFlights);
+                            }}
+                            placeholder={`Departure City ${index + 1}`}
+                          />
+                        </div>
+                      </div>
+                      <div className={FlightsStyle.form_group}>
+                        <label className={FlightsStyle.label} htmlFor={`destinationCity-${index}`}>To</label>
+                        <div className={FlightsStyle.input_wrapper}>
+                          <MapPin className={FlightsStyle.input_icon} />
+                          <input
+                            spellCheck={false}
+                            id={`destinationCity-${index}`}
+                            className={FlightsStyle.input}
+                            value={flight.destinationCity}
+                            onChange={(e) => {
+                              const newFlights = [...multiCityFlights];
+                              newFlights[index].destinationCity = e.target.value;
+                              setMultiCityFlights(newFlights);
+                            }}
+                            placeholder={`Destination City ${index + 1}`}
+                          />
+                        </div>
+                      </div>
+                      <div className={FlightsStyle.form_group}>
+                        <label className={FlightsStyle.label} htmlFor={`departureDate-${index}`}>Date</label>
+                        <div className={FlightsStyle.input_wrapper}>
+                          <Calendar className={FlightsStyle.input_icon} />
+                          <input
+                            spellCheck={false}
+                            id={`departureDate-${index}`}
+                            className={FlightsStyle.input}
+                            type="date"
+                            value={flight.departureDate}
+                            onChange={(e) => {
+                              const newFlights = [...multiCityFlights];
+                              newFlights[index].departureDate = e.target.value;
+                              setMultiCityFlights(newFlights);
+                            }}
+                          />
+                        </div>
+                      </div>
                     </div>
                   </div>
-                  <div className={FlightsStyle.form_group}>
-                    <label className={FlightsStyle.label} htmlFor={`destinationCity-${index}`}>To</label>
-                    <div className={FlightsStyle.input_wrapper}>
-                      <MapPin className={FlightsStyle.input_icon} />
-                      <input
-                        id={`destinationCity-${index}`}
-                        className={FlightsStyle.input}
-                        value={flight.destinationCity}
-                        onChange={(e) => {
-                          const newFlights = [...multiCityFlights];
-                          newFlights[index].destinationCity = e.target.value;
-                          setMultiCityFlights(newFlights);
-                        }}
-                        placeholder="Destination City"
-                      />
-                    </div>
-                  </div>
-                  <div className={FlightsStyle.form_group}>
-                    <label className={FlightsStyle.label} htmlFor={`departureDate-${index}`}>Date</label>
-                    <div className={FlightsStyle.input_wrapper}>
-                      <Calendar className={FlightsStyle.input_icon} />
-                      <input
-                        id={`departureDate-${index}`}
-                        className={FlightsStyle.input}
-                        type="date"
-                        value={flight.departureDate}
-                        onChange={(e) => {
-                          const newFlights = [...multiCityFlights];
-                          newFlights[index].departureDate = e.target.value;
-                          setMultiCityFlights(newFlights);
-                        }}
-                      />
-                    </div>
-                  </div>
-                </div>
-              ))}
+                ))}
+              </div>
+
               <div className={FlightsStyle.multi_city_actions}>
                 <button
                   className={`${FlightsStyle.button} ${FlightsStyle.button_secondary}`}
@@ -1011,6 +1033,7 @@ export default function Flights() {
                   <div className={FlightsStyle.input_wrapper}>
                     <Users className={FlightsStyle.input_icon} />
                     <input
+                      spellCheck={false}
                       id="passengerCount"
                       className={FlightsStyle.input}
                       type="number"
@@ -1131,12 +1154,14 @@ export default function Flights() {
               <div key={index} className={`${FlightsStyle.passenger_form} ${FlightsStyle.details_container}`}>
                 <h3>Passenger {index + 1}</h3>
                 <input
+                  spellCheck={false}
                   type="text"
                   placeholder="Name"
                   value={passenger.name}
                   onChange={(e) => handlePassengerInfoChange(index, 'name', e.target.value)}
                 />
                 <input
+                  spellCheck={false}
                   type="email"
                   placeholder="Email"
                   value={passenger.email}
