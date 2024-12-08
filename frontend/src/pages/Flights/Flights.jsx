@@ -34,6 +34,8 @@ export default function Flights() {
   const [doneChoosing, setDoneChoosing] = useState(false)
   const [isAutoSearch, setIsAutoSearch] = useState(true)
   const [airports, setAirports] = useState([])
+  const [openSuggestions, setOpenSuggestions] = useState(null)
+  const suggestionRefs = useRef({})
 
   const isFlightsPage = () => {
     return window.location.pathname === '/flights'
@@ -336,91 +338,105 @@ export default function Flights() {
     }
   }
 
-  const RenderAutocompleteInput = ({ placeholder, value, onChange }) => {
-    const [isOpen, setIsOpen] = useState(false);
-    const [filteredAirports, setFilteredAirports] = useState([]);
-    const inputRef = useRef(null);
-
-    useEffect(() => {
-      if (value === '') {
-        setFilteredAirports(airports);
-      } else {
-        const filtered = airports.filter(
-          (airport) =>
-            airport.city.toLowerCase().startsWith(value.toLowerCase()) ||
-            airport.code.toLowerCase().startsWith(value.toLowerCase())
-        );
-        setFilteredAirports(filtered);
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (
+        openSuggestions &&
+        suggestionRefs.current[openSuggestions] &&
+        !suggestionRefs.current[openSuggestions]?.contains(event.target)
+      ) {
+        setOpenSuggestions(null);
       }
-    }, [value, airports]);
-
-    useEffect(() => {
-      const handleClickOutside = (event) => {
-        if (inputRef.current && !inputRef.current.contains(event.target)) {
-          setIsOpen(false);
-        }
-      };
-
-      document.addEventListener('mousedown', handleClickOutside);
-      return () => {
-        document.removeEventListener('mousedown', handleClickOutside);
-      };
-    }, []);
-
-    const handleInputChange = (e) => {
-      onChange(e.target.value);
-      setIsOpen(true);
     };
 
-    const handleSuggestionClick = (airport) => {
-      onChange(airport.city);
-      setIsOpen(false);
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
     };
+  }, [openSuggestions]);
 
-    return (
-      <div className={FlightsStyle.autocomplete_wrapper} ref={inputRef}>
-        <div className={FlightsStyle.input_wrapper}>
-          <MapPin className={FlightsStyle.input_icon} />
-          <input
-            className={FlightsStyle.input}
-            type="text"
-            placeholder={placeholder}
-            value={value}
-            onChange={handleInputChange}
-            onFocus={() => setIsOpen(true)}
-            autoComplete="off"
-          />
-        </div>
-        <AnimatePresence>
-          {isOpen && (
-            <motion.div
-              className={FlightsStyle.suggestions_container}
-              initial={{ opacity: 0, y: -10 }}
-              animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0, y: -10 }}
-              transition={{ duration: 0.2 }}
-            >
-              {filteredAirports.length > 0 ? (
-                filteredAirports.map((airport) => (
-                  <motion.div
-                    key={airport._id}
-                    className={FlightsStyle.suggestion_item}
-                    onClick={() => handleSuggestionClick(airport)}
-                    whileHover={{ backgroundColor: 'rgba(255, 255, 255, 0.1)' }}
-                  >
-                    <span className={FlightsStyle.suggestion_city}>{airport.city}</span>
-                    <span className={FlightsStyle.suggestion_code}>{airport.code}</span>
-                  </motion.div>
-                ))
-              ) : (
-                <div className={FlightsStyle.no_suggestions}>No matching cities found</div>
-              )}
-            </motion.div>
-          )}
-        </AnimatePresence>
+  const getFilteredAirports = (value) => {
+    if (value.trim() === '') {
+      return airports.slice(0, 5); // Return first 5 airports when input is empty
+    }
+    return airports
+      .filter(
+        (airport) =>
+          airport.city.toLowerCase().includes(value.toLowerCase()) ||
+          airport.code.toLowerCase().includes(value.toLowerCase())
+      )
+      .slice(0, 5); // Limit to 5 results
+  };
+
+  const handleInputChange = (value, field) => {
+    if (searchType === 'multiCity') {
+      const newFlights = [...multiCityFlights];
+      const index = parseInt(field.split('-')[1]);
+      newFlights[index] = { ...newFlights[index], [field.split('-')[0]]: value };
+      setMultiCityFlights(newFlights);
+    } else {
+      setSearchCriteria((prev) => ({ ...prev, [field]: value }));
+    }
+    setOpenSuggestions(field);
+  };
+
+  const handleSuggestionClick = (airport, field) => {
+    if (searchType === 'multiCity') {
+      const newFlights = [...multiCityFlights];
+      const index = parseInt(field.split('-')[1]);
+      newFlights[index] = { ...newFlights[index], [field.split('-')[0]]: airport.city };
+      setMultiCityFlights(newFlights);
+    } else {
+      setSearchCriteria({ ...searchCriteria, [field]: airport.city });
+    }
+    setOpenSuggestions(null);
+  };
+
+  const renderAutocompleteInput = (field, placeholder, value) => (
+    <div
+      className={FlightsStyle.autocomplete_wrapper}
+      ref={(el) => (suggestionRefs.current[field] = el)}
+    >
+      <div className={FlightsStyle.input_wrapper}>
+        <MapPin className={FlightsStyle.input_icon} />
+        <input
+          className={FlightsStyle.input}
+          type="text"
+          placeholder={placeholder}
+          value={value}
+          onChange={(e) => handleInputChange(e.target.value, field)}
+          onFocus={() => setOpenSuggestions(field)}
+          autoComplete="off"
+        />
       </div>
-    );
-  }
+      <AnimatePresence>
+        {openSuggestions === field && (
+          <motion.div
+            className={FlightsStyle.suggestions_container}
+            initial={{ opacity: 0, y: -10 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -10 }}
+            transition={{ duration: 0.2 }}
+          >
+            {getFilteredAirports(value).map((airport) => (
+              <motion.div
+                key={airport._id}
+                className={FlightsStyle.suggestion_item}
+                onClick={() => handleSuggestionClick(airport, field)}
+                whileHover={{ backgroundColor: 'rgba(255, 255, 255, 0.1)' }}
+              >
+                <span className={FlightsStyle.suggestion_city}>{airport.city}</span>
+                <span className={FlightsStyle.suggestion_code}>{airport.code}</span>
+              </motion.div>
+            ))}
+            {getFilteredAirports(value).length === 0 && (
+              <div className={FlightsStyle.no_suggestions}>No matching cities found</div>
+            )}
+          </motion.div>
+        )}
+      </AnimatePresence>
+    </div>
+  );
 
   useEffect(() => {
     const fetchAirports = async () => {
@@ -493,7 +509,6 @@ export default function Flights() {
   const renderFlightResults = (flights, routeIndex) => {
     const routeInfo = getRouteInfo(routeIndex);
 
-    const gtty = routeInfo.departureCity;
     if (Object.keys(selectedFlights).length === getTotalRoutes()) {
       console.log("Already selected all flights", getTotalRoutes());
       console.log("Status of doneChoosing: ", doneChoosing);
@@ -897,7 +912,14 @@ export default function Flights() {
                 <div className={FlightsStyle.form_row}>
                   <div className={FlightsStyle.form_group}>
                     <label className={FlightsStyle.label} htmlFor="departureCity">From</label>
-                    <div className={FlightsStyle.input_wrapper}>
+                    {renderAutocompleteInput('departureCity', 'Departure City', searchCriteria.departureCity)}
+                    {/* {RenderAutocompleteInput({
+                      placeholder: "Departure City",
+                      value: searchCriteria.departureCity,
+                      onChange: ((value) => setSearchCriteria({ ...searchCriteria, departureCity: value })),
+                    })} */}
+
+                    {/* <div className={FlightsStyle.input_wrapper}>
                       <MapPin className={FlightsStyle.input_icon} />
                       <input
                         spellCheck={false}
@@ -907,11 +929,18 @@ export default function Flights() {
                         onChange={(e) => setSearchCriteria({ ...searchCriteria, departureCity: e.target.value })}
                         placeholder="Departure City"
                       />
-                    </div>
+                    </div> */}
                   </div>
                   <div className={FlightsStyle.form_group}>
                     <label className={FlightsStyle.label} htmlFor="destinationCity">To</label>
-                    <div className={FlightsStyle.input_wrapper}>
+                    {renderAutocompleteInput('destinationCity', 'Destination City', searchCriteria.destinationCity)}
+                    {/* {RenderAutocompleteInput({
+                      placeholder: "Destination City",
+                      value: searchCriteria.destinationCity,
+                      onChange: ((value) => setSearchCriteria({ ...searchCriteria, destinationCity: value })),
+                    })} */}
+
+                    {/* <div className={FlightsStyle.input_wrapper}>
                       <MapPin className={FlightsStyle.input_icon} />
                       <input
                         spellCheck={false}
@@ -921,7 +950,7 @@ export default function Flights() {
                         onChange={(e) => setSearchCriteria({ ...searchCriteria, destinationCity: e.target.value })}
                         placeholder="Destination City"
                       />
-                    </div>
+                    </div> */}
                   </div>
 
                 </div>
@@ -970,7 +999,14 @@ export default function Flights() {
                 <div className={FlightsStyle.form_row}>
                   <div className={FlightsStyle.form_group}>
                     <label className={FlightsStyle.label} htmlFor="departureCity">From</label>
-                    <div className={FlightsStyle.input_wrapper}>
+                    {renderAutocompleteInput('departureCity', 'Departure City', searchCriteria.departureCity)}
+                    {/* {RenderAutocompleteInput({
+                      placeholder: "Departure City",
+                      value: searchCriteria.departureCity,
+                      onChange: ((value) => setSearchCriteria({ ...searchCriteria, departureCity: value })),
+                    })} */}
+                    
+                    {/* <div className={FlightsStyle.input_wrapper}>
                       <MapPin className={FlightsStyle.input_icon} />
                       <input
                         spellCheck={false}
@@ -980,11 +1016,18 @@ export default function Flights() {
                         onChange={(e) => setSearchCriteria({ ...searchCriteria, departureCity: e.target.value })}
                         placeholder="Departure City"
                       />
-                    </div>
+                    </div> */}
                   </div>
                   <div className={FlightsStyle.form_group}>
                     <label className={FlightsStyle.label} htmlFor="destinationCity">To</label>
-                    <div className={FlightsStyle.input_wrapper}>
+                    {renderAutocompleteInput('destinationCity', 'Destination City', searchCriteria.destinationCity)}
+                    {/* {RenderAutocompleteInput({
+                      placeholder: "Destination City",
+                      value: searchCriteria.destinationCity,
+                      onChange: ((value) => setSearchCriteria({ ...searchCriteria, destinationCity: value })),
+                    })} */}
+
+                    {/* <div className={FlightsStyle.input_wrapper}>
                       <MapPin className={FlightsStyle.input_icon} />
                       <input
                         spellCheck={false}
@@ -994,7 +1037,7 @@ export default function Flights() {
                         onChange={(e) => setSearchCriteria({ ...searchCriteria, destinationCity: e.target.value })}
                         placeholder="Destination City"
                       />
-                    </div>
+                    </div> */}
                   </div>
                 </div>
                 <div className={FlightsStyle.form_row}>
@@ -1059,7 +1102,18 @@ export default function Flights() {
                       <div className={FlightsStyle.form_group}>
 
                         <label className={FlightsStyle.label} htmlFor={`departureCity-${index}`}>From</label>
-                        <div className={FlightsStyle.input_wrapper}>
+                        {renderAutocompleteInput(`departureCity-${index}`, `Departure City ${index + 1}`, flight.departureCity)}
+                        {/* {RenderAutocompleteInput2(`departureCity-${index}`, 'Departure City', flight.departureCity)} */}
+                        {/* {RenderAutocompleteInput({
+                          placeholder: `Departure City ${index + 1}`,
+                          value: flight.departureCity,
+                          onChange: ((value) => {
+                            const newFlights = [...multiCityFlights];
+                            newFlights[index].departureCity = value;
+                            setMultiCityFlights(newFlights);
+                          }),
+                        })} */}
+                        {/* <div className={FlightsStyle.input_wrapper}>
                           <MapPin className={FlightsStyle.input_icon} />
                           <input
                             spellCheck={false}
@@ -1073,11 +1127,22 @@ export default function Flights() {
                             }}
                             placeholder={`Departure City ${index + 1}`}
                           />
-                        </div>
+                        </div> */}
                       </div>
                       <div className={FlightsStyle.form_group}>
                         <label className={FlightsStyle.label} htmlFor={`destinationCity-${index}`}>To</label>
-                        <div className={FlightsStyle.input_wrapper}>
+                        {renderAutocompleteInput(`destinationCity-${index}`, `Destination City ${index + 1}`, flight.destinationCity)}
+                        {/* {RenderAutocompleteInput2(`destinationCity-${index}`, 'Destination City', flight.destinationCity)} */}
+                        {/* {RenderAutocompleteInput({
+                          placeholder: `Destination ciy ${index + 1}`,
+                          value: flight.destinationCity,
+                          onChange: ((value) => {
+                            const newFlights = [...multiCityFlights];
+                            newFlights[index].destinationCity = value;
+                            setMultiCityFlights(newFlights);
+                          }),
+                        })} */}
+                        {/* <div className={FlightsStyle.input_wrapper}>
                           <MapPin className={FlightsStyle.input_icon} />
                           <input
                             spellCheck={false}
@@ -1091,7 +1156,7 @@ export default function Flights() {
                             }}
                             placeholder={`Destination City ${index + 1}`}
                           />
-                        </div>
+                        </div> */}
                       </div>
                       <div className={FlightsStyle.form_group}>
                         <label className={FlightsStyle.label} htmlFor={`departureDate-${index}`}>Date</label>
