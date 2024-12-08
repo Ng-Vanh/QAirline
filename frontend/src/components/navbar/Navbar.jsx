@@ -34,7 +34,7 @@ export default function Navbar() {
             <ul className={styles.navItems}>
                 <li>
                     <button onClick={() => scrollToSection('home')}>
-                        <Plane className={styles.icon} /> Ticket Booking
+                        <Plane className={styles.icon} /> Booking
                     </button>
                 </li>
                 <li>

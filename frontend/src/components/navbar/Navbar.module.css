@@ -3,7 +3,7 @@
     justify-content: space-between;
     align-items: center;
     padding: 3rem 5rem 2rem 5rem;
-    background: linear-gradient(to top, #c6d1da, #65bfef);
+    background: linear-gradient(to bottom, #fdfdfd, #a2b9c5);
     color: rgb(0, 0, 0);
     position: sticky;
     top: 0;
@@ -28,7 +28,11 @@
 }
 
 .navItems li {
-    margin-left: 1rem;
+    margin-left: 3rem;
+}
+
+.navItems li:hover {
+    scale: 1.05;
 }
 
 .navItems button {
@@ -60,7 +64,7 @@
     border: none;
 
     cursor: pointer;
-    padding: 4px;
+    padding: 8px;
     border-radius: 50%;
     display: flex;
     align-items: center;
@@ -69,7 +73,7 @@
 }
 
 .userButton:hover {
-    background-color: rgba(255, 255, 255, 0.1);
+    background-color: rgba(255, 255, 255, 0.2);
 }
 
 .userIcon {
