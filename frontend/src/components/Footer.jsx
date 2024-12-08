@@ -4,7 +4,7 @@ import { Link } from "react-router-dom";
 export default function Footer() {
     const styles = {
         footer: {
-            backgroundColor: '#f3f4f6', // bg-gray-100
+            backgroundColor: '#dfeef6', // bg-gray-100 
             color: '#4b5563', // text-gray-600
             padding: '2rem 1rem', // px-4 py-8
         },
