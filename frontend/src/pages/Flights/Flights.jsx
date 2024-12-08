@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import { Plane, ArrowRight, ArrowLeft, Search, Calendar, MapPin, Users, CreditCard, Luggage, X, ShoppingCart, Info, ChevronDown, ChevronUp, Trash2 } from 'lucide-react'
 import { motion, AnimatePresence } from 'framer-motion'
 import FlightsStyle from './Flights.module.css'
@@ -33,6 +33,7 @@ export default function Flights() {
   const [previousLegArrivalTime, setPreviousLegArrivalTime] = useState(null)
   const [doneChoosing, setDoneChoosing] = useState(false)
   const [isAutoSearch, setIsAutoSearch] = useState(true)
+  const [airports, setAirports] = useState([])
 
   const isFlightsPage = () => {
     return window.location.pathname === '/flights'
@@ -334,6 +335,109 @@ export default function Flights() {
       setIsLoading(false)
     }
   }
+
+  const RenderAutocompleteInput = ({ placeholder, value, onChange }) => {
+    const [isOpen, setIsOpen] = useState(false);
+    const [filteredAirports, setFilteredAirports] = useState([]);
+    const inputRef = useRef(null);
+
+    useEffect(() => {
+      if (value === '') {
+        setFilteredAirports(airports);
+      } else {
+        const filtered = airports.filter(
+          (airport) =>
+            airport.city.toLowerCase().startsWith(value.toLowerCase()) ||
+            airport.code.toLowerCase().startsWith(value.toLowerCase())
+        );
+        setFilteredAirports(filtered);
+      }
+    }, [value, airports]);
+
+    useEffect(() => {
+      const handleClickOutside = (event) => {
+        if (inputRef.current && !inputRef.current.contains(event.target)) {
+          setIsOpen(false);
+        }
+      };
+
+      document.addEventListener('mousedown', handleClickOutside);
+      return () => {
+        document.removeEventListener('mousedown', handleClickOutside);
+      };
+    }, []);
+
+    const handleInputChange = (e) => {
+      onChange(e.target.value);
+      setIsOpen(true);
+    };
+
+    const handleSuggestionClick = (airport) => {
+      onChange(airport.city);
+      setIsOpen(false);
+    };
+
+    return (
+      <div className={FlightsStyle.autocomplete_wrapper} ref={inputRef}>
+        <div className={FlightsStyle.input_wrapper}>
+          <MapPin className={FlightsStyle.input_icon} />
+          <input
+            className={FlightsStyle.input}
+            type="text"
+            placeholder={placeholder}
+            value={value}
+            onChange={handleInputChange}
+            onFocus={() => setIsOpen(true)}
+            autoComplete="off"
+          />
+        </div>
+        <AnimatePresence>
+          {isOpen && (
+            <motion.div
+              className={FlightsStyle.suggestions_container}
+              initial={{ opacity: 0, y: -10 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -10 }}
+              transition={{ duration: 0.2 }}
+            >
+              {filteredAirports.length > 0 ? (
+                filteredAirports.map((airport) => (
+                  <motion.div
+                    key={airport._id}
+                    className={FlightsStyle.suggestion_item}
+                    onClick={() => handleSuggestionClick(airport)}
+                    whileHover={{ backgroundColor: 'rgba(255, 255, 255, 0.1)' }}
+                  >
+                    <span className={FlightsStyle.suggestion_city}>{airport.city}</span>
+                    <span className={FlightsStyle.suggestion_code}>{airport.code}</span>
+                  </motion.div>
+                ))
+              ) : (
+                <div className={FlightsStyle.no_suggestions}>No matching cities found</div>
+              )}
+            </motion.div>
+          )}
+        </AnimatePresence>
+      </div>
+    );
+  }
+
+  useEffect(() => {
+    const fetchAirports = async () => {
+      try {
+        const response = await fetch('https://qairline-t28f.onrender.com/api/airports')
+        if (!response.ok) {
+          throw new Error(`HTTP error! status: ${response.status}`)
+        }
+        const data = await response.json()
+        setAirports(data.airports)
+      } catch (error) {
+        console.error('Error fetching airports:', error)
+      }
+    }
+
+    fetchAirports()
+  }, [])
 
   const handleAddToCart = (flight, flightClass) => {
     const newItem = {
