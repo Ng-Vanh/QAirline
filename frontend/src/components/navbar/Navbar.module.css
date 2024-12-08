@@ -2,8 +2,8 @@
     display: flex;
     justify-content: space-between;
     align-items: center;
-    padding: 3rem 5rem 2rem 5rem;
-    background: linear-gradient(to bottom, #fdfdfd, #a2b9c5);
+    padding: 3rem;
+    background: #5dbcef;
     color: rgb(0, 0, 0);
     position: sticky;
     top: 0;
@@ -110,3 +110,4 @@
 .dropdown button:hover {
     background-color: #f0f8ff;
 }
+
