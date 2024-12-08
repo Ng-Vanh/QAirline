@@ -156,7 +156,7 @@ export default function Bookings() {
                                             <div className={BookingsStyle.flight_duration}>
                                                 <Plane className={BookingsStyle.flight_icon} />
                                                 <span className={BookingsStyle.duration}>{booking.flightDuration}</span>
-                                                
+
                                             </div>
                                             <div className={BookingsStyle.airport_info}>
                                                 <p className={BookingsStyle.city}>{booking.arrivalAirport.city}</p>
