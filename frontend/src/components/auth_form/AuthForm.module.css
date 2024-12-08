@@ -5,6 +5,13 @@
     justify-content: center;
     min-height: 100vh;
     background-color: #e6f2ff;
+    background-image: url('../../assets/bhLogin1.jpg');
+    /* Replace with your image path */
+    background-size: cover;
+    /* Ensures the image covers the entire container */
+    background-repeat: no-repeat;
+    /* Prevents the image from repeating */
+    background-position: center;
 }
 
 .form {

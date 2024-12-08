@@ -71,7 +71,7 @@ export default function AuthForm() {
         <Toast.Provider swipeDirection="right">
             <div className={styles.container}>
                 <form className={styles.form} onSubmit={handleSubmit}>
-                    <h2>{isLogin ? 'Login' : 'Register'}</h2>
+                    <h2>{isLogin ? 'Login QAirline' : 'Register QAirline'}</h2>
                     {!isLogin && (
                         <div className={styles.formGroup}>
                             <label htmlFor="name">Full Name</label>

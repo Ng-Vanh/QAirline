@@ -1,0 +1,45 @@
+.navbar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 3rem 5rem 2rem 5rem;
+    background: linear-gradient(to top, #c6d1da, #65bfef);
+    color: rgb(0, 0, 0);
+    font-family: Arial, sans-serif;
+    height: 9vh;
+}
+
+.logo {
+    cursor: pointer;
+}
+
+.logoImage {
+    height: 4rem;
+    width: 8rem;
+}
+
+.userSection {
+    display: flex;
+    align-items: center;
+}
+
+.loginText {
+    margin-right: 10px;
+    font-size: 16px;
+    cursor: pointer;
+}
+
+.userButton {
+    background: none;
+    border: none;
+    color: rgb(0, 0, 0);
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.userIcon {
+    width: 24px;
+    height: 24px;
+}
