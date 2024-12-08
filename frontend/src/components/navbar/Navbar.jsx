@@ -1,13 +1,19 @@
 'use client';
 
-import { Plane, Compass, Bell, Newspaper, User } from 'lucide-react';
+import { Plane, Compass, Bell, Newspaper, User, LogIn } from 'lucide-react';
 import styles from './Navbar.module.css';
-import { useState } from 'react';
-// import logo from '../../assets/logo1-removebg-preview.png'
-import logo from '../../assets/qLOGO.png'
+import { useState, useEffect } from 'react';
+import logo from '../../assets/logo1-removebg-preview.png';
 
 export default function Navbar() {
     const [isDropdownOpen, setIsDropdownOpen] = useState(false);
+    const [isLoggedIn, setIsLoggedIn] = useState(false);
+
+    useEffect(() => {
+        // Kiểm tra trạng thái đăng nhập
+        const user = localStorage.getItem('user');
+        setIsLoggedIn(!!user); // Nếu có user thì isLoggedIn = true
+    }, []);
 
     const scrollToSection = (id) => {
         const element = document.getElementById(id);
@@ -16,11 +22,22 @@ export default function Navbar() {
         }
     };
 
+    const handleLogout = () => {
+        localStorage.removeItem('user');
+        setIsLoggedIn(false); // Cập nhật trạng thái
+        window.location.href = '/login';
+    };
+
     const navigateToMyBooking = () => {
         window.location.href = '/my-booking';
     };
+
     const navigateToHome = () => {
         window.location.href = '/';
+    };
+
+    const navigateToLogin = () => {
+        window.location.href = '/login';
     };
 
     return (
@@ -55,19 +72,31 @@ export default function Navbar() {
                 </li>
             </ul>
             <div className={styles.userSection}>
-                <button
-                    className={styles.userButton}
-                    onClick={() => setIsDropdownOpen(!isDropdownOpen)}
-                >
-                    <User className={styles.userIcon} />
-                </button>
-                {isDropdownOpen && (
-                    <div className={styles.dropdown}>
-                        <button>Profile</button>
-                        <button onClick={navigateToMyBooking}>My booking</button>
-                        <button>Settings</button>
-                        <button>Logout</button>
-                    </div>
+                {isLoggedIn ? (
+                    <>
+                        <button
+                            className={styles.userButton}
+                            onClick={() => setIsDropdownOpen(!isDropdownOpen)}
+                        >
+                            <User className={styles.userIcon} />
+                        </button>
+                        {isDropdownOpen && (
+                            <div className={styles.dropdown}>
+                                <button>Profile</button>
+                                <button onClick={navigateToMyBooking}>My booking</button>
+                                <button>Settings</button>
+                                <button onClick={handleLogout}>Logout</button>
+                            </div>
+                        )}
+                    </>
+                ) : (
+                    <button
+                        className={styles.loginButton}
+                        onClick={navigateToLogin}
+                    >
+                        Login
+                        <LogIn className={styles.icon} />
+                    </button>
                 )}
             </div>
         </nav>

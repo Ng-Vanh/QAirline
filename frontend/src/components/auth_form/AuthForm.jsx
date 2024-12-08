@@ -32,6 +32,9 @@ export default function AuthForm() {
         setLoading(true);
         try {
             const response = await axios.post(`${API_BASE_URL}/api/users${isLogin ? '/login' : ''}`, formData);
+            if (response.data) {
+                localStorage.setItem('user', JSON.stringify(response.data.user)); // hoặc response.data.token nếu có token
+            }
             setToastMessage({
                 title: 'Success',
                 description: isLogin ? 'Login successful!' : 'Registration successful!',
@@ -53,6 +56,8 @@ export default function AuthForm() {
             setLoading(false);
         }
     };
+
+
 
     const togglePasswordVisibility = () => {
         setShowPassword(!showPassword);
