@@ -15,7 +15,8 @@ body {
 }
 
 
-.topSection, .searchBarContainer {
+.topSection,
+.searchBarContainer {
     position: relative;
     /* height: 400px; */
     /* margin-bottom: 200px; */
@@ -52,6 +53,7 @@ body {
     /* display: flex; */
     padding: 0;
     align-content: center;
+    top: 90px;
 
     transform-origin: center;
     /* transform: scale(0.8); */
@@ -65,7 +67,7 @@ body {
     position: absolute;
     top: 0;
     left: 0;
-    
+
     display: grid;
     place-items: start center;
     align-content: center;
@@ -76,7 +78,7 @@ body {
     position: relative;
     max-width: 800px;
     width: 100%;
-    max-height: 100vh; 
+    max-height: 100vh;
     transform-origin: 50% 50%;
     transform: translateY(-6%);
     transform: scale(0.9);

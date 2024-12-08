@@ -3,9 +3,11 @@
 import { Plane, Compass, Bell, Newspaper, User } from 'lucide-react';
 import styles from './Navbar.module.css';
 import { useState } from 'react';
+import logo from '../../assets/logo1-removebg-preview.png'
 
 export default function Navbar() {
     const [isDropdownOpen, setIsDropdownOpen] = useState(false);
+
     const scrollToSection = (id) => {
         const element = document.getElementById(id);
         if (element) {
@@ -16,10 +18,19 @@ export default function Navbar() {
     const navigateToMyBooking = () => {
         window.location.href = '/my-booking';
     };
+    const navigateToHome = () => {
+        window.location.href = '/';
+    };
 
     return (
         <nav className={styles.navbar}>
-            <div className={styles.logo}>QAirline</div>
+            <div className={styles.logo} onClick={navigateToHome}>
+                <img
+                    src={logo}
+                    alt="QAirline Logo"
+                    className={styles.logoImage}
+                />
+            </div>
             <ul className={styles.navItems}>
                 <li>
                     <button onClick={() => scrollToSection('home')}>
@@ -55,7 +66,6 @@ export default function Navbar() {
                         <button onClick={navigateToMyBooking}>My booking</button>
                         <button>Settings</button>
                         <button>Logout</button>
-
                     </div>
                 )}
             </div>
