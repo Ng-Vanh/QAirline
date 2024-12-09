@@ -3,7 +3,8 @@
 import { Plane, Compass, Bell, Newspaper, User } from 'lucide-react';
 import styles from './Navbar.module.css';
 import { useState } from 'react';
-import logo from '../../assets/logo1-removebg-preview.png'
+// import logo from '../../assets/logo1-removebg-preview.png'
+import logo from '../../assets/qLOGO.png'
 
 export default function Navbar() {
     const [isDropdownOpen, setIsDropdownOpen] = useState(false);
