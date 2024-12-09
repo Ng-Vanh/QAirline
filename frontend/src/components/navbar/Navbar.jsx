@@ -1,26 +1,59 @@
 'use client';
 
-import { Plane, Compass, Bell, Newspaper, User, LogIn } from 'lucide-react';
+import { Plane, Compass, Bell, Newspaper, User, LogIn, Gift } from 'lucide-react';
 import styles from './Navbar.module.css';
 import { useState, useEffect } from 'react';
-import logo from '../../assets/logo1-removebg-preview.png';
+import logo from '../../assets/qLOGO.png';
 
 export default function Navbar() {
     const [isDropdownOpen, setIsDropdownOpen] = useState(false);
     const [isLoggedIn, setIsLoggedIn] = useState(false);
+    const [user, setUser] = useState(null); // Lưu thông tin user
+
 
     useEffect(() => {
         // Kiểm tra trạng thái đăng nhập
-        const user = localStorage.getItem('user');
-        setIsLoggedIn(!!user); // Nếu có user thì isLoggedIn = true
+        const userData = localStorage.getItem('user');
+        if (userData) {
+            const user = JSON.parse(userData); // Parse thông tin user
+            setIsLoggedIn(true);
+            setUser(user); // Lưu user vào state
+        } else {
+            setIsLoggedIn(false);
+        }
+
+        // Tự động cuộn đến phần tử nếu URL chứa hash
+        const hash = window.location.hash;
+        if (hash) {
+            const targetId = hash.substring(1); // Bỏ dấu #
+            const targetElement = document.getElementById(targetId);
+            if (targetElement) {
+                targetElement.scrollIntoView({ behavior: 'smooth' });
+            } else {
+                console.warn(`Element with ID ${targetId} not found.`);
+            }
+        }
     }, []);
 
+
     const scrollToSection = (id) => {
-        const element = document.getElementById(id);
-        if (element) {
-            element.scrollIntoView({ behavior: 'smooth' });
+        const currentUrl = window.location.href;
+
+        // Nếu đang ở trang home
+        if (currentUrl.includes('/#') || currentUrl.endsWith('/')) {
+            const element = document.getElementById(id);
+            if (element) {
+                element.scrollIntoView({ behavior: 'smooth' });
+            } else {
+                console.warn(`Element with ID ${id} not found.`);
+            }
+        } else {
+            // Nếu không ở trang home, chuyển hướng về home với hash
+            window.location.href = `/#${id}`;
         }
     };
+
+
 
     const handleLogout = () => {
         localStorage.removeItem('user');
@@ -39,6 +72,9 @@ export default function Navbar() {
     const navigateToLogin = () => {
         window.location.href = '/login';
     };
+    const navigateToFlightSearch = () => {
+        window.location.href = '/flights';
+    }
 
     return (
         <nav className={styles.navbar}>
@@ -51,8 +87,13 @@ export default function Navbar() {
             </div>
             <ul className={styles.navItems}>
                 <li>
-                    <button onClick={() => scrollToSection('home')}>
-                        <Plane className={styles.icon} /> Booking
+                    <button onClick={navigateToFlightSearch}>
+                        <Plane className={styles.icon} /> Flights
+                    </button>
+                </li>
+                <li>
+                    <button onClick={() => scrollToSection('promotions')}>
+                        <Gift className={styles.icon} /> Promotion
                     </button>
                 </li>
                 <li>
@@ -78,13 +119,13 @@ export default function Navbar() {
                             className={styles.userButton}
                             onClick={() => setIsDropdownOpen(!isDropdownOpen)}
                         >
+                            <p>Hello {user?.name} </p>
+
                             <User className={styles.userIcon} />
                         </button>
                         {isDropdownOpen && (
                             <div className={styles.dropdown}>
-                                <button>Profile</button>
                                 <button onClick={navigateToMyBooking}>My booking</button>
-                                <button>Settings</button>
                                 <button onClick={handleLogout}>Logout</button>
                             </div>
                         )}
@@ -95,7 +136,7 @@ export default function Navbar() {
                         onClick={navigateToLogin}
                     >
                         Login
-                        <LogIn className={styles.icon} />
+                        <User className={styles.userIcon} />
                     </button>
                 )}
             </div>
