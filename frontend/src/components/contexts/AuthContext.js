@@ -10,7 +10,6 @@ export const AuthProvider = ({ children }) => {
   );
   const [userId, setUserId] = useState(localStorage.getItem('userId') || null);
   const [name, setName] = useState(localStorage.getItem('name') || null);
-  const [redirectPath, setRedirectPath] = useState(null);
 
   const navigate = useNavigate();
 
@@ -21,6 +20,7 @@ export const AuthProvider = ({ children }) => {
         password,
       });
       const { user } = response.data;
+
       setIsAuthenticated(true);
       setUserId(user.userId);
       setName(user.name);
@@ -42,6 +42,7 @@ export const AuthProvider = ({ children }) => {
         password,
       });
       const { user } = response.data;
+
       setIsAuthenticated(true);
       setUserId(user._id);
       setName(user.name);
@@ -73,8 +74,6 @@ export const AuthProvider = ({ children }) => {
         login,
         signup,
         logout,
-        setRedirectPath,
-        redirectPath,
       }}
     >
       {children}

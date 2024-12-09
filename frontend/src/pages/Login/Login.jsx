@@ -8,7 +8,7 @@ import * as Toast from '@radix-ui/react-toast';
 import styles from './Login.module.css';
 
 export default function Login() {
-    const { login, signup, redirectPath } = useAuth();
+    const { login, signup } = useAuth(); // Removed redirectPath and setRedirectPath
     const location = useLocation();
     const navigate = useNavigate();
 
@@ -36,6 +36,7 @@ export default function Login() {
         setLoading(true);
 
         try {
+            // Perform login or signup
             const result = isLogin
                 ? await login(formData.username, formData.password)
                 : await signup(formData.name, formData.username, formData.password);
@@ -48,10 +49,10 @@ export default function Login() {
                 });
                 setToastOpen(true);
 
-                // Redirect back to the previous page or home
-                const previousState = location.state?.previousState || {};
-                const redirectTo = redirectPath || location.state?.from || '/';
-                navigate(redirectTo, { state: previousState });
+                // Redirect back to the saved path or home
+                const redirectTo = location.state?.from || '/'; // Default to home if no state
+                const prevState = location.state?.prevState || {}; // Retrieve previous state
+                navigate(redirectTo, { state: prevState }); // Pass back state
             } else {
                 setToastMessage({
                     title: 'Error',
@@ -63,7 +64,7 @@ export default function Login() {
         } catch (error) {
             setToastMessage({
                 title: 'Error',
-                description: error.message || 'An error occurred',
+                description: error.message || 'An error occurred during the process',
                 status: 'error',
             });
             setToastOpen(true);
