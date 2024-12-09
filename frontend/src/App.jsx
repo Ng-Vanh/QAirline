@@ -13,17 +13,20 @@ import ManageAircraft from "./pages/Admin/aircraft/page";
 import ManageFlights from "./pages/Admin/flights/page";
 import AdminAirportManagement from "./pages/Admin/airports/page";
 
+import Navbar from "./components/navbar/Navbar";
+import Footer from "./components/Footer";
 const App = () => {
     const [isAuthenticated, setIsAuthenticated] = useState(false); // Track login status
 
     return (
         <Router>
+            <Navbar />
             <div>
                 <Routes>
                     {/* Public Routes */}
                     <Route path="/" element={<Home />} />
                     <Route path="/flights" element={<Flights />} />
-                    <Route path="/my-booking" element={<Bookings />} />
+                    <Route path="/my-bookings" element={<Bookings />} />
                     <Route path="/login" element={<Login />} />
 
                     {/* Redirect /admin to /admin/login */}
@@ -58,6 +61,7 @@ const App = () => {
                     )}
                 </Routes>
             </div>
+            <Footer />
         </Router>
     );
 };

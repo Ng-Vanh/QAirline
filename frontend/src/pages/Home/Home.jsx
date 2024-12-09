@@ -10,7 +10,6 @@ import styles from './home.module.css';
 export default function Home() {
     return (
         <div className={styles.container}>
-            <Navbar />
             <main className={styles.mainContent}>
                 <section id="home" className={styles.topSection}>
                     <Slideshow />
@@ -50,7 +49,6 @@ export default function Home() {
                     <ContentSection type="News" />
                 </section>
             </main>
-            <Footer></Footer>
         </div>
     );
 }
