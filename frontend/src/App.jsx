@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { BrowserRouter as Router, Routes, Route, Navigate } from "react-router-dom";
 import Home from "./pages/Home/Home";
 import Flights from "./pages/Flights/Flights";
@@ -15,12 +15,20 @@ import AdminAirportManagement from "./pages/Admin/airports/page";
 
 import Navbar from "./components/navbar/Navbar";
 import Footer from "./components/Footer";
+
 const App = () => {
-    const [isAuthenticated, setIsAuthenticated] = useState(false); // Track login status
+    const [isAuthenticated, setIsAuthenticated] = useState(false);
+    const [isAdminRoute, setIsAdminRoute] = useState(false);
+
+    useEffect(() => {
+        const currentPath = window.location.pathname;
+        setIsAdminRoute(currentPath.startsWith('/admin'));
+    }, []);
 
     return (
         <Router>
-            <Navbar />
+            {!isAdminRoute && <Navbar />}
+
             <div>
                 <Routes>
                     {/* Public Routes */}
@@ -61,7 +69,9 @@ const App = () => {
                     )}
                 </Routes>
             </div>
-            <Footer />
+
+            {/* Conditionally render Footer */}
+            {!isAdminRoute && <Footer />}
         </Router>
     );
 };

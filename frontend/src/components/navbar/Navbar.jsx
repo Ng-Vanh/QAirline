@@ -12,24 +12,22 @@ const isPositionRelative = () => {
 export default function Navbar() {
     const [isDropdownOpen, setIsDropdownOpen] = useState(false);
     const [isLoggedIn, setIsLoggedIn] = useState(false);
-    const [user, setUser] = useState(null); // Lưu thông tin user
-
+    const [user, setUser] = useState(null);
+    const [isMenuOpen, setIsMenuOpen] = useState(false); // state cho mobile menu
 
     useEffect(() => {
-        // Kiểm tra trạng thái đăng nhập
         const userData = localStorage.getItem('user');
         if (userData) {
-            const user = JSON.parse(userData); // Parse thông tin user
+            const userObj = JSON.parse(userData);
             setIsLoggedIn(true);
-            setUser(user); // Lưu user vào state
+            setUser(userObj);
         } else {
             setIsLoggedIn(false);
         }
 
-        // Tự động cuộn đến phần tử nếu URL chứa hash
         const hash = window.location.hash;
         if (hash) {
-            const targetId = hash.substring(1); // Bỏ dấu #
+            const targetId = hash.substring(1);
             const targetElement = document.getElementById(targetId);
             if (targetElement) {
                 targetElement.scrollIntoView({ behavior: 'smooth' });
@@ -39,11 +37,8 @@ export default function Navbar() {
         }
     }, []);
 
-
     const scrollToSection = (id) => {
         const currentUrl = window.location.href;
-
-        // Nếu đang ở trang home
         if (currentUrl.includes('/#') || currentUrl.endsWith('/')) {
             const element = document.getElementById(id);
             if (element) {
@@ -52,16 +47,13 @@ export default function Navbar() {
                 console.warn(`Element with ID ${id} not found.`);
             }
         } else {
-            // Nếu không ở trang home, chuyển hướng về home với hash
             window.location.href = `/#${id}`;
         }
     };
 
-
-
     const handleLogout = () => {
         localStorage.removeItem('user');
-        setIsLoggedIn(false); // Cập nhật trạng thái
+        setIsLoggedIn(false);
         window.location.href = '/login';
     };
 
@@ -82,7 +74,6 @@ export default function Navbar() {
 
     return (
         <nav className={`${styles.navbar} ${isPositionRelative() ? styles.position_relative : ''}`}>
-
             <div className={styles.logo} onClick={navigateToHome}>
                 <img
                     src={logo}
@@ -90,6 +81,7 @@ export default function Navbar() {
                     className={styles.logoImage}
                 />
             </div>
+
             <div className={styles.navItemsContainer}>
                 <ul className={styles.navItems}>
                     <li>
@@ -117,7 +109,6 @@ export default function Navbar() {
                             <Newspaper className={styles.icon} /> News
                         </button>
                     </li>
-
                 </ul>
             </div>
 
@@ -128,8 +119,7 @@ export default function Navbar() {
                             className={styles.userButton}
                             onClick={() => setIsDropdownOpen(!isDropdownOpen)}
                         >
-                            <p>{user?.name} </p>
-
+                            <p>{user?.name}</p>
                             <User className={styles.userIcon} />
                         </button>
                         {isDropdownOpen && (
@@ -149,6 +139,32 @@ export default function Navbar() {
                     </button>
                 )}
             </div>
+
+            {/* Nút menu cho mobile */}
+            <button className={styles.mobileMenuButton} onClick={() => setIsMenuOpen(true)}>
+                ☰
+            </button>
+
+            {/* Panel trượt bên phải trên mobile */}
+            <div className={`${styles.mobileNavPanel} ${isMenuOpen ? styles.open : ''}`}>
+                <button className={styles.closeButton} onClick={() => setIsMenuOpen(false)}>×</button>
+                <ul className={styles.mobileNavItems}>
+                    <li><button onClick={navigateToFlightSearch}>Flights</button></li>
+                    <li><button onClick={() => scrollToSection('promotions')}>Promotion</button></li>
+                    <li><button onClick={() => scrollToSection('explore')}>Explore</button></li>
+                    <li><button onClick={() => scrollToSection('alerts')}>Alerts</button></li>
+                    <li><button onClick={() => scrollToSection('news')}>News</button></li>
+                    {isLoggedIn ? (
+                        <>
+                            <li><button onClick={navigateToMyBooking}>My booking</button></li>
+                            <li><button onClick={handleLogout}>Logout</button></li>
+                        </>
+                    ) : (
+                        <li><button onClick={navigateToLogin}>Login</button></li>
+                    )}
+                </ul>
+            </div>
+
         </nav>
     );
 }
