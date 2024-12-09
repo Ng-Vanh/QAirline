@@ -1,3 +1,13 @@
+:root {
+  --red_color: #e74c3c;
+  --scheduled_bg_color: #f1c40f;
+  --scheduled_text_color: #34495e;
+  --landed_bg_color: #9b59b6;
+  --on_time_bg_color: #2ecc71;
+  --economy_bg: linear-gradient(135deg, #3498db, #2980b9);
+  --business_bg: linear-gradient(135deg, #f39c12, #d35400);
+}
+
 .container {
   max-width: 1200px;
   margin: 0 auto;
@@ -41,9 +51,15 @@
 }
 
 .tab_active {
-  background-color: #3498db;
+  /* background-color: #3498db; */
+  background-color: var(--main_color);
   color: #ffffff;
 }
+
+.tab_active:hover {
+  background-color: var(--main_color_hover);
+}
+
 
 .booking_count {
   font-weight: 100;
@@ -109,11 +125,11 @@
 }
 
 .booking_header_economy {
-  background: linear-gradient(135deg, #3498db, #2980b9);
+  background: var(--economy_bg);
 }
 
 .booking_header_business {
-  background: linear-gradient(135deg, #f39c12, #d35400);
+  background: var(--business_bg);
 }
 
 .flight_code_container {
@@ -147,23 +163,23 @@
 }
 
 .status_scheduled {
-  background-color: #f1c40f;
-  color: #34495e;
+  background-color: var(--scheduled_bg_color);
+  color: var(--scheduled_text_color);
 }
 
 .status_on_time {
-  background-color: #2ecc71;
-  color: #ffffff;
+  background-color: var(--on_time_bg_color);
+  color: white
 }
 
 .status_delayed {
-  background-color: #e74c3c;
-  color: #ffffff;
+  background-color: var(--red_color);
+  color: white;
 }
 
 .status_landed {
   background-color: #9b59b6;
-  color: #ffffff;
+  color: white;
 }
 
 .booking_content {
@@ -297,8 +313,9 @@
   background-color: #2980b9;
 }
 
+
 .button_danger {
-  background-color: #e74c3c;
+  background-color: var(--red_color);
   color: #ffffff;
   border-radius: 0;
   border-radius: 0 0 12px 12px ;
