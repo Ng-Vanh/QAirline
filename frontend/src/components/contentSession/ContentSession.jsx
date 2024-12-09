@@ -11,6 +11,17 @@ export default function ContentSection({ type }) {
     const [showScrollButton, setShowScrollButton] = useState(true);
     const [isLoading, setIsLoading] = useState(true);
     const [error, setError] = useState(null);
+    const [isSmallScreen, setIsSmallScreen] = useState(window.innerWidth < 1200);
+
+    // Update screen size state on resize
+    useEffect(() => {
+        const handleResize = () => {
+            setIsSmallScreen(window.innerWidth < 1200);
+        };
+
+        window.addEventListener('resize', handleResize);
+        return () => window.removeEventListener('resize', handleResize);
+    }, []);
 
     useEffect(() => {
         const fetchContent = async () => {
@@ -79,34 +90,30 @@ export default function ContentSection({ type }) {
     // Session 2 & 4: như cũ (các thẻ chia đều)
     let layoutContent;
 
-    if (type === "Introduction" && content.length >= 3) {
+    if (!isSmallScreen && type === "Introduction" && content.length >= 3) {
         // Session 1 layout
         layoutContent = (
             <div className={styles.sessionOneLayout}>
-                <div className={styles.left50}>
-                    {renderCard(content[0])}
-                </div>
+                <div className={styles.left50}>{renderCard(content[0])}</div>
                 <div className={styles.right50Stack}>
                     {renderCard(content[1])}
                     {renderCard(content[2])}
                 </div>
             </div>
         );
-    } else if (type === "Alerts" && content.length >= 3) {
-        // Session 3 layout (ngược lại session 1)
+    } else if (!isSmallScreen && type === "Alerts" && content.length >= 3) {
+        // Session 3 layout
         layoutContent = (
             <div className={styles.sessionThreeLayout}>
                 <div className={styles.left50Stack}>
                     {renderCard(content[0])}
                     {renderCard(content[1])}
                 </div>
-                <div className={styles.right50}>
-                    {renderCard(content[2])}
-                </div>
+                <div className={styles.right50}>{renderCard(content[2])}</div>
             </div>
         );
     } else {
-        // Session 2 và 4 như cũ (hiển thị ngang)
+        // Default layout (Session 2 and 4)
         layoutContent = (
             <div className={styles.scrollContainer} ref={scrollContainerRef} onScroll={handleScroll}>
                 {content.map((item) => renderCard(item))}
@@ -119,11 +126,7 @@ export default function ContentSection({ type }) {
         );
     }
 
-    return (
-        <div className={styles.sectionContainer}>
-            {layoutContent}
-        </div>
-    );
+    return <div className={styles.sectionContainer}>{layoutContent}</div>;
 }
 
 function renderCard(item) {
