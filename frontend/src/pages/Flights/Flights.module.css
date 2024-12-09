@@ -1,5 +1,6 @@
 :root {
   --main_color: #318ad1;
+  --transparent_main_color: #318ad1bf;
   --main_text_color: #000daa;
   --white: #ffffff;
 }
@@ -778,7 +779,7 @@ select:-webkit-autofill:focus {
 }
 
 .not_in_flights {
-  background: linear-gradient(135deg, #4a55bd2b, #645ebbc2);
+  background: var(--transparent_main_color)
 }
 
 .autocomplete_wrapper {
@@ -860,7 +861,7 @@ select:-webkit-autofill:focus {
 
 /**/
 .suggestions_container {
-  padding-right: 10px;
+  padding-right: 5px;
 }
 
 .suggestions_container::-webkit-scrollbar {
@@ -869,7 +870,7 @@ select:-webkit-autofill:focus {
 
 .suggestions_container::-webkit-scrollbar-track {
   background: rgba(255, 255, 255, 0.1);
-  border-radius: 4px;
+  border-radius: 3px;
 }
 
 .suggestions_container::-webkit-scrollbar-track:hover {
@@ -879,7 +880,7 @@ select:-webkit-autofill:focus {
 
 .suggestions_container::-webkit-scrollbar-thumb {
   background: rgba(255, 255, 255, 0.47);
-  border-radius: 4px;
+  border-radius: 2px;
 }
 
 .suggestions_container::-webkit-scrollbar-thumb:hover {
