@@ -3,13 +3,13 @@
     justify-content: space-between;
     align-items: center;
     padding: 3rem;
-    background: #5dbcef;
+    background: transparent;
     color: rgb(0, 0, 0);
-    position: sticky;
+    position: absolute;
     top: 0;
     z-index: 1000;
     height: 9vh;
-
+    width: 100vw;
 }
 
 
