@@ -1,5 +1,5 @@
-import React, { useState, useEffect } from "react";
-import { BrowserRouter as Router, Routes, Route, Navigate } from "react-router-dom";
+import React from "react";
+import { Routes, Route, Navigate } from "react-router-dom";
 import Home from "./pages/Home/Home";
 import Flights from "./pages/Flights/Flights";
 import Bookings from "./pages/Bookings/Bookings";
@@ -17,63 +17,48 @@ import Navbar from "./components/navbar/Navbar";
 import Footer from "./components/Footer";
 
 const App = () => {
-    const [isAuthenticated, setIsAuthenticated] = useState(false);
-    const [isAdminRoute, setIsAdminRoute] = useState(false);
+  const [isAuthenticated, setIsAuthenticated] = React.useState(false);
+  const [isAdminRoute, setIsAdminRoute] = React.useState(false);
 
-    useEffect(() => {
-        const currentPath = window.location.pathname;
-        setIsAdminRoute(currentPath.startsWith('/admin'));
-    }, []);
+  React.useEffect(() => {
+    const currentPath = window.location.pathname;
+    setIsAdminRoute(currentPath.startsWith("/admin"));
+  }, []);
 
-    return (
-        <Router>
-            {!isAdminRoute && <Navbar />}
+  return (
+    <>
+      {!isAdminRoute && <Navbar />}
+      <div>
+        <Routes>
+          {/* Public Routes */}
+          <Route path="/" element={<Home />} />
+          <Route path="/flights" element={<Flights />} />
+          <Route path="/bookings" element={<Bookings />} />
+          <Route path="/login" element={<Login />} />
 
-            <div>
-                <Routes>
-                    {/* Public Routes */}
-                    <Route path="/" element={<Home />} />
-                    <Route path="/flights" element={<Flights />} />
-                    <Route path="/my-bookings" element={<Bookings />} />
-                    <Route path="/login" element={<Login />} />
+          {/* Redirect /admin to /admin/login */}
+          <Route path="/admin" element={<Navigate to="/admin/login" />} />
 
-                    {/* Redirect /admin to /admin/login */}
-                    <Route path="/admin" element={<Navigate to="/admin/login" />} />
-
-                    {/* Admin Login */}
-                    <Route
-                        path="/admin/login"
-                        element={
-                            isAuthenticated ? (
-                                <Navigate to="/admin/reports" />
-                            ) : (
-                                <AdminLoginPage onLoginSuccess={() => setIsAuthenticated(true)} />
-                            )
-                        }
-                    />
-
-                    {/* Admin Layout with Default Route */}
-                    {isAuthenticated ? (
-                        <Route path="/admin/*" element={<Admin />}>
-                            <Route index element={<Navigate to="reports" />} />
-                            <Route path="reports" element={<Reports />} />
-                            <Route path="users" element={<UserManagement />} />
-                            <Route path="flights" element={<ManageFlights />} />
-                            <Route path="aircraft" element={<ManageAircraft />} />
-                            <Route path="airports" element={<AdminAirportManagement />} />
-                            <Route path="cms" element={<CMSPage />} />
-                            <Route path="*" element={<Navigate to="reports" />} />
-                        </Route>
-                    ) : (
-                        <Route path="/admin/*" element={<Navigate to="/admin/login" />} />
-                    )}
-                </Routes>
-            </div>
-
-            {/* Conditionally render Footer */}
-            {!isAdminRoute && <Footer />}
-        </Router>
-    );
+          {/* Admin Layout */}
+          {isAuthenticated ? (
+            <Route path="/admin/*" element={<Admin />}>
+              <Route index element={<Navigate to="reports" />} />
+              <Route path="reports" element={<Reports />} />
+              <Route path="users" element={<UserManagement />} />
+              <Route path="flights" element={<ManageFlights />} />
+              <Route path="aircraft" element={<ManageAircraft />} />
+              <Route path="airports" element={<AdminAirportManagement />} />
+              <Route path="cms" element={<CMSPage />} />
+              <Route path="*" element={<Navigate to="reports" />} />
+            </Route>
+          ) : (
+            <Route path="/admin/*" element={<Navigate to="/admin/login" />} />
+          )}
+        </Routes>
+      </div>
+      {!isAdminRoute && <Footer />}
+    </>
+  );
 };
 
 export default App;

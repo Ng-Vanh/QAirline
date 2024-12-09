@@ -3,39 +3,17 @@
 import { Plane, Compass, Bell, Newspaper, User, LogIn, Gift } from 'lucide-react';
 import styles from './Navbar.module.css';
 import { useState, useEffect } from 'react';
+import { useAuth } from '../../components/contexts/AuthContext';
 import logo from '../../assets/qLOGO.png';
 
 const isPositionRelative = () => {
-    return (window.location.pathname === '/flights' || window.location.pathname === '/my-bookings')
-}
+    return (window.location.pathname === '/flights' || window.location.pathname === '/bookings');
+};
 
 export default function Navbar() {
+    const { isAuthenticated, name, logout } = useAuth();
     const [isDropdownOpen, setIsDropdownOpen] = useState(false);
-    const [isLoggedIn, setIsLoggedIn] = useState(false);
-    const [user, setUser] = useState(null);
-    const [isMenuOpen, setIsMenuOpen] = useState(false); // state cho mobile menu
-
-    useEffect(() => {
-        const userData = localStorage.getItem('user');
-        if (userData) {
-            const userObj = JSON.parse(userData);
-            setIsLoggedIn(true);
-            setUser(userObj);
-        } else {
-            setIsLoggedIn(false);
-        }
-
-        const hash = window.location.hash;
-        if (hash) {
-            const targetId = hash.substring(1);
-            const targetElement = document.getElementById(targetId);
-            if (targetElement) {
-                targetElement.scrollIntoView({ behavior: 'smooth' });
-            } else {
-                console.warn(`Element with ID ${targetId} not found.`);
-            }
-        }
-    }, []);
+    const [isMenuOpen, setIsMenuOpen] = useState(false);
 
     const scrollToSection = (id) => {
         const currentUrl = window.location.href;
@@ -51,30 +29,13 @@ export default function Navbar() {
         }
     };
 
-    const handleLogout = () => {
-        localStorage.removeItem('user');
-        setIsLoggedIn(false);
-        window.location.href = '/login';
+    const navigateTo = (path) => {
+        window.location.href = path;
     };
-
-    const navigateToMyBooking = () => {
-        window.location.href = '/my-bookings';
-    };
-
-    const navigateToHome = () => {
-        window.location.href = '/';
-    };
-
-    const navigateToLogin = () => {
-        window.location.href = '/login';
-    };
-    const navigateToFlightSearch = () => {
-        window.location.href = '/flights';
-    }
 
     return (
         <nav className={`${styles.navbar} ${isPositionRelative() ? styles.position_relative : ''}`}>
-            <div className={styles.logo} onClick={navigateToHome}>
+            <div className={styles.logo} onClick={() => navigateTo('/')}>
                 <img
                     src={logo}
                     alt="QAirline Logo"
@@ -85,7 +46,7 @@ export default function Navbar() {
             <div className={styles.navItemsContainer}>
                 <ul className={styles.navItems}>
                     <li>
-                        <button onClick={navigateToFlightSearch}>
+                        <button onClick={() => navigateTo('/flights')}>
                             <Plane className={styles.icon} /> Flights
                         </button>
                     </li>
@@ -113,26 +74,26 @@ export default function Navbar() {
             </div>
 
             <div className={styles.userSection}>
-                {isLoggedIn ? (
+                {isAuthenticated ? (
                     <>
                         <button
                             className={styles.userButton}
                             onClick={() => setIsDropdownOpen(!isDropdownOpen)}
                         >
-                            <p>{user?.name}</p>
+                            <p>{name}</p>
                             <User className={styles.userIcon} />
                         </button>
                         {isDropdownOpen && (
                             <div className={styles.dropdown}>
-                                <button onClick={navigateToMyBooking}>My booking</button>
-                                <button onClick={handleLogout}>Logout</button>
+                                <button onClick={() => navigateTo('/bookings')}>My booking</button>
+                                <button onClick={logout}>Logout</button>
                             </div>
                         )}
                     </>
                 ) : (
                     <button
                         className={styles.loginButton}
-                        onClick={navigateToLogin}
+                        onClick={() => navigateTo('/login')}
                     >
                         Login
                         <User className={styles.userIcon} />
@@ -140,31 +101,30 @@ export default function Navbar() {
                 )}
             </div>
 
-            {/* Nút menu cho mobile */}
+            {/* Mobile Menu Button */}
             <button className={styles.mobileMenuButton} onClick={() => setIsMenuOpen(true)}>
                 ☰
             </button>
 
-            {/* Panel trượt bên phải trên mobile */}
+            {/* Sliding Panel for Mobile */}
             <div className={`${styles.mobileNavPanel} ${isMenuOpen ? styles.open : ''}`}>
                 <button className={styles.closeButton} onClick={() => setIsMenuOpen(false)}>×</button>
                 <ul className={styles.mobileNavItems}>
-                    <li><button onClick={navigateToFlightSearch}>Flights</button></li>
+                    <li><button onClick={() => navigateTo('/flights')}>Flights</button></li>
                     <li><button onClick={() => scrollToSection('promotions')}>Promotion</button></li>
                     <li><button onClick={() => scrollToSection('explore')}>Explore</button></li>
                     <li><button onClick={() => scrollToSection('alerts')}>Alerts</button></li>
                     <li><button onClick={() => scrollToSection('news')}>News</button></li>
-                    {isLoggedIn ? (
+                    {isAuthenticated ? (
                         <>
-                            <li><button onClick={navigateToMyBooking}>My booking</button></li>
-                            <li><button onClick={handleLogout}>Logout</button></li>
+                            <li><button onClick={() => navigateTo('/bookings')}>My booking</button></li>
+                            <li><button onClick={logout}>Logout</button></li>
                         </>
                     ) : (
-                        <li><button onClick={navigateToLogin}>Login</button></li>
+                        <li><button onClick={() => navigateTo('/login')}>Login</button></li>
                     )}
                 </ul>
             </div>
-
         </nav>
     );
 }

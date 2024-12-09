@@ -1,13 +1,17 @@
 'use client';
 
 import { useState } from 'react';
-import axios from 'axios';
+import { useAuth } from '../../components/contexts/AuthContext';
+import { useLocation, useNavigate } from 'react-router-dom';
 import { Eye, EyeOff, Loader } from 'lucide-react';
 import * as Toast from '@radix-ui/react-toast';
 import styles from './Login.module.css';
-import API_BASE_URL from '../../pages/Admin/config';
 
 export default function Login() {
+    const { login, signup, redirectPath } = useAuth();
+    const location = useLocation();
+    const navigate = useNavigate();
+
     const [isLogin, setIsLogin] = useState(true);
     const [formData, setFormData] = useState({
         name: '',
@@ -21,43 +25,52 @@ export default function Login() {
 
     const handleInputChange = (e) => {
         const { name, value } = e.target;
-        setFormData(prevData => ({
+        setFormData((prevData) => ({
             ...prevData,
-            [name]: value
+            [name]: value,
         }));
     };
 
     const handleSubmit = async (e) => {
         e.preventDefault();
         setLoading(true);
+
         try {
-            const response = await axios.post(`${API_BASE_URL}/api/users${isLogin ? '/login' : ''}`, formData);
-            if (response.data) {
-                localStorage.setItem('user', JSON.stringify(response.data.user)); // hoặc response.data.token nếu có token
+            const result = isLogin
+                ? await login(formData.username, formData.password)
+                : await signup(formData.name, formData.username, formData.password);
+
+            if (result.success) {
+                setToastMessage({
+                    title: 'Success',
+                    description: isLogin ? 'Login successful!' : 'Registration successful!',
+                    status: 'success',
+                });
+                setToastOpen(true);
+
+                // Redirect back to the previous page or home
+                const previousState = location.state?.previousState || {};
+                const redirectTo = redirectPath || location.state?.from || '/';
+                navigate(redirectTo, { state: previousState });
+            } else {
+                setToastMessage({
+                    title: 'Error',
+                    description: result.error,
+                    status: 'error',
+                });
+                setToastOpen(true);
             }
-            setToastMessage({
-                title: 'Success',
-                description: isLogin ? 'Login successful!' : 'Registration successful!',
-                status: 'success'
-            });
-            setToastOpen(true);
-            // Redirect to home page after a short delay
-            setTimeout(() => {
-                window.location.href = '/';
-            }, 1500);
         } catch (error) {
             setToastMessage({
                 title: 'Error',
-                description: error.response?.data?.message || 'An error occurred',
-                status: 'error'
+                description: error.message || 'An error occurred',
+                status: 'error',
             });
             setToastOpen(true);
         } finally {
             setLoading(false);
         }
     };
-
-
 
     const togglePasswordVisibility = () => {
         setShowPassword(!showPassword);
@@ -105,7 +118,7 @@ export default function Login() {
                         <label htmlFor="password">Password</label>
                         <div className={styles.passwordInput}>
                             <input
-                                type={showPassword ? "text" : "password"}
+                                type={showPassword ? 'text' : 'password'}
                                 id="password"
                                 name="password"
                                 value={formData.password}
@@ -118,7 +131,7 @@ export default function Login() {
                                 className={styles.passwordToggle}
                             >
                                 {showPassword ? <EyeOff size={20} /> : <Eye size={20} />}
-                            </button> 
+                            </button>
                         </div>
                     </div>
                     <button type="submit" className={styles.submitButton} disabled={loading}>
@@ -126,7 +139,7 @@ export default function Login() {
                     </button>
                 </form>
                 <p className={styles.toggleText}>
-                    {isLogin ? "Don't have an account?" : "Already have an account?"}
+                    {isLogin ? "Don't have an account?" : 'Already have an account?'}
                     <button onClick={toggleForm} className={styles.toggleButton}>
                         {isLogin ? 'Create a new account' : 'Login'}
                     </button>
@@ -146,4 +159,3 @@ export default function Login() {
         </Toast.Provider>
     );
 }
-

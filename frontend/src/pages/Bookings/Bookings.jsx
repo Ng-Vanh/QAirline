@@ -215,9 +215,10 @@ export default function Bookings() {
     }
 
     if (!currentUser) {
+    
         return (
-            <div>Please log in</div>
-        )
+            <p>Please log in</p>
+        );
     }
 
     return (
