@@ -22,7 +22,7 @@ body {
     /* margin-bottom: 200px; */
     /* margin-top: 80px; */
     width: 100vw;
-    height: calc(100vh - 9vh);
+    height: 100vh;
 }
 
 .contentSection,
@@ -81,5 +81,5 @@ body {
     transform-origin: 50% 50%;
     transform: translateY(-6%);
     transform: scale(0.9);
-    padding-top: -1%;
+    margin-top: 5%;
 }
