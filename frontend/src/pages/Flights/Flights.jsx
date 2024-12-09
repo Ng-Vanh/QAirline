@@ -130,7 +130,7 @@ export default function Flights() {
       const response = await fetch('https://qairline-t28f.onrender.com/api/flights/search', {
         method: 'POST',
         headers: {
-          'Co ntent-Type': 'application/json',
+          'Content-Type': 'application/json',
         },
         body: JSON.stringify({
           ...criteria,

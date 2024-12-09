@@ -1,19 +1,33 @@
 'use client';
 
-import { Plane, Compass, Bell, Newspaper, User, LogIn, Gift } from 'lucide-react';
+import { Plane, Compass, Bell, Newspaper, User, Gift } from 'lucide-react';
 import styles from './Navbar.module.css';
 import { useState, useEffect } from 'react';
 import { useAuth } from '../../components/contexts/AuthContext';
+import { useLocation, useNavigate } from 'react-router-dom';
 import logo from '../../assets/qLOGO.png';
 
 const isPositionRelative = () => {
-    return (window.location.pathname === '/flights' || window.location.pathname === '/bookings');
+    return window.location.pathname === '/flights' || window.location.pathname === '/bookings';
 };
 
 export default function Navbar() {
     const { isAuthenticated, name, logout } = useAuth();
     const [isDropdownOpen, setIsDropdownOpen] = useState(false);
     const [isMenuOpen, setIsMenuOpen] = useState(false);
+    const navigate = useNavigate();
+    const location = useLocation();
+
+    const handleLoginRedirect = () => {
+        navigate('/login', {
+            state: {
+                from: location.pathname,
+                prevState: {
+                    dropdownState: isDropdownOpen,
+                },
+            },
+        });
+    };
 
     const scrollToSection = (id) => {
         const currentUrl = window.location.href;
@@ -25,22 +39,33 @@ export default function Navbar() {
                 console.warn(`Element with ID ${id} not found.`);
             }
         } else {
-            window.location.href = `/#${id}`;
+            navigate(`/#${id}`);
         }
     };
 
     const navigateTo = (path) => {
-        window.location.href = path;
+        navigate(path);
     };
+
+    // Restore state if redirected back
+    // useEffect(() => {
+    //     const prevState = location.state?.prevState || {};
+    //     if (prevState.dropdownState !== undefined) {
+    //         setIsDropdownOpen(prevState.dropdownState);
+    //     }
+    // }, [location.state]);
+
+    // Close dropdown automatically after login
+    useEffect(() => {
+        if (isAuthenticated) {
+            setIsDropdownOpen(false);
+        }
+    }, [isAuthenticated]);
 
     return (
         <nav className={`${styles.navbar} ${isPositionRelative() ? styles.position_relative : ''}`}>
             <div className={styles.logo} onClick={() => navigateTo('/')}>
-                <img
-                    src={logo}
-                    alt="QAirline Logo"
-                    className={styles.logoImage}
-                />
+                <img src={logo} alt="QAirline Logo" className={styles.logoImage} />
             </div>
 
             <div className={styles.navItemsContainer}>
@@ -91,10 +116,7 @@ export default function Navbar() {
                         )}
                     </>
                 ) : (
-                    <button
-                        className={styles.loginButton}
-                        onClick={() => navigateTo('/login')}
-                    >
+                    <button className={styles.loginButton} onClick={handleLoginRedirect}>
                         Login
                         <User className={styles.userIcon} />
                     </button>
@@ -108,20 +130,38 @@ export default function Navbar() {
 
             {/* Sliding Panel for Mobile */}
             <div className={`${styles.mobileNavPanel} ${isMenuOpen ? styles.open : ''}`}>
-                <button className={styles.closeButton} onClick={() => setIsMenuOpen(false)}>×</button>
+                <button className={styles.closeButton} onClick={() => setIsMenuOpen(false)}>
+                    ×
+                </button>
                 <ul className={styles.mobileNavItems}>
-                    <li><button onClick={() => navigateTo('/flights')}>Flights</button></li>
-                    <li><button onClick={() => scrollToSection('promotions')}>Promotion</button></li>
-                    <li><button onClick={() => scrollToSection('explore')}>Explore</button></li>
-                    <li><button onClick={() => scrollToSection('alerts')}>Alerts</button></li>
-                    <li><button onClick={() => scrollToSection('news')}>News</button></li>
+                    <li>
+                        <button onClick={() => navigateTo('/flights')}>Flights</button>
+                    </li>
+                    <li>
+                        <button onClick={() => scrollToSection('promotions')}>Promotion</button>
+                    </li>
+                    <li>
+                        <button onClick={() => scrollToSection('explore')}>Explore</button>
+                    </li>
+                    <li>
+                        <button onClick={() => scrollToSection('alerts')}>Alerts</button>
+                    </li>
+                    <li>
+                        <button onClick={() => scrollToSection('news')}>News</button>
+                    </li>
                     {isAuthenticated ? (
                         <>
-                            <li><button onClick={() => navigateTo('/bookings')}>My booking</button></li>
-                            <li><button onClick={logout}>Logout</button></li>
+                            <li>
+                                <button onClick={() => navigateTo('/bookings')}>My booking</button>
+                            </li>
+                            <li>
+                                <button onClick={logout}>Logout</button>
+                            </li>
                         </>
                     ) : (
-                        <li><button onClick={() => navigateTo('/login')}>Login</button></li>
+                        <li>
+                            <button onClick={handleLoginRedirect}>Login</button>
+                        </li>
                     )}
                 </ul>
             </div>
