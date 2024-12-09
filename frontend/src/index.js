@@ -1,11 +1,17 @@
-import React from 'react';
-import ReactDOM from 'react-dom/client';
-import App from './App';
-import './styles/global.css'; // Thêm CSS chung
+import React from "react";
+import ReactDOM from "react-dom/client";
+import { BrowserRouter as Router } from "react-router-dom";
+import { AuthProvider } from "./components/contexts/AuthContext";
+import App from "./App";
+import "./styles/global.css";
 
-const root = ReactDOM.createRoot(document.getElementById('root'));
+const root = ReactDOM.createRoot(document.getElementById("root"));
 root.render(
-    <React.StrictMode>
+  <React.StrictMode>
+    <Router>
+      <AuthProvider>
         <App />
-    </React.StrictMode>
+      </AuthProvider>
+    </Router>
+  </React.StrictMode>
 );
