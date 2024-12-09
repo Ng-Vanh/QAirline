@@ -12,6 +12,9 @@
     width: 100vw;
 }
 
+.position_relative {
+    position: relative;
+}
 
 .logo {
     cursor: pointer;
@@ -22,13 +25,39 @@
 }
 
 .navItems {
+    justify-content: center;
+    gap: 2%;
+    /* justify-content: space-around; */
+    /* position: absolute; */
     display: flex;
+    /* flex-direction: row; */
     list-style-type: none;
+    padding: 0;
+    /* left: 50%; */
+    /* transform: translate(50%); */
+    /* justify-content: space-between; */
 }
 
-.navItems li {
-    margin-left: 2rem;
+.navItemsContainer {
+    position: absolute;
+    left: 50%;
+    transform: translate(-50%);
+    justify-content: space-between;
+    width: 80%;
 }
+
+
+.navItems li {
+    /* margin-left: 2rem; */
+    padding: 0;
+}
+
+.navItems ul {
+    /* margin-left: 2rem; */
+    padding: 0;
+}
+
+
 
 .navItems li:hover {
     scale: 1.05;
