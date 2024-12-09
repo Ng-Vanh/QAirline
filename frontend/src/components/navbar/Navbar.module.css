@@ -27,15 +27,9 @@
 .navItems {
     justify-content: center;
     gap: 2%;
-    /* justify-content: space-around; */
-    /* position: absolute; */
     display: flex;
-    /* flex-direction: row; */
     list-style-type: none;
     padding: 0;
-    /* left: 50%; */
-    /* transform: translate(50%); */
-    /* justify-content: space-between; */
 }
 
 .navItemsContainer {
@@ -46,18 +40,10 @@
     width: 80%;
 }
 
-
 .navItems li {
-    /* margin-left: 2rem; */
     padding: 0;
+    transition: all 0.3s ease;
 }
-
-.navItems ul {
-    /* margin-left: 2rem; */
-    padding: 0;
-}
-
-
 
 .navItems li:hover {
     scale: 1.05;
@@ -90,7 +76,6 @@
 .userButton {
     background: none;
     border: none;
-
     cursor: pointer;
     padding: 8px;
     border-radius: 10%;
@@ -110,7 +95,6 @@
     height: 24px;
     margin-left: 6px;
 }
-
 
 .dropdown {
     position: absolute;
@@ -140,7 +124,6 @@
     background-color: #f0f8ff;
 }
 
-
 .loginButton {
     background: none;
     border: none;
@@ -162,4 +145,94 @@
 
 .loginButton .icon {
     margin-right: 0.5rem;
+}
+
+.mobileMenuButton {
+    display: none;
+}
+
+.mobileNavPanel {
+    display: none;
+}
+
+/* ------------ Responsive Styles ------------ */
+@media (max-width: 900px) {
+    .navItemsContainer {
+        display: none;
+        /* Ẩn menu chính */
+    }
+
+    .mobileMenuButton {
+        background: none;
+        border: none;
+        font-size: 2rem;
+        cursor: pointer;
+        color: black;
+        z-index: 1100;
+        display: block;
+    }
+
+    .mobileNavPanel {
+        position: fixed;
+        top: 0;
+        right: -100%;
+        height: 100vh;
+        width: 70%;
+        background-color: #fff;
+        box-shadow: -2px 0 5px rgba(0, 0, 0, 0.3);
+        transition: right 0.3s ease;
+        display: flex;
+        flex-direction: column;
+        padding: 2rem;
+        z-index: 1200;
+    }
+
+    .mobileNavPanel.open {
+        right: 0;
+    }
+
+    .closeButton {
+        background: none;
+        border: none;
+        font-size: 2rem;
+        align-self: flex-end;
+        cursor: pointer;
+    }
+
+    .mobileNavItems {
+        list-style: none;
+        padding: 0;
+        margin-top: 2rem;
+    }
+
+    .mobileNavItems li {
+        margin-bottom: 1rem;
+    }
+
+    .mobileNavItems button {
+        width: 100%;
+        background: none;
+        border: none;
+        text-align: left;
+        font-size: 1.2rem;
+        cursor: pointer;
+        padding: 0.5rem 0;
+        border-bottom: 1px solid #ccc;
+        display: flex;
+        align-items: center;
+    }
+
+    .mobileNavItems button:hover {
+        color: #171e25;
+    }
+
+    /* Ẩn loginButton hoặc userSection mặc định, đặt chúng trong mobileNavItems */
+    .userSection {
+        display: none;
+    }
+
+    .navbar {
+        padding: 1rem 2rem;
+        height: auto;
+    }
 }
