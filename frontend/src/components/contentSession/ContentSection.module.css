@@ -40,13 +40,9 @@
 
 .image {
     width: 100%;
-    /* Chiều rộng ảnh chiếm toàn bộ vùng chứa */
     height: 100%;
-    /* Chiều cao ảnh chiếm toàn bộ vùng chứa */
     object-fit: contain;
-    /* Đảm bảo ảnh giữ tỷ lệ nhưng bao phủ toàn bộ vùng chứa */
     border-radius: 8px;
-    /* (Tùy chọn) Bo góc hình ảnh */
 }
 
 .content {
@@ -144,4 +140,81 @@
     100% {
         opacity: 0.6;
     }
+}
+
+/* Layout cho session 1: 50 - 25/25 */
+.sessionOneLayout {
+    display: flex;
+    width: 100%;
+    gap: 20px;
+}
+
+.left50 {
+    flex: 0 0 50%;
+}
+
+.left50>.card {
+    width: 100%;
+    height: 100%;
+}
+
+.left50>.card>.imageWrapper {
+    height: 80%;
+}
+
+.right50Stack {
+    flex: 0 0 50%;
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+}
+
+.left50>.card h3 {
+    font-size: 2rem;
+}
+
+
+
+.right50Stack>.card {
+    flex: 0 0 auto;
+    width: 100%;
+    /* height: 40%; */
+}
+
+/* Layout cho session 3: 25/25 - 50 */
+.sessionThreeLayout {
+    display: flex;
+    width: 100%;
+    gap: 20px;
+}
+
+
+.left50Stack {
+    flex: 0 0 50%;
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+}
+
+.left50Stack>.card {
+    flex: 0 0 auto;
+    width: 100%;
+}
+
+.right50 {
+    flex: 0 0 50%;
+}
+
+
+.right50>.card {
+    width: 100%;
+    height: 100%;
+}
+
+.right50>.card>.imageWrapper {
+    height: 80%;
+}
+
+.right50>.card h3 {
+    font-size: 2rem;
 }
