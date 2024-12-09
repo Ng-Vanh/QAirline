@@ -1,3 +1,9 @@
+:root {
+  --main_color: #318ad1;
+  --main_text_color: #000daa;
+  --white: #ffffff;
+}
+
 body {
   font-family: 'Inter', sans-serif;
   /* color: #111827; */
@@ -16,13 +22,14 @@ body {
 .search_title {
   font-size: 2.5rem;
   font-weight: 700;
-  color: #3730a3;
+  color: var(--main_text_color);
   text-align: center;
   margin-bottom: 2rem;
 }
 
 .search_area {
-  background: linear-gradient(135deg, #818cf8, #3730a3);
+  /* background: linear-gradient(135deg, #818cf8, #3730a3); */
+  background: var(--main_color);
   border-radius: 1rem;
   padding: 2rem;
   box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
@@ -142,11 +149,16 @@ input:-webkit-autofill {
   cursor: pointer;
   transition: background-color 0.3s, color 0.3s;
   border: none;
+  background-color: var(--main_color)
+}
+
+.button:hover {
+  background-color: var(--main_text_color);
 }
 
 .button_primary {
   background-color: #ffffff;
-  color: #4f46e5;
+  color: var(--main_color);
 }
 
 .button_primary:hover {
@@ -187,12 +199,13 @@ input:-webkit-autofill {
 .flight_results_title {
   font-size: 1.5rem;
   font-weight: 700;
-  color: #3730a3;
+  color: var(--main_text_color);
   margin-bottom: 1rem;
 }
 
 .flight_card {
-  background: linear-gradient(135deg, #818cf8, #4f46e5);
+  /* background: linear-gradient(135deg, #818cf8, #4f46e5); */
+  background: var(--main_color);
   border-radius: 0.75rem;
   overflow: hidden;
   margin-bottom: 1.5rem;
@@ -302,7 +315,7 @@ input:-webkit-autofill {
   bottom: 2rem;
   right: 2rem;
   z-index: 50;
-  background-color: #4f46e5;
+  /* background-color: #4f46e5; */
   color: #ffffff;
   padding: 0.75rem 1.5rem;
   border-radius: 9999px;
@@ -400,7 +413,8 @@ input:-webkit-autofill {
 
 .cart_total_price {
   font-size: 1.25rem;
-  color: #4f46e5;
+  /* color: #4f46e5; */
+  color: var(--main_text_color)
 }
 
 .cart_actions {
@@ -448,13 +462,9 @@ input:-webkit-autofill {
 
 .bottom_button {
   margin-top: 1em;
-  background-color: #0066cc;
+  /* background-color: #0066cc; */
   color: white;
   width: 100%;
-}
-
-.bottom_button:hover {
-  background-color: #0578ec;
 }
 
 .close_button:hover {
@@ -511,7 +521,7 @@ input:-webkit-autofill {
 }
 
 .navigation_buttons {
-  background-color: #0066cc;
+  /* background-color: #0066cc; */
 }
 
 .multi_city_flights {
@@ -650,7 +660,7 @@ textarea {
 }
 
 h2 {
-  color: #4f46e5;
+  color: var(--main_text_color);
 }
 
 Trash2 {
@@ -726,7 +736,7 @@ Trash2 {
 
 .navigation_buttons,
 .clear_button {
-  background-color: #5b52d5;
+  /* background-color: #5b52d5; */
   color: white;
 }
 

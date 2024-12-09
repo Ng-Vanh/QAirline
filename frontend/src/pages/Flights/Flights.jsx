@@ -723,7 +723,7 @@ export default function Flights() {
 
   const renderBookedFlights = () => (
     <div className={FlightsStyle.booked_flights}>
-      <h2 className={FlightsStyle.flight_results_title}>Here are your booked flights</h2>
+      <h2 className={FlightsStyle.flight_results_title}>Here are your booked flights. Click on cart to proceed!</h2>
 
       {/* <div className={FlightsStyle.navigation_buttons}>
         <button
@@ -736,7 +736,7 @@ export default function Flights() {
       </div> */}
 
       <div className={FlightsStyle.navigation_buttons_section}>
-        <button className={`${FlightsStyle.button} ${FlightsStyle.button_outline} ${FlightsStyle.navigation_buttons}`} onClick={handlePreviousStep}>
+        <button className={`${FlightsStyle.button} ${FlightsStyle.navigation_buttons}`} onClick={handlePreviousStep}>
           <ArrowLeft className={FlightsStyle.button_icon} />
           Back to flights selection
         </button>
@@ -1258,7 +1258,7 @@ export default function Flights() {
         </div>
       )} */}
 
-      <button className={FlightsStyle.cart_button} onClick={() => setIsCartOpen(!isCartOpen)}>
+      <button className={`${FlightsStyle.button} ${FlightsStyle.cart_button}`} onClick={() => setIsCartOpen(!isCartOpen)}>
         <ShoppingCart className={FlightsStyle.button_icon} />
         Cart ({Object.keys(selectedFlights).length})
       </button>
@@ -1306,7 +1306,7 @@ export default function Flights() {
             <button className={`${FlightsStyle.button} ${FlightsStyle.button_primary} ${FlightsStyle.button_full}`} onClick={handleFillPassengerInfo}>
               <h3>Fill Passenger Info</h3>
             </button>
-            <button className={`${FlightsStyle.button} ${FlightsStyle.button_outline} ${FlightsStyle.button_full} ${FlightsStyle.clear_button}`} onClick={clearCart}>
+            <button className={`${FlightsStyle.button} ${FlightsStyle.button_full} ${FlightsStyle.clear_button}`} onClick={clearCart}>
               <Trash2 className={FlightsStyle.button_icon} />
               <h2 div className={FlightsStyle.white_text}>Clear Cart</h2>
             </button>
@@ -1338,7 +1338,7 @@ export default function Flights() {
                 />
               </div>
             ))}
-            <button className={`${FlightsStyle.button} ${FlightsStyle.button_primary} ${FlightsStyle.bottom_button}`} onClick={handleConfirmBooking}>
+            <button className={`${FlightsStyle.button} ${FlightsStyle.bottom_button}`} onClick={handleConfirmBooking}>
               <h2 className={FlightsStyle.white_text}>Confirm Booking</h2>
             </button>
           </div>
