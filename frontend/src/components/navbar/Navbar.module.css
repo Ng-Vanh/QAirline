@@ -9,7 +9,7 @@
     top: 0;
     z-index: 1000;
     height: 9vh;
-    width: 100vw;
+    width: 100%;
 }
 
 .position_relative {
