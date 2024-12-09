@@ -6,6 +6,28 @@ import { motion, AnimatePresence } from 'framer-motion'
 import FlightsStyle from './Flights.module.css'
 
 export default function Flights() {
+  const [currentUser, setCurrentUser] = useState(null);
+
+  const getCurrentUser = async () => {
+    const userData = localStorage.getItem('user');
+    if (userData) {
+      const user = JSON.parse(userData);
+      console.log("data: ", user)
+      if (user.userId) {
+        setCurrentUser(user);
+        console.log(`Current user: ${user.userId}`)
+      }
+    }
+    else {
+      console.log('User not in local storage.')
+    }
+  }
+
+  useEffect(() => {
+    getCurrentUser()
+  }, []
+  )
+
   const [searchType, setSearchType] = useState('oneWay')
   const [searchCriteria, setSearchCriteria] = useState({
     departureCity: '',
@@ -819,7 +841,7 @@ export default function Flights() {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
-            userID: "674f27aae3e51236a5d700d4",
+            userID: currentUser.userId,
             flightID: item.flight._id,
             flightClass: item.class,
             passengerCount: item.passengers,
@@ -1005,7 +1027,7 @@ export default function Flights() {
                       value: searchCriteria.departureCity,
                       onChange: ((value) => setSearchCriteria({ ...searchCriteria, departureCity: value })),
                     })} */}
-                    
+
                     {/* <div className={FlightsStyle.input_wrapper}>
                       <MapPin className={FlightsStyle.input_icon} />
                       <input
@@ -1095,7 +1117,7 @@ export default function Flights() {
 
           {searchType === 'multiCity' && (
             <div className={`${FlightsStyle.multi_city_flights}`}>
-              <div className={FlightsStyle.scrollable}>
+              <div className={!isFlightsPage() ? FlightsStyle.scrollable : ''}>
                 {multiCityFlights.map((flight, index) => (
                   <div key={index} className={`${FlightsStyle.leg_container}`}>
                     <div className={`${FlightsStyle.form_row}`}>

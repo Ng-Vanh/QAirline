@@ -6,6 +6,28 @@ import { Plane, Users } from 'lucide-react'
 import BookingsStyle from './Bookings.module.css'
 
 export default function Bookings() {
+    const [currentUser, setCurrentUser] = useState(null);
+
+    const getCurrentUser = async () => {
+        const userData = localStorage.getItem('user');
+        if (userData) {
+            const user = JSON.parse(userData);
+            console.log("data: ", user)
+            if (user.userId) {
+                setCurrentUser(user);
+                console.log(`Current user: ${user.userId}`)
+            }
+        }
+        else {
+            console.log('User not in local storage.')
+        }
+    }
+
+    useEffect(() => {
+        getCurrentUser()
+    }, []
+    )
+
     const [activeTab, setActiveTab] = useState('upcoming')
     const [bookings, setBookings] = useState([])
     const [loading, setLoading] = useState(true)
@@ -14,17 +36,19 @@ export default function Bookings() {
     const [showModal, setShowModal] = useState(false)
     const [sortBy, setSortBy] = useState('departureDate')
 
-    const userID = '674f27aae3e51236a5d700d4'
-
     useEffect(() => {
-        fetchBookings()
-    }, [activeTab])
+        if (currentUser) {
+            fetchBookings()
+        }
+
+    }, [currentUser, activeTab])
 
     const fetchBookings = async () => {
         setLoading(true)
         setError(null)
         try {
-            const response = await fetch(`https://qairline-t28f.onrender.com/api/bookings/user/${userID}?type=${activeTab === 'upcoming' ? 'Upcoming' : 'Past'}`)
+            console.log(`In fetch, user is ${currentUser.userId}`)
+            const response = await fetch(`https://qairline-t28f.onrender.com/api/bookings/user/${currentUser.userId}?type=${activeTab === 'upcoming' ? 'Upcoming' : 'Past'}`)
             if (!response.ok) throw new Error('Failed to fetch bookings')
             const data = await response.json()
             setBookings(data)
@@ -188,6 +212,12 @@ export default function Bookings() {
         )
 
 
+    }
+
+    if (!currentUser) {
+        return (
+            <div>Please log in</div>
+        )
     }
 
     return (
