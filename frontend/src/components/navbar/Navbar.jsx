@@ -19,11 +19,12 @@ export default function Navbar() {
     const location = useLocation();
 
     const handleLoginRedirect = () => {
+        setIsDropdownOpen(false);
         navigate('/login', {
             state: {
                 from: location.pathname,
                 prevState: {
-                    dropdownState: isDropdownOpen,
+                    // dropdownState: isDropdownOpen,
                 },
             },
         });
@@ -56,11 +57,6 @@ export default function Navbar() {
     // }, [location.state]);
 
     // Close dropdown automatically after login
-    useEffect(() => {
-        if (isAuthenticated) {
-            setIsDropdownOpen(false);
-        }
-    }, [isAuthenticated]);
 
     return (
         <nav className={`${styles.navbar} ${isPositionRelative() ? styles.position_relative : ''}`}>
