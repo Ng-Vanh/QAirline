@@ -5,6 +5,10 @@ import styles from './Navbar.module.css';
 import { useState, useEffect } from 'react';
 import logo from '../../assets/qLOGO.png';
 
+const isPositionRelative = () => {
+    return (window.location.pathname === '/flights' || window.location.pathname === '/my-bookings')
+}
+
 export default function Navbar() {
     const [isDropdownOpen, setIsDropdownOpen] = useState(false);
     const [isLoggedIn, setIsLoggedIn] = useState(false);
@@ -62,7 +66,7 @@ export default function Navbar() {
     };
 
     const navigateToMyBooking = () => {
-        window.location.href = '/my-booking';
+        window.location.href = '/my-bookings';
     };
 
     const navigateToHome = () => {
@@ -77,7 +81,8 @@ export default function Navbar() {
     }
 
     return (
-        <nav className={styles.navbar}>
+        <nav className={`${styles.navbar} ${isPositionRelative() ? styles.position_relative : ''}`}>
+
             <div className={styles.logo} onClick={navigateToHome}>
                 <img
                     src={logo}
@@ -85,33 +90,37 @@ export default function Navbar() {
                     className={styles.logoImage}
                 />
             </div>
-            <ul className={styles.navItems}>
-                <li>
-                    <button onClick={navigateToFlightSearch}>
-                        <Plane className={styles.icon} /> Flights
-                    </button>
-                </li>
-                <li>
-                    <button onClick={() => scrollToSection('promotions')}>
-                        <Gift className={styles.icon} /> Promotion
-                    </button>
-                </li>
-                <li>
-                    <button onClick={() => scrollToSection('explore')}>
-                        <Compass className={styles.icon} /> Explore
-                    </button>
-                </li>
-                <li>
-                    <button onClick={() => scrollToSection('news')}>
-                        <Newspaper className={styles.icon} /> News
-                    </button>
-                </li>
-                <li>
-                    <button onClick={() => scrollToSection('alerts')}>
-                        <Bell className={styles.icon} /> Alerts
-                    </button>
-                </li>
-            </ul>
+            <div className={styles.navItemsContainer}>
+                <ul className={styles.navItems}>
+                    <li>
+                        <button onClick={navigateToFlightSearch}>
+                            <Plane className={styles.icon} /> Flights
+                        </button>
+                    </li>
+                    <li>
+                        <button onClick={() => scrollToSection('promotions')}>
+                            <Gift className={styles.icon} /> Promotion
+                        </button>
+                    </li>
+                    <li>
+                        <button onClick={() => scrollToSection('explore')}>
+                            <Compass className={styles.icon} /> Explore
+                        </button>
+                    </li>
+                    <li>
+                        <button onClick={() => scrollToSection('alerts')}>
+                            <Bell className={styles.icon} /> Alerts
+                        </button>
+                    </li>
+                    <li>
+                        <button onClick={() => scrollToSection('news')}>
+                            <Newspaper className={styles.icon} /> News
+                        </button>
+                    </li>
+
+                </ul>
+            </div>
+
             <div className={styles.userSection}>
                 {isLoggedIn ? (
                     <>
@@ -119,7 +128,7 @@ export default function Navbar() {
                             className={styles.userButton}
                             onClick={() => setIsDropdownOpen(!isDropdownOpen)}
                         >
-                            <p>Hello {user?.name} </p>
+                            <p>{user?.name} </p>
 
                             <User className={styles.userIcon} />
                         </button>
