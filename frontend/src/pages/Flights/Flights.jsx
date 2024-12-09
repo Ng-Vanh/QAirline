@@ -829,21 +829,30 @@ export default function Flights() {
   const handleConfirmBooking = async () => {
     setIsLoadingConfirmBooking(true);
     try {
+      // Step 1: Create Passengers
       const createdPassengers = await Promise.all(
-        passengers.map(passenger =>
-          fetch('https://qairline-t28f.onrender.com/api/passengers/', {
+        passengers.map(async (passenger) => {
+          const response = await fetch('https://qairline-t28f.onrender.com/api/passengers/', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify(passenger)
-          }).then(res => res.json())
-        )
+            body: JSON.stringify(passenger),
+          });
+  
+          if (!response.ok) {
+            const errorData = await response.json();
+            throw new Error(`Passenger creation failed: ${errorData.message || response.statusText}`);
+          }
+  
+          return response.json();
+        })
       );
-
-      const passengerIDs = createdPassengers.map(p => p.passenger._id);
-      console.log("Here are passenger ids: ", passengerIDs);
-
-      const bookingPromises = Object.values(selectedFlights).map(item =>
-        fetch('https://qairline-t28f.onrender.com/api/bookings/', {
+  
+      const passengerIDs = createdPassengers.map((p) => p.passenger._id);
+      console.log('Here are passenger IDs:', passengerIDs);
+  
+      // Step 2: Create Bookings
+      const bookingPromises = Object.values(selectedFlights).map(async (item) => {
+        const response = await fetch('https://qairline-t28f.onrender.com/api/bookings/', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
@@ -852,29 +861,88 @@ export default function Flights() {
             flightClass: item.class,
             passengerCount: item.passengers,
             passengerIDs: passengerIDs,
-          })
-        }).then(res => res.json())
-      );
-
+          }),
+        });
+  
+        if (!response.ok) {
+          const errorData = await response.json();
+          throw new Error(`Booking creation failed: ${errorData.message || response.statusText}`);
+        }
+  
+        return response.json();
+      });
+  
       const bookingResults = await Promise.all(bookingPromises);
-
+  
       console.log('Booking results:', bookingResults);
-
+  
+      // Step 3: Update State on Success
       setBookingConfirmed(true);
       setSelectedFlights({});
       setCurrentStep(0);
       setMaxReachedStep(0);
       setShowPassengerInfo(false);
       setIsCartOpen(false);
+      resetState();
     } catch (error) {
       console.error('Error during booking process:', error);
-      alert('An error occurred while confirming your booking. Please try again.');
+  
+      // Display user-friendly error
+      alert(error.message || 'An unexpected error occurred while confirming your booking. Please try again.');
     } finally {
       setIsLoadingConfirmBooking(false);
     }
-
-    resetState();
   };
+
+  
+  // const handleConfirmBooking = async () => {
+  //   setIsLoadingConfirmBooking(true);
+  //   try {
+  //     const createdPassengers = await Promise.all(
+  //       passengers.map(passenger =>
+  //         fetch('https://qairline-t28f.onrender.com/api/passengers/', {
+  //           method: 'POST',
+  //           headers: { 'Content-Type': 'application/json' },
+  //           body: JSON.stringify(passenger)
+  //         }).then(res => res.json())
+  //       )
+  //     );
+
+  //     const passengerIDs = createdPassengers.map(p => p.passenger._id);
+  //     console.log("Here are passenger ids: ", passengerIDs);
+
+  //     const bookingPromises = Object.values(selectedFlights).map(item =>
+  //       fetch('https://qairline-t28f.onrender.com/api/bookings/', {
+  //         method: 'POST',
+  //         headers: { 'Content-Type': 'application/json' },
+  //         body: JSON.stringify({
+  //           userID: currentUser.userId,
+  //           flightID: item.flight._id,
+  //           flightClass: item.class,
+  //           passengerCount: item.passengers,
+  //           passengerIDs: passengerIDs,
+  //         })
+  //       }).then(res => res.json())
+  //     );
+
+  //     const bookingResults = await Promise.all(bookingPromises);
+
+  //     console.log('Booking results:', bookingResults);
+
+  //     setBookingConfirmed(true);
+  //     setSelectedFlights({});
+  //     setCurrentStep(0);
+  //     setMaxReachedStep(0);
+  //     setShowPassengerInfo(false);
+  //     setIsCartOpen(false);
+  //     resetState();
+  //   } catch (error) {
+  //     console.error('Error during booking process:', error);
+  //     alert('An error occurred while confirming your booking. Please try again.');
+  //   } finally {
+  //     setIsLoadingConfirmBooking(false);
+  //   }
+  // };
 
   const handleBack = () => {
     setDoneChoosing(false);
@@ -1333,12 +1401,13 @@ export default function Flights() {
             <span className={FlightsStyle.cart_total_price}>${getTotalPrice()}</span>
           </div>
           <div className={FlightsStyle.cart_actions}>
-            <button className={`${FlightsStyle.button} ${FlightsStyle.button_primary} ${FlightsStyle.button_full}`} onClick={handleFillPassengerInfo}>
-              <h3>Fill Passenger Info</h3>
-            </button>
-            <button className={`${FlightsStyle.button} ${FlightsStyle.button_full} ${FlightsStyle.clear_button}`} onClick={clearCart}>
+
+            <button className={`${FlightsStyle.button} ${FlightsStyle.button_full} ${FlightsStyle.button_primary} ${FlightsStyle.clear_cart_button}`} onClick={clearCart}>
               <Trash2 className={FlightsStyle.button_icon} />
-              <h2 div className={FlightsStyle.white_text}>Clear Cart</h2>
+              <h2 className={FlightsStyle.main_color}>Clear Cart</h2>
+            </button>
+            <button className={`${FlightsStyle.button} ${FlightsStyle.button_full}`} onClick={handleFillPassengerInfo}>
+              <h3 className={FlightsStyle.white_text}>Fill Passenger Info</h3>
             </button>
           </div>
         </div>
