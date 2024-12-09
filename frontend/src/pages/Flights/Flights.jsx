@@ -42,6 +42,7 @@ export default function Flights() {
   ])
   const [searchResults, setSearchResults] = useState([])
   const [isLoading, setIsLoading] = useState(false)
+  const [isLoadingConfirmBooking, setIsLoadingConfirmBooking] = useState(false)
   const [currentSearchStep, setCurrentSearchStep] = useState(0)
   const [isCartOpen, setIsCartOpen] = useState(false)
   const [selectedFlight, setSelectedFlight] = useState(null)
@@ -588,15 +589,15 @@ export default function Flights() {
 
         </div> */}
 
-        {filteredFlights.length > 0 && (
+        {filteredFlights.length > 0 && searchType != 'oneWay' && (
           <div className={FlightsStyle.navigation_buttons_section}>
 
-            <button className={`${FlightsStyle.button} ${FlightsStyle.button_outline} ${FlightsStyle.navigation_buttons}`} onClick={handleBack} disabled={currentStep === 0}>
+            <button className={`${FlightsStyle.button} ${FlightsStyle.navigation_buttons}`} onClick={handleBack} disabled={currentStep === 0}>
               <ArrowLeft className={FlightsStyle.button_icon} />
               Back
             </button>
 
-            <button className={`${FlightsStyle.button} ${FlightsStyle.button_outline} ${FlightsStyle.navigation_buttons}`} onClick={handleNext} disabled={currentStep >= maxReachedStep || currentStep >= getTotalRoutes() - 1}>
+            <button className={`${FlightsStyle.button} ${FlightsStyle.navigation_buttons}`} onClick={handleNext} disabled={currentStep >= maxReachedStep || currentStep >= getTotalRoutes() - 1}>
               Next
               <ArrowRight className={FlightsStyle.button_icon} />
             </button>
@@ -662,7 +663,7 @@ export default function Flights() {
                         <span className={FlightsStyle.seats_available}>({flight.flightClass.economy.seatsAvailable} seats left)</span>
                       </button>
                       <button
-                        className={`${FlightsStyle.button} ${isSelected && selectedClass === 'business' ? FlightsStyle.button_selected : FlightsStyle.button_secondary} ${isSelected && selectedClass === 'business' ? FlightsStyle.selected_class : ''}`}
+                        className={`${FlightsStyle.button} ${isSelected && selectedClass === 'business' ? FlightsStyle.button_selected : FlightsStyle.button_primary} ${isSelected && selectedClass === 'business' ? FlightsStyle.selected_class : ''}`}
                         onClick={() => handleAddToCart(flight, 'business')}
                       >
                         Business: ${flight.flightClass.business.price}
@@ -768,7 +769,11 @@ export default function Flights() {
         <div key={index} className={`${FlightsStyle.flight_card} ${FlightsStyle.fade_in}`}>
           <div className={FlightsStyle.flight_card_content}>
             <div className={FlightsStyle.flight_header}>
-              <h3>{item.flight.flightCode}</h3>
+              <div className={FlightsStyle.flight_header_left_container}>
+                <h3>{item.flight.flightCode}</h3>
+                <h4>{item.flight.aircraft}</h4>
+              </div>
+              {/* <h3>{item.flight.flightCode}</h3> */}
               <span className={FlightsStyle.flight_duration}>{item.flight.flightDuration}</span>
             </div>
             <div className={FlightsStyle.flight_details}>
@@ -822,6 +827,7 @@ export default function Flights() {
   };
 
   const handleConfirmBooking = async () => {
+    setIsLoadingConfirmBooking(true);
     try {
       const createdPassengers = await Promise.all(
         passengers.map(passenger =>
@@ -863,6 +869,8 @@ export default function Flights() {
     } catch (error) {
       console.error('Error during booking process:', error);
       alert('An error occurred while confirming your booking. Please try again.');
+    } finally {
+      setIsLoadingConfirmBooking(false);
     }
 
     resetState();
@@ -1338,7 +1346,13 @@ export default function Flights() {
 
       {showPassengerInfo && (
         <div className={FlightsStyle.modal}>
+
           <div className={FlightsStyle.modal_content}>
+            {/* {1 && (
+            <div className={`${FlightsStyle.loader_container} ${FlightsStyle.loader_container_absolute}`}>
+              <div className={FlightsStyle.loader}></div>
+            </div>
+          )} */}
             <button className={FlightsStyle.close_button} onClick={() => setShowPassengerInfo(false)}>×</button>
             <h2 className={FlightsStyle.center_text}>Passenger Information</h2>
             {passengers.map((passenger, index) => (
@@ -1362,6 +1376,11 @@ export default function Flights() {
             ))}
             <button className={`${FlightsStyle.button} ${FlightsStyle.bottom_button}`} onClick={handleConfirmBooking}>
               <h2 className={FlightsStyle.white_text}>Confirm Booking</h2>
+              {isLoadingConfirmBooking && (
+                <div className={`${FlightsStyle.loader_container} ${FlightsStyle.loader_container_absolute}`}>
+                  <div className={FlightsStyle.loader}></div>
+                </div>
+              )}
             </button>
           </div>
         </div>
@@ -1400,9 +1419,9 @@ export default function Flights() {
       {bookingConfirmed && (
         <div className={FlightsStyle.modal}>
           <div className={FlightsStyle.modal_content}>
-            <h2>Booking Confirmed</h2>
-            <p>Your booking has been successfully confirmed. Thank you for choosing our airline!</p>
-            <button className={`${FlightsStyle.button_primary}`} onClick={() => {
+            <h2 className={FlightsStyle.center_text}>Booking Confirmed</h2>
+            <p>Your booking has been successfully confirmed. Thank you for choosing QAirline!</p>
+            <button className={`${FlightsStyle.button} ${FlightsStyle.white_text}`} onClick={() => {
               setBookingConfirmed(false);
               setShowPassengerInfo(false);
               setIsCartOpen(false);

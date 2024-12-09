@@ -1,6 +1,7 @@
 :root {
   --main_color: #318ad1;
   --transparent_main_color: #318ad1bf;
+  --main_color_hover: #088cf9;
   --main_text_color: #000daa;
   --white: #ffffff;
 }
@@ -154,7 +155,15 @@ input:-webkit-autofill {
 }
 
 .button:hover {
-  background-color: var(--main_text_color);
+  background-color: var(--main_color_hover);
+}
+
+.button_economy {
+  background-color: var(--economy_bg_color);
+}
+
+.button_business {
+  background-color: var(--business_bg_color);
 }
 
 .button_primary {
@@ -442,6 +451,9 @@ input:-webkit-autofill {
   max-width: 32rem;
   width: 100%;
   position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
 }
 
 .modal_actions {
@@ -469,7 +481,7 @@ input:-webkit-autofill {
 }
 
 .close_button:hover {
-  color: #4f46e5;
+  color: var(--main_color_hover);
 }
 
 @keyframes fadeIn {
@@ -495,9 +507,19 @@ input:-webkit-autofill {
   height: 200px;
 }
 
+.loader_container_absolute {
+  display: block;
+  height: 0;
+  z-index: 1000;
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%);
+}
+
 .loader {
   border: 4px solid #e5e7eb;
-  border-top: 4px solid #4f46e5;
+  border-top: 4px solid var(--main_color);
   border-radius: 50%;
   width: 40px;
   height: 40px;
@@ -752,7 +774,7 @@ Trash2 {
 
 .navigation_buttons:hover,
 .clear_button:hover {
-  background-color: #4c43d3;
+  background-color: var(--main_color_hover);
 }
 
 .button:disabled {
