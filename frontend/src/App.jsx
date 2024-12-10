@@ -34,7 +34,7 @@ const App = () => {
           {/* Public Routes */}
           <Route path="/" element={<Home />} />
           <Route path="/flights" element={<Flights />} />
-          <Route path="/my-bookings" element={<Bookings />} />
+          <Route path="/bookings" element={<Bookings />} />
           <Route path="/login" element={<Login />} />
 
           {/* Redirect /admin to /admin/login */}
