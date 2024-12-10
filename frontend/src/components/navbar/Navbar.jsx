@@ -36,23 +36,30 @@ export default function Navbar() {
         setIsDropdownOpen(false);
     }
 
-    const scrollToSection = (id) => {
-        const currentUrl = window.location.href;
-        if (currentUrl.includes('/#') || currentUrl.endsWith('/')) {
-            const element = document.getElementById(id);
-            if (element) {
-                element.scrollIntoView({ behavior: 'smooth' });
-            } else {
-                console.warn(`Element with ID ${id} not found.`);
-            }
-        } else {
-            navigate(`/#${id}`);
-        }
-    };
-
     const navigateTo = (path) => {
         navigate(path);
     };
+
+    const scrollToSection = (id) => {
+        navigate(`/#${id}`);
+    };
+
+    useEffect(() => {
+        const currentUrl = window.location.href;
+        if (currentUrl.includes('/#') || currentUrl.endsWith('/')) { 
+            const hash = window.location.hash.replace('#', '');
+            if (hash) {
+                const element = document.getElementById(hash);
+                if (element) {
+                    element.scrollIntoView({
+                        behavior: 'smooth',
+                        block: 'start',
+                        inline: 'nearest',
+                    });
+                }
+            }
+        }
+    }, [window.location.hash]);
 
     // Restore state if redirected back
     // useEffect(() => {
@@ -114,7 +121,7 @@ export default function Navbar() {
                         {isDropdownOpen && (
                             <div className={styles.dropdown}>
                                 <button onClick={() => navigateTo('/bookings')}>My booking</button>
-                                <button onClick={logout}>Logout</button>
+                                <button onClick={handleLogOut}>Logout</button>
                             </div>
                         )}
                     </>
@@ -158,7 +165,7 @@ export default function Navbar() {
                                 <button onClick={() => navigateTo('/bookings')}>My booking</button>
                             </li>
                             <li>
-                                <button onClick={logout}>Logout</button>
+                                <button onClick={handleLogOut}>Logout</button>
                             </li>
                         </>
                     ) : (
