@@ -1,5 +1,5 @@
-import React from "react";
-import { Routes, Route, Navigate } from "react-router-dom";
+import React, { useState, useEffect } from "react";
+import { BrowserRouter as Router, Routes, Route, Navigate } from "react-router-dom";
 import Home from "./pages/Home/Home";
 import Flights from "./pages/Flights/Flights";
 import Bookings from "./pages/Bookings/Bookings";
@@ -17,30 +17,43 @@ import Navbar from "./components/navbar/Navbar";
 import Footer from "./components/Footer";
 
 const App = () => {
-  const [isAuthenticated, setIsAuthenticated] = React.useState(false);
-  const [isAdminRoute, setIsAdminRoute] = React.useState(false);
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
+  const [isAdminRoute, setIsAdminRoute] = useState(false);
 
-  React.useEffect(() => {
+  useEffect(() => {
     const currentPath = window.location.pathname;
-    setIsAdminRoute(currentPath.startsWith("/admin"));
+    setIsAdminRoute(currentPath.startsWith('/admin'));
   }, []);
 
   return (
     <>
       {!isAdminRoute && <Navbar />}
+
       <div>
         <Routes>
           {/* Public Routes */}
           <Route path="/" element={<Home />} />
           <Route path="/flights" element={<Flights />} />
-          <Route path="/bookings" element={<Bookings />} />
+          <Route path="/my-bookings" element={<Bookings />} />
           <Route path="/login" element={<Login />} />
 
           {/* Redirect /admin to /admin/login */}
           <Route path="/admin" element={<Navigate to="/admin/login" />} />
 
-          {/* Admin Layout */}
-          {1 || isAuthenticated ? (
+          {/* Admin Login */}
+          <Route
+            path="/admin/login"
+            element={
+              isAuthenticated ? (
+                <Navigate to="/admin/reports" />
+              ) : (
+                <AdminLoginPage onLoginSuccess={() => setIsAuthenticated(true)} />
+              )
+            }
+          />
+
+          {/* Admin Layout with Default Route */}
+          {isAuthenticated ? (
             <Route path="/admin/*" element={<Admin />}>
               <Route index element={<Navigate to="reports" />} />
               <Route path="reports" element={<Reports />} />
@@ -56,6 +69,8 @@ const App = () => {
           )}
         </Routes>
       </div>
+
+      {/* Conditionally render Footer */}
       {!isAdminRoute && <Footer />}
     </>
   );
