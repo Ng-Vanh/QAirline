@@ -51,8 +51,15 @@ export default function Login() {
 
                 // Redirect back to the saved path or home
                 const redirectTo = location.state?.from || '/'; // Default to home if no state
-                const prevState = location.state?.prevState || {}; // Retrieve previous state
-                navigate(redirectTo, { state: prevState }); // Pass back state
+                const thePrevState = location.state?.prevState || {}; // Retrieve previous state
+
+                navigate(redirectTo, {
+                    state: {
+                        from: location.pathname,
+                        prevState: thePrevState
+                    },
+                });
+
             } else {
                 setToastMessage({
                     title: 'Error',

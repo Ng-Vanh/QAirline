@@ -3,30 +3,34 @@
 import { useState, useEffect, useRef } from 'react'
 import { Plane, ArrowRight, ArrowLeft, Search, Calendar, MapPin, Users, CreditCard, Luggage, X, ShoppingCart, Info, ChevronDown, ChevronUp, Trash2 } from 'lucide-react'
 import { motion, AnimatePresence } from 'framer-motion'
+import { useAuth } from '../../components/contexts/AuthContext';
+import { useLocation, useNavigate } from 'react-router-dom';
 import FlightsStyle from './Flights.module.css'
 
 export default function Flights() {
-  const [currentUser, setCurrentUser] = useState(null);
+  const { isAuthenticated, name, userId } = useAuth();
+  const navigate = useNavigate();
+  const location = useLocation();
 
-  const getCurrentUser = async () => {
-    const userData = localStorage.getItem('user');
-    if (userData) {
-      const user = JSON.parse(userData);
-      console.log("data: ", user)
-      if (user.userId) {
-        setCurrentUser(user);
-        console.log(`Current user: ${user.userId}`)
-      }
-    }
-    else {
-      console.log('User not in local storage.')
-    }
-  }
+  // const handleLoginRedirect = (thePrevState = {}) => {
+  //   console.log("Inside handle redirect, the prev state is: ", thePrevState);
+  //   navigate('/login', {
+  //     state: {
+  //       from: location.pathname,
+  //       prevState: thePrevState
+  //     },
+  //   });
+  // };
 
-  useEffect(() => {
-    getCurrentUser()
-  }, []
-  )
+  const handleNavigationRedirect = (destination, thePrevState = {}) => {
+    console.log("Inside handle redirect, the prev state is: ", thePrevState);
+    navigate(destination, {
+      state: {
+        from: location.pathname,
+        prevState: thePrevState
+      },
+    });
+  };
 
   const [searchType, setSearchType] = useState('oneWay')
   const [searchCriteria, setSearchCriteria] = useState({
@@ -60,6 +64,8 @@ export default function Flights() {
   const [openSuggestions, setOpenSuggestions] = useState(null)
   const suggestionRefs = useRef({})
 
+  const [listBookingResults, setListBookingResuls] = useState([])
+
   const isFlightsPage = () => {
     return window.location.pathname === '/flights'
   }
@@ -70,57 +76,57 @@ export default function Flights() {
     return multiCityFlights.length
   }
 
-  const retrieveUrlData = async () => {
-    const searchParams = new URLSearchParams(window.location.search)
+  // const retrieveUrlData = async () => {
+  //   const searchParams = new URLSearchParams(window.location.search)
 
-    const type = searchParams.get('searchType');
-    if (type) setSearchType(type);
+  //   const type = searchParams.get('searchType');
+  //   if (type) setSearchType(type);
 
-    const departureCityParam = searchParams.get('departureCity');
-    const destinationCityParam = searchParams.get('destinationCity');
-    const departureDateParam = searchParams.get('departureDate');
-    const passengerCountParam = searchParams.get('passengerCount');
-    const returnDateParam = searchParams.get('returnDate');
-    const multiCityFlightsParam = searchParams.get('multiCityFlights');
+  //   const departureCityParam = searchParams.get('departureCity');
+  //   const destinationCityParam = searchParams.get('destinationCity');
+  //   const departureDateParam = searchParams.get('departureDate');
+  //   const passengerCountParam = searchParams.get('passengerCount');
+  //   const returnDateParam = searchParams.get('returnDate');
+  //   const multiCityFlightsParam = searchParams.get('multiCityFlights');
 
-    if (departureCityParam || destinationCityParam || departureDateParam || passengerCountParam) {
-      console.log("YES, url has data")
-      console.log(departureCityParam)
-      console.log(destinationCityParam)
-      console.log(departureDateParam)
-      console.log(passengerCountParam)
-      console.log({
-        departureCity: departureCityParam || '',
-        destinationCity: destinationCityParam || '',
-        departureDate: departureDateParam || '',
-        passengerCount: passengerCountParam ? parseInt(passengerCountParam) : 1,
-      });
+  //   if (departureCityParam || destinationCityParam || departureDateParam || passengerCountParam) {
+  //     console.log("YES, url has data")
+  //     console.log(departureCityParam)
+  //     console.log(destinationCityParam)
+  //     console.log(departureDateParam)
+  //     console.log(passengerCountParam)
+  //     console.log({
+  //       departureCity: departureCityParam || '',
+  //       destinationCity: destinationCityParam || '',
+  //       departureDate: departureDateParam || '',
+  //       passengerCount: passengerCountParam ? parseInt(passengerCountParam) : 1,
+  //     });
 
-      setSearchCriteria({
-        departureCity: departureCityParam || '',
-        destinationCity: destinationCityParam || '',
-        departureDate: departureDateParam || '',
-        passengerCount: passengerCountParam ? parseInt(passengerCountParam) : 1,
-      });
-      console.log(searchCriteria)
-      console.log('-----------------------')
-    }
+  //     setSearchCriteria({
+  //       departureCity: departureCityParam || '',
+  //       destinationCity: destinationCityParam || '',
+  //       departureDate: departureDateParam || '',
+  //       passengerCount: passengerCountParam ? parseInt(passengerCountParam) : 1,
+  //     });
+  //     console.log(searchCriteria)
+  //     console.log('-----------------------')
+  //   }
 
-    if (returnDateParam) setReturnDate(returnDateParam);
+  //   if (returnDateParam) setReturnDate(returnDateParam);
 
-    if (multiCityFlightsParam) {
-      try {
-        const parsedMultiCityFlights = JSON.parse(multiCityFlightsParam);
-        setMultiCityFlights(parsedMultiCityFlights);
-      } catch (error) {
-        console.error('Error parsing multiCityFlights:', error);
-      }
-    }
+  //   if (multiCityFlightsParam) {
+  //     try {
+  //       const parsedMultiCityFlights = JSON.parse(multiCityFlightsParam);
+  //       setMultiCityFlights(parsedMultiCityFlights);
+  //     } catch (error) {
+  //       console.error('Error parsing multiCityFlights:', error);
+  //     }
+  //   }
 
-    if (type) {
-      handleSearch()
-    }
-  }
+  //   if (type) {
+  //     handleSearch()
+  //   }
+  // }
 
 
   const searchFlights = async (criteria) => {
@@ -208,6 +214,10 @@ export default function Flights() {
 
   useEffect(() => {
     if (isFlightsPage()) {
+      // console.log("hello")
+      // const prevState2 = {searchType: 'oneWay', departureCity: 'x', destinationCity: 'x', departureDate: '', passengerCount: 1}
+      // console.log("Inside login.jsx, prevState is: ", prevState2);
+
       const searchParams = new URLSearchParams(window.location.search);
 
       const type = searchParams.get('searchType');
@@ -251,7 +261,10 @@ export default function Flights() {
         }
       }
 
+
+
       if (type) {
+        console.log("Seted auto search based on param");
         setIsAutoSearch(true);
       }
       else {
@@ -259,6 +272,169 @@ export default function Flights() {
       }
     }
   }, []);
+
+
+  // useEffect(() => {
+  //   const prevState = location.state?.prevState;
+  //   console.log("Entire prevState: ", prevState);
+  //   if (prevState) {
+  //     console.log("prevState exists", prevState)
+  //     const {
+  //       searchType: searchTypeState,
+  //       departureCity: departureCityState,
+  //       destinationCity: destinationCityState,
+  //       departureDate: departureDateState,
+  //       passengerCount: passengerCountState,
+  //       returnDate: returnDateState,
+  //       multiCityFlights: multiCityFlightsState,
+  //     } = prevState;
+
+  //     // Handle searchType
+  //     if (searchTypeState) setSearchType(searchTypeState);
+
+  //     // Check for other search criteria
+  //     if (departureCityState || destinationCityState || departureDateState || passengerCountState) {
+  //       console.log("YES, prevState has data");
+  //       console.log(departureCityState);
+  //       console.log(destinationCityState);
+  //       console.log(departureDateState);
+  //       console.log(passengerCountState);
+
+  //       const newSearchCriteria = {
+  //         departureCity: departureCityState || '',
+  //         destinationCity: destinationCityState || '',
+  //         departureDate: departureDateState || '',
+  //         passengerCount: passengerCountState ? parseInt(passengerCountState, 10) : 1,
+  //       };
+
+  //       setSearchCriteria(newSearchCriteria); // Update state
+  //       console.log('Setting search criteria:', newSearchCriteria); // Log what you are setting
+  //     }
+
+  //     // Handle returnDate
+  //     if (returnDateState) setReturnDate(returnDateState);
+
+  //     // Handle multiCityFlights
+  //     if (multiCityFlightsState) {
+  //       try {
+  //         console.log("This is multi-city flights");
+  //         const parsedMultiCityFlights = JSON.parse(multiCityFlightsState);
+  //         setMultiCityFlights(parsedMultiCityFlights);
+  //         console.log(parsedMultiCityFlights);
+  //       } catch (error) {
+  //         console.error('Error parsing multiCityFlights:', error);
+  //       }
+  //     }
+  //   }
+  // }, [location.state]);
+
+  useEffect(() => {
+    const prevState = location.state?.prevState;
+    console.log("Entire prevState: ", prevState);
+    if (prevState) {
+      console.log("prevState exists", prevState);
+
+      // Destructure all properties from prevState
+      const {
+        searchType: searchTypeState,
+        departureCity: departureCityState,
+        destinationCity: destinationCityState,
+        departureDate: departureDateState,
+        passengerCount: passengerCountState,
+        returnDate: returnDateState,
+        multiCityFlights: multiCityFlightsState,
+        // Additional states
+        // searchResults: searchResultsState,
+        // isLoading: isLoadingState,
+        isLoadingConfirmBooking: isLoadingConfirmBookingState,
+        // currentSearchStep: currentSearchStepState,
+        // isCartOpen: isCartOpenState,
+        // selectedFlight: selectedFlightState,
+        // showFlightDetails: showFlightDetailsState,
+        selectedFlights: selectedFlightsState,
+        showPassengerInfo: showPassengerInfoState,
+        passengers: passengersState,
+        // bookingConfirmed: bookingConfirmedState,
+        // currentStep: currentStepState,
+        // maxReachedStep: maxReachedStepState,
+        // previousLegArrivalTime: previousLegArrivalTimeState,
+        // doneChoosing: doneChoosingState,
+        isAutoSearch: isAutoSearchState,
+        // airports: airportsState,
+        // openSuggestions: openSuggestionsState,
+        // suggestionRefs: suggestionRefsState,
+      } = prevState;
+
+      // Handle searchType
+      if (searchTypeState) setSearchType(searchTypeState);
+
+      // Check for other search criteria
+      if (departureCityState || destinationCityState || departureDateState || passengerCountState) {
+        console.log("YES, prevState has data");
+        console.log(departureCityState);
+        console.log(destinationCityState);
+        console.log(departureDateState);
+        console.log(passengerCountState);
+
+        const newSearchCriteria = {
+          departureCity: departureCityState || '',
+          destinationCity: destinationCityState || '',
+          departureDate: departureDateState || '',
+          passengerCount: passengerCountState ? parseInt(passengerCountState, 10) : 1,
+        };
+
+        setSearchCriteria(newSearchCriteria); // Update state
+        console.log('Setting search criteria:', newSearchCriteria); // Log what you are setting
+      }
+
+      // Handle returnDate
+      if (returnDateState) setReturnDate(returnDateState);
+
+      // Handle multiCityFlights
+      if (multiCityFlightsState) {
+        try {
+          console.log("This is multi-city flights");
+          const parsedMultiCityFlights = JSON.parse(multiCityFlightsState);
+          setMultiCityFlights(parsedMultiCityFlights);
+          console.log(parsedMultiCityFlights);
+        } catch (error) {
+          console.error('Error parsing multiCityFlights:', error);
+        }
+      }
+
+      // Restore additional states
+      // setSearchResults(searchResultsState || []);
+
+      // setIsLoading(isLoadingState || false);
+
+      setIsLoadingConfirmBooking(isLoadingConfirmBookingState || false);
+      setIsAutoSearch(isAutoSearchState || false);
+
+      // setCurrentSearchStep(currentSearchStepState || 0);
+      // setIsCartOpen(isCartOpenState || false);
+      // setSelectedFlight(selectedFlightState || null);
+      // setShowFlightDetails(showFlightDetailsState || false);
+      setSelectedFlights(selectedFlightsState || {});
+      setShowPassengerInfo(showPassengerInfoState || false);
+      setPassengers(passengersState || []);
+      // setBookingConfirmed(bookingConfirmedState || false);
+      // setCurrentStep(currentStepState || 0);
+      // setMaxReachedStep(maxReachedStepState || 0);
+      // setPreviousLegArrivalTime(previousLegArrivalTimeState || null);
+      // setDoneChoosing(doneChoosingState || false);
+
+      // setAirports(airportsState || []);
+      // setOpenSuggestions(openSuggestionsState || null);
+
+      // if (suggestionRefsState) suggestionRefs.current = suggestionRefsState; // Restore ref 
+
+      navigate(location.pathname, { replace: true, state: null });
+
+      // if (isAutoSearch) {
+      //   handleSearch();
+      // }
+    }
+  }, [location.state]);
 
   const checkValidParams = () => {
     if (searchType != 'multiCity') {
@@ -272,11 +448,18 @@ export default function Flights() {
   useEffect(() => {
     if (isFlightsPage() && isAutoSearch) {
       if (checkValidParams()) {
+        console.log("This is auto search");
         handleSearch();
         setIsAutoSearch(false);
       }
     }
   }, [searchCriteria, returnDate, multiCityFlights]);
+
+  useEffect(() => {
+    if (isFlightsPage() && isLoadingConfirmBooking) {
+      handleConfirmBooking();
+    }
+  }, [isAuthenticated, passengers]);
 
   // useEffect(() => {
   //   handleSearch()
@@ -295,20 +478,43 @@ export default function Flights() {
 
   const handleSearch = async () => {
     if (!isFlightsPage()) {
-      const params = new URLSearchParams()
-      params.set('searchType', searchType)
-      params.set('departureCity', searchCriteria.departureCity)
-      params.set('destinationCity', searchCriteria.destinationCity)
-      params.set('departureDate', searchCriteria.departureDate)
-      params.set('passengerCount', searchCriteria.passengerCount.toString())
-      if (searchType === 'roundTrip') {
-        params.set('returnDate', returnDate)
-      } else if (searchType === 'multiCity') {
-        params.set('multiCityFlights', JSON.stringify(multiCityFlights))
-      }
-      window.location.href = `/flights?${params.toString()}`
-      return
+      // const params = new URLSearchParams()
+      // params.set('searchType', searchType)
+      // params.set('departureCity', searchCriteria.departureCity)
+      // params.set('destinationCity', searchCriteria.destinationCity)
+      // params.set('departureDate', searchCriteria.departureDate)
+      // params.set('passengerCount', searchCriteria.passengerCount.toString())
+      // if (searchType === 'roundTrip') {
+      //   params.set('returnDate', returnDate)
+      // } else if (searchType === 'multiCity') {
+      //   params.set('multiCityFlights', JSON.stringify(multiCityFlights))
+      // }
+
+      // window.location.href = `/flights?${params.toString()}`
+      // return
+
+      setIsAutoSearch(true);
+      console.log("Set is auto search: ", isAutoSearch);
+      storePrevStateAndNavigate('/flights')
+      // return;
     }
+
+    // if (!isAuthenticated) {
+    //   const prevState = {
+    //     searchType: searchType,
+    //     departureCity: searchCriteria.departureCity || '',
+    //     destinationCity: searchCriteria.destinationCity || '',
+    //     departureDate: searchCriteria.departureDate || '',
+    //     passengerCount: searchCriteria.passengerCount || 1,
+    //     ...(searchType === 'roundTrip' && { returnDate: returnDate }),
+    //     ...(searchType === 'multiCity' && { multiCityFlights: JSON.stringify(multiCityFlights) }),
+    //   };
+
+    //   console.log("Preparing data for navigation", prevState);
+    //   handleLoginRedirect(prevState);
+    // }
+
+
 
     console.log('Searching for:', searchType)
     setIsLoading(true)
@@ -826,9 +1032,53 @@ export default function Flights() {
     });
   };
 
+  const storePrevStateAndNavigate = (destination) => {
+    console.log("Inside store prev, is loading is: ", isLoadingConfirmBooking);
+
+    const prevState = {
+      searchType: searchType,
+      departureCity: searchCriteria.departureCity || '',
+      destinationCity: searchCriteria.destinationCity || '',
+      departureDate: searchCriteria.departureDate || '',
+      passengerCount: searchCriteria.passengerCount || 1,
+      ...(searchType === 'roundTrip' && { returnDate: returnDate }),
+      ...(searchType === 'multiCity' && { multiCityFlights: JSON.stringify(multiCityFlights) }),
+      // Include other states
+      // searchResults,
+      // isLoading,
+      isLoadingConfirmBooking: (destination === '/login' ? true : false),
+      // currentSearchStep,
+      // isCartOpen,
+      // selectedFlight,
+      // showFlightDetails,
+      selectedFlights,
+      showPassengerInfo,
+      passengers,
+      // bookingConfirmed,
+      // currentStep,
+      // maxReachedStep,
+      // previousLegArrivalTime,
+      // doneChoosing,
+      isAutoSearch: (destination === '/login' ? false : isAutoSearch),
+      // airports,
+      // openSuggestions,
+      // suggestionRefs: suggestionRefs.current, // Pass ref content
+    };
+
+    console.log("Preparing data for navigation", prevState);
+    handleNavigationRedirect(destination, prevState);
+  }
+
   const handleConfirmBooking = async () => {
     setIsLoadingConfirmBooking(true);
+
+    if (!isAuthenticated) {
+      console.log("BEFORE IN STORE PREV, isloading is ", isLoadingConfirmBooking);
+      storePrevStateAndNavigate('/login');
+      return;
+    }
     try {
+      console.log("Doing creating passengers");
       // Step 1: Create Passengers
       const createdPassengers = await Promise.all(
         passengers.map(async (passenger) => {
@@ -837,45 +1087,55 @@ export default function Flights() {
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify(passenger),
           });
-  
+
           if (!response.ok) {
             const errorData = await response.json();
             throw new Error(`Passenger creation failed: ${errorData.message || response.statusText}`);
           }
-  
+
           return response.json();
         })
       );
-  
+
       const passengerIDs = createdPassengers.map((p) => p.passenger._id);
       console.log('Here are passenger IDs:', passengerIDs);
-  
+
+      console.log("Can come to passengers?");
+
+      console.log("Selected flights: ", selectedFlights);
       // Step 2: Create Bookings
       const bookingPromises = Object.values(selectedFlights).map(async (item) => {
         const response = await fetch('https://qairline-t28f.onrender.com/api/bookings/', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
-            userID: currentUser.userId,
+            userID: userId,
             flightID: item.flight._id,
             flightClass: item.class,
             passengerCount: item.passengers,
             passengerIDs: passengerIDs,
           }),
         });
-  
+
         if (!response.ok) {
           const errorData = await response.json();
           throw new Error(`Booking creation failed: ${errorData.message || response.statusText}`);
         }
-  
+
         return response.json();
       });
-  
+
+
       const bookingResults = await Promise.all(bookingPromises);
-  
+
+      console.log("Booking promises: ", bookingPromises);
+
+      setListBookingResuls(bookingResults);
+
       console.log('Booking results:', bookingResults);
-  
+
+      console.log("Does it even reach this step?")
+
       // Step 3: Update State on Success
       setBookingConfirmed(true);
       setSelectedFlights({});
@@ -886,15 +1146,22 @@ export default function Flights() {
       resetState();
     } catch (error) {
       console.error('Error during booking process:', error);
-  
+
       // Display user-friendly error
       alert(error.message || 'An unexpected error occurred while confirming your booking. Please try again.');
     } finally {
       setIsLoadingConfirmBooking(false);
+      // setBookingConfirmed(true);
+      // setSelectedFlights({});
+      // setCurrentStep(0);
+      // setMaxReachedStep(0);
+      // setShowPassengerInfo(false);
+      // setIsCartOpen(false);
+      // resetState();
     }
   };
 
-  
+
   // const handleConfirmBooking = async () => {
   //   setIsLoadingConfirmBooking(true);
   //   try {

@@ -24,11 +24,17 @@ export default function Navbar() {
             state: {
                 from: location.pathname,
                 prevState: {
-                    // dropdownState: isDropdownOpen,
+
                 },
             },
         });
     };
+
+    const handleLogOut = () => {
+        setIsDropdownOpen(false);
+        logout();
+        setIsDropdownOpen(false);
+    }
 
     const scrollToSection = (id) => {
         const currentUrl = window.location.href;
@@ -51,10 +57,11 @@ export default function Navbar() {
     // Restore state if redirected back
     // useEffect(() => {
     //     const prevState = location.state?.prevState || {};
-    //     if (prevState.dropdownState !== undefined) {
-    //         setIsDropdownOpen(prevState.dropdownState);
+    //     console.log("useeffect navbar: ", prevState)
+    //     if (prevState.bomba !== undefined) {
+    //         console.log("effet bomba: ", prevState.bomba);
     //     }
-    // }, [location.state]);
+    // }, [location.state?.prevState]);
 
     // Close dropdown automatically after login
 

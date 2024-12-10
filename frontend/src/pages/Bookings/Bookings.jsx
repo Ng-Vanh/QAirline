@@ -4,29 +4,44 @@ import { useState, useEffect } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { Plane, Users } from 'lucide-react'
 import BookingsStyle from './Bookings.module.css'
+import { useAuth } from '../../components/contexts/AuthContext';
+import { useLocation, useNavigate } from 'react-router-dom';
 
 export default function Bookings() {
-    const [currentUser, setCurrentUser] = useState(null);
+    const { isAuthenticated, name, userId } = useAuth();
+    const navigate = useNavigate();
+    const location = useLocation();
+    
+    const handleLoginRedirect = () => {
+        navigate('/login', {
+            state: {
+                from: location.pathname,
+                prevState: {
+                    // dropdownState: isDropdownOpen,
+                },
+            },
+        });
+    };
 
-    const getCurrentUser = async () => {
-        const userData = localStorage.getItem('user');
-        if (userData) {
-            const user = JSON.parse(userData);
-            console.log("data: ", user)
-            if (user.userId) {
-                setCurrentUser(user);
-                console.log(`Current user: ${user.userId}`)
-            }
-        }
-        else {
-            console.log('User not in local storage.')
-        }
-    }
+    // const getCurrentUser = async () => {
+    //     const userData = localStorage.getItem('user');
+    //     if (userData) {
+    //         const user = JSON.parse(userData);
+    //         console.log("data: ", user)
+    //         if (user.userId) {
+    //             setCurrentUser(user);
+    //             console.log(`Current user: ${user.userId}`)
+    //         }
+    //     }
+    //     else {
+    //         console.log('User not in local storage.')
+    //     }
+    // }
 
-    useEffect(() => {
-        getCurrentUser()
-    }, []
-    )
+    // useEffect(() => {
+    //     getCurrentUser()
+    // }, []
+    // )
 
     const [activeTab, setActiveTab] = useState('upcoming')
     const [bookings, setBookings] = useState([])
@@ -37,18 +52,19 @@ export default function Bookings() {
     const [sortBy, setSortBy] = useState('departureDate')
 
     useEffect(() => {
-        if (currentUser) {
-            fetchBookings()
+        if (isAuthenticated) {
+            fetchBookings();
         }
-
-    }, [currentUser, activeTab])
+        else {
+            handleLoginRedirect();
+        }
+    }, [isAuthenticated])
 
     const fetchBookings = async () => {
         setLoading(true)
         setError(null)
         try {
-            console.log(`In fetch, user is ${currentUser.userId}`)
-            const response = await fetch(`https://qairline-t28f.onrender.com/api/bookings/user/${currentUser.userId}?type=${activeTab === 'upcoming' ? 'Upcoming' : 'Past'}`)
+            const response = await fetch(`https://qairline-t28f.onrender.com/api/bookings/user/${userId}?type=${activeTab === 'upcoming' ? 'Upcoming' : 'Past'}`)
             if (!response.ok) throw new Error('Failed to fetch bookings')
             const data = await response.json()
             setBookings(data)
@@ -212,13 +228,6 @@ export default function Bookings() {
         )
 
 
-    }
-
-    if (!currentUser) {
-    
-        return (
-            <p>Please log in</p>
-        );
     }
 
     return (
