@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useAuth } from '../../components/contexts/AuthContext';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { Eye, EyeOff, Loader } from 'lucide-react';
@@ -22,6 +22,10 @@ export default function Login() {
     const [loading, setLoading] = useState(false);
     const [toastOpen, setToastOpen] = useState(false);
     const [toastMessage, setToastMessage] = useState({ title: '', description: '', status: '' });
+
+    useEffect(() => {
+        window.scrollTo(0, 0);
+    }, []);
 
     const handleInputChange = (e) => {
         const { name, value } = e.target;

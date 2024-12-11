@@ -2,7 +2,7 @@
 
 import { Plane, Compass, Bell, Newspaper, User, Gift } from 'lucide-react';
 import styles from './Navbar.module.css';
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { useAuth } from '../../components/contexts/AuthContext';
 import { useLocation, useNavigate } from 'react-router-dom';
 import logo from '../../assets/qLOGO.png';
@@ -17,26 +17,28 @@ export default function Navbar() {
     const [isMenuOpen, setIsMenuOpen] = useState(false);
     const navigate = useNavigate();
     const location = useLocation();
+    const dropdownRef = useRef(null);
 
     const handleLoginRedirect = () => {
         setIsDropdownOpen(false);
-        navigate('/login', {
-            state: {
-                from: location.pathname,
-                prevState: {
-
+        if (window.location.pathname != '/login') {
+            console.log("current: ", window.location.path)
+            navigate('/login', {
+                state: {
+                    from: location.pathname,
+                    prevState: {},
                 },
-            },
-        });
+            });
+        }
     };
 
     const handleLogOut = () => {
         setIsDropdownOpen(false);
         logout();
-        setIsDropdownOpen(false);
-    }
+    };
 
     const navigateTo = (path) => {
+        setIsDropdownOpen(false);
         navigate(path);
     };
 
@@ -45,8 +47,26 @@ export default function Navbar() {
     };
 
     useEffect(() => {
+        const handleClickOutside = (event) => {
+            if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
+                setIsDropdownOpen(false);
+            }
+        };
+
+        if (isDropdownOpen) {
+            document.addEventListener('click', handleClickOutside);
+        } else {
+            document.removeEventListener('click', handleClickOutside);
+        }
+
+        return () => {
+            document.removeEventListener('click', handleClickOutside);
+        };
+    }, [isDropdownOpen]);
+
+    useEffect(() => {
         const currentUrl = window.location.href;
-        if (currentUrl.includes('/#') || currentUrl.endsWith('/')) { 
+        if (currentUrl.includes('/#') || currentUrl.endsWith('/')) {
             const hash = window.location.hash.replace('#', '');
             if (hash) {
                 const element = document.getElementById(hash);
@@ -60,17 +80,6 @@ export default function Navbar() {
             }
         }
     }, [window.location.hash]);
-
-    // Restore state if redirected back
-    // useEffect(() => {
-    //     const prevState = location.state?.prevState || {};
-    //     console.log("useeffect navbar: ", prevState)
-    //     if (prevState.bomba !== undefined) {
-    //         console.log("effet bomba: ", prevState.bomba);
-    //     }
-    // }, [location.state?.prevState]);
-
-    // Close dropdown automatically after login
 
     return (
         <nav className={`${styles.navbar} ${isPositionRelative() ? styles.position_relative : ''}`}>
@@ -108,7 +117,7 @@ export default function Navbar() {
                 </ul>
             </div>
 
-            <div className={styles.userSection}>
+            <div className={styles.userSection} ref={dropdownRef}>
                 {isAuthenticated ? (
                     <>
                         <button
@@ -120,8 +129,20 @@ export default function Navbar() {
                         </button>
                         {isDropdownOpen && (
                             <div className={styles.dropdown}>
-                                <button onClick={() => navigateTo('/bookings')}>My booking</button>
-                                <button onClick={handleLogOut}>Logout</button>
+                                <button
+                                    onClick={() => {
+                                        navigateTo('/bookings');
+                                    }}
+                                >
+                                    My booking
+                                </button>
+                                <button
+                                    onClick={() => {
+                                        handleLogOut();
+                                    }}
+                                >
+                                    Logout
+                                </button>
                             </div>
                         )}
                     </>
@@ -162,7 +183,9 @@ export default function Navbar() {
                     {isAuthenticated ? (
                         <>
                             <li>
-                                <button onClick={() => navigateTo('/bookings')}>My booking</button>
+                                <button onClick={() => {
+                                    navigateTo('/bookings');
+                                }}>My booking</button>
                             </li>
                             <li>
                                 <button onClick={handleLogOut}>Logout</button>
