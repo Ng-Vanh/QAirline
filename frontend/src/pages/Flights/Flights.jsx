@@ -6,11 +6,13 @@ import { motion, AnimatePresence } from 'framer-motion'
 import { useAuth } from '../../components/contexts/AuthContext';
 import { useLocation, useNavigate } from 'react-router-dom';
 import FlightsStyle from './Flights.module.css'
+import Config from '../../Config.js'
 
 export default function Flights() {
   const { isAuthenticated, name, userId } = useAuth();
   const navigate = useNavigate();
   const location = useLocation();
+  const apiBaseUrl = Config.apiBaseUrl;
 
   // const handleLoginRedirect = (thePrevState = {}) => {
   //   console.log("Inside handle redirect, the prev state is: ", thePrevState);
@@ -133,7 +135,7 @@ export default function Flights() {
     console.log('Searching flights with criteria:', criteria)
     setIsLoading(true)
     try {
-      const response = await fetch('https://qairline-t28f.onrender.com/api/flights/search', {
+      const response = await fetch(`${apiBaseUrl}/api/flights/search`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -327,6 +329,10 @@ export default function Flights() {
   //     }
   //   }
   // }, [location.state]);
+
+  useEffect(() => {
+    window.scrollTo(0, 0);
+  }, []);
 
   useEffect(() => {
     const prevState = location.state?.prevState;
@@ -670,7 +676,7 @@ export default function Flights() {
   useEffect(() => {
     const fetchAirports = async () => {
       try {
-        const response = await fetch('https://qairline-t28f.onrender.com/api/airports')
+        const response = await fetch(`${apiBaseUrl}/api/airports`)
         if (!response.ok) {
           throw new Error(`HTTP error! status: ${response.status}`)
         }
@@ -1082,7 +1088,7 @@ export default function Flights() {
       // Step 1: Create Passengers
       const createdPassengers = await Promise.all(
         passengers.map(async (passenger) => {
-          const response = await fetch('https://qairline-t28f.onrender.com/api/passengers/', {
+          const response = await fetch(`${apiBaseUrl}/api/passengers/`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify(passenger),
@@ -1105,7 +1111,7 @@ export default function Flights() {
       console.log("Selected flights: ", selectedFlights);
       // Step 2: Create Bookings
       const bookingPromises = Object.values(selectedFlights).map(async (item) => {
-        const response = await fetch('https://qairline-t28f.onrender.com/api/bookings/', {
+        const response = await fetch(`${apiBaseUrl}/api/bookings/`, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
@@ -1167,7 +1173,7 @@ export default function Flights() {
   //   try {
   //     const createdPassengers = await Promise.all(
   //       passengers.map(passenger =>
-  //         fetch('https://qairline-t28f.onrender.com/api/passengers/', {
+  //         fetch(`${apiBaseUrl}/api/passengers/`, {
   //           method: 'POST',
   //           headers: { 'Content-Type': 'application/json' },
   //           body: JSON.stringify(passenger)
@@ -1179,7 +1185,7 @@ export default function Flights() {
   //     console.log("Here are passenger ids: ", passengerIDs);
 
   //     const bookingPromises = Object.values(selectedFlights).map(item =>
-  //       fetch('https://qairline-t28f.onrender.com/api/bookings/', {
+  //       fetch(`${apiBaseUrl}/api/bookings/`, {
   //         method: 'POST',
   //         headers: { 'Content-Type': 'application/json' },
   //         body: JSON.stringify({
@@ -1231,8 +1237,19 @@ export default function Flights() {
     }
   };
 
+
   const renderSearchArea = () => (
-    <div className={`${FlightsStyle.search_area} ${isFlightsPage() === true ? '' : FlightsStyle.not_in_flights}`}>
+    <div
+      className={`${FlightsStyle.search_area} ${isFlightsPage() === true ? '' : FlightsStyle.not_in_flights
+        }`}
+      onKeyDown={(e) => {
+        if (e.key === 'Enter') {
+          handleSearch(); // Trigger the search when Enter is pressed
+        }
+      }}
+    >
+
+      {/* <div className={`${FlightsStyle.search_area} ${isFlightsPage() === true ? '' : FlightsStyle.not_in_flights}`}> */}
       <div className={FlightsStyle.tabs}>
         <button
           className={`${FlightsStyle.tab} ${searchType === 'oneWay' ? FlightsStyle.active : ''}`}

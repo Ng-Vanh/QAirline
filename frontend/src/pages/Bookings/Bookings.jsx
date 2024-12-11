@@ -6,12 +6,14 @@ import { Plane, Users } from 'lucide-react'
 import BookingsStyle from './Bookings.module.css'
 import { useAuth } from '../../components/contexts/AuthContext';
 import { useLocation, useNavigate } from 'react-router-dom';
+import Config from '../../Config.js'
 
 export default function Bookings() {
     const { isAuthenticated, name, userId } = useAuth();
     const navigate = useNavigate();
     const location = useLocation();
-    
+    const apiBaseUrl = Config.apiBaseUrl;
+
     const handleLoginRedirect = () => {
         navigate('/login', {
             state: {
@@ -52,19 +54,24 @@ export default function Bookings() {
     const [sortBy, setSortBy] = useState('departureDate')
 
     useEffect(() => {
+        window.scrollTo(0, 0);
+    }, []);
+
+    useEffect(() => {
         if (isAuthenticated) {
-            fetchBookings();
+            console.log("Is authen")
+            fetchBookings('upcoming');
         }
         else {
             handleLoginRedirect();
         }
     }, [isAuthenticated])
 
-    const fetchBookings = async () => {
+    const fetchBookings = async (tab) => {
         setLoading(true)
         setError(null)
         try {
-            const response = await fetch(`https://qairline-t28f.onrender.com/api/bookings/user/${userId}?type=${activeTab === 'upcoming' ? 'Upcoming' : 'Past'}`)
+            const response = await fetch(`${apiBaseUrl}/api/bookings/user/${userId}?type=${tab === 'upcoming' ? 'Upcoming' : 'Past'}`)
             if (!response.ok) throw new Error('Failed to fetch bookings')
             const data = await response.json()
             setBookings(data)
@@ -75,9 +82,13 @@ export default function Bookings() {
         }
     }
 
+    // useEffect(() => {
+    //     fetchBookings();
+    // }, [activeTab])
+
     const handleCancelBooking = async (bookingId) => {
         try {
-            const response = await fetch(`https://qairline-t28f.onrender.com/api/bookings/${bookingId}`, { method: 'DELETE' })
+            const response = await fetch(`${apiBaseUrl}/api/bookings/${bookingId}`, { method: 'DELETE' })
             if (!response.ok) throw new Error('Failed to cancel booking')
             const data = await response.json()
             alert(data.message)
@@ -237,13 +248,21 @@ export default function Bookings() {
             <div className={BookingsStyle.tabs}>
                 <button
                     className={`${BookingsStyle.tab} ${activeTab === 'upcoming' ? BookingsStyle.tab_active : ''}`}
-                    onClick={() => setActiveTab('upcoming')}
+                    onClick={() => {
+                        // setActiveTab('upcoming')
+                        activeTab !== 'upcoming' && setActiveTab('upcoming')
+                        fetchBookings('upcoming')
+                    }}
                 >
                     Upcoming Flights
                 </button>
                 <button
                     className={`${BookingsStyle.tab} ${activeTab === 'past' ? BookingsStyle.tab_active : ''}`}
-                    onClick={() => setActiveTab('past')}
+                    onClick={() => {
+                        activeTab !== 'past' && setActiveTab('past')
+                        // setActiveTab('past')
+                        fetchBookings('past')
+                    }}
                 >
                     Past Flights
                 </button>
