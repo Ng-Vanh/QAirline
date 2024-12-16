@@ -113,7 +113,7 @@ const AdminAirportManagement = () => {
                                     <Plane size={24} className={styleAirport.airport_icon} />
                                     <h2>{airport.name}</h2>
                                 </div>
-                                <p className={styleAirport.airport_city}>{airport.city}</p>
+                                <p className={styleAirport.airport_city}>City: {airport.city}</p>
                                 <p className={styleAirport.airport_code}>Code: {airport.code}</p>
                                 <div className={styleAirport.airport_actions}>
                                     <button
