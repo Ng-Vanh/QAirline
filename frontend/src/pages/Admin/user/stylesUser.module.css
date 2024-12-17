@@ -19,16 +19,13 @@ body {
 .container {
     max-width: 1200px;
     margin: 0 auto;
-    padding: 2rem;
+    padding: 20px;
 }
 
 .header {
-    font-size: 2rem;
-    font-weight: bold;
-    color: var(--secondary);
-    display: flex;
-    align-items: center;
-    margin-bottom: 2rem;
+    color: var(--accent-color);
+    font-size: 2.5rem;
+    margin-bottom: 20px;
 }
 
 .header .icon {
@@ -44,12 +41,13 @@ body {
 
 .search_container {
     position: relative;
-    width: 250px;
+    flex-grow: 1;
+    margin-right: 20px;
 }
 
 .search_input {
     width: 100%;
-    padding: 0.5rem 0.5rem 0.5rem 2rem;
+    padding: 0.5rem 0.5rem 0.5rem 2.4rem;
     border: 1px solid var(--primary);
     border-radius: 4px;
     font-size: 1rem;
@@ -57,7 +55,7 @@ body {
 
 .search_icon {
     position: absolute;
-    left: 0.5rem;
+    left: 10px;
     top: 50%;
     transform: translateY(-50%);
     color: var(--primary);
@@ -141,6 +139,7 @@ tbody tr:hover {
     display: flex;
     justify-content: center;
     align-items: center;
+    z-index: 900;
 }
 
 .dialog {
@@ -149,6 +148,7 @@ tbody tr:hover {
     border-radius: 8px;
     width: 100%;
     max-width: 400px;
+    z-index: 1000;
 }
 
 .dialog h2 {

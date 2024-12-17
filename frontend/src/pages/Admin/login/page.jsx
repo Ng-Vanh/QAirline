@@ -26,7 +26,7 @@ const AdminLoginPage = ({ onLoginSuccess }) => {
             setTimeout(() => {
                 setIsLoading(false);
                 navigate("/admin");
-            }, 2000); // Simulate loading time
+            }, 0); // Simulate loading time
         } else {
             setToastMessage({
                 title: "Error",

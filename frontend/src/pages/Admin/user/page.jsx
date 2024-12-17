@@ -4,10 +4,11 @@ import { useState, useEffect } from 'react';
 import axios from 'axios';
 import { Edit, Trash2, Search, UserPlus, Users, Loader } from 'lucide-react';
 import * as Toast from "@radix-ui/react-toast";
-import API_BASE_URL from '../config';
 import userStyle from './stylesUser.module.css';
+import Config from '~/Config';
 
 export default function UserManagement() {
+    const apiBaseUrl = Config.apiBaseUrl;
     const [users, setUsers] = useState([]);
     const [editingUser, setEditingUser] = useState(null);
     const [isDialogOpen, setIsDialogOpen] = useState(false);
@@ -24,7 +25,7 @@ export default function UserManagement() {
     const fetchUsers = async () => {
         try {
             setLoading(true);
-            const response = await axios.get(`${API_BASE_URL}/api/users`);
+            const response = await axios.get(`${apiBaseUrl}/api/users`);
             setUsers(response.data);
         } catch (error) {
             console.error('Error fetching users:', error);
@@ -59,11 +60,11 @@ export default function UserManagement() {
         e.preventDefault();
         try {
             if (editingUser) {
-                const response = await axios.put(`${API_BASE_URL}/api/users/${newUser._id}`, newUser);
+                const response = await axios.put(`${apiBaseUrl}/api/users/${newUser._id}`, newUser);
                 setUsers(users.map(user => user._id === newUser._id ? response.data.user : user));
                 showToast("Success", "User updated successfully!", "success");
             } else {
-                const response = await axios.post(`${API_BASE_URL}/api/users/`, newUser);
+                const response = await axios.post(`${apiBaseUrl}/api/users/`, newUser);
                 setUsers([...users, response.data.user]);
                 showToast("Success", "User created successfully!", "success");
             }
@@ -92,7 +93,7 @@ export default function UserManagement() {
 
     const handleDelete = async (id) => {
         try {
-            await axios.delete(`${API_BASE_URL}/api/users/${id}`);
+            await axios.delete(`${apiBaseUrl}/api/users/${id}`);
             setUsers((prevUsers) => prevUsers.filter((u) => u._id !== id));
             showToast("Success", "User deleted successfully!", "success");
         } catch (error) {
@@ -105,7 +106,7 @@ export default function UserManagement() {
         <Toast.Provider>
             <div className={userStyle.container}>
                 <h1 className={userStyle.header}>
-                    <Users className={userStyle.icon} /> User Management
+                    User Management
                 </h1>
                 <div className={userStyle.actions}>
                     <div className={userStyle.search_container}>
@@ -140,7 +141,7 @@ export default function UserManagement() {
                                 <tr>
                                     <th>Name</th>
                                     <th>Username</th>
-                                    <th>Password</th>
+                                    {/* <th>Password</th> */}
                                     <th>Actions</th>
                                 </tr>
                             </thead>
@@ -149,7 +150,7 @@ export default function UserManagement() {
                                     <tr key={user._id}>
                                         <td>{user.name}</td>
                                         <td>{user.username}</td>
-                                        <td>{user.password}</td>
+                                        {/* <td>{user.password}</td> */}
                                         <td>
                                             <button
                                                 onClick={() => handleEdit(user)}
@@ -172,7 +173,9 @@ export default function UserManagement() {
                 </div>
 
                 {isDialogOpen && (
-                    <div className={userStyle.dialog_overlay}>
+                    <div className={userStyle.dialog_overlay} onClick={(e) => {
+                        if (e.target === e.currentTarget) setIsDialogOpen(false);
+                    }}>
                         <div className={userStyle.dialog}>
                             <h2>{editingUser ? 'Edit User' : 'Add New User'}</h2>
                             <form onSubmit={handleSubmit}>
@@ -201,7 +204,7 @@ export default function UserManagement() {
                                     <input
                                         id="password"
                                         name="password"
-                                        type="password"
+                                        type="text"
                                         value={newUser.password}
                                         onChange={handleInputChange}
                                         required

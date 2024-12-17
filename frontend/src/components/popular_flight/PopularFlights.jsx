@@ -3,10 +3,11 @@
 import { useState, useEffect } from 'react';
 import { Plane } from 'lucide-react';
 import styles from './PopularFlights.module.css';
-import API_BASE_URL from '~/pages/Admin/config';
+import Config from '~/Config';
 import { useLocation, useNavigate } from 'react-router-dom';
 
 export default function PopularFlights() {
+    const apiBaseUrl = Config.apiBaseUrl;
     const [flights, setFlights] = useState([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
@@ -16,7 +17,7 @@ export default function PopularFlights() {
     useEffect(() => {
         async function fetchPopularFlights() {
             try {
-                const response = await fetch(`${API_BASE_URL}/api/bookings/rank/popular-flights`);
+                const response = await fetch(`${apiBaseUrl}/api/bookings/rank/popular-flights`);
                 if (!response.ok) {
                     throw new Error('Failed to fetch flights');
                 }
@@ -42,10 +43,10 @@ export default function PopularFlights() {
 
         console.log("Clicked")
         navigate('/flights', {
-          state: {
-            from: location.pathname,
-            prevState: prevState
-          },
+            state: {
+                from: location.pathname,
+                prevState: prevState
+            },
         });
     }
 

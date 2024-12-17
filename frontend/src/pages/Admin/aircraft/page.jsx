@@ -4,10 +4,11 @@ import { useEffect, useState } from 'react';
 import axios from 'axios';
 import { Plane, Edit, Trash2, Plus, X, Loader } from 'lucide-react';
 import * as Toast from '@radix-ui/react-toast';
-import API_BASE_URL from '../config';
+import Config from '~/Config';
 import aircraftStyle from './stylesAircraft.module.css';
 
 export default function ManageAircraft() {
+    const apiBaseUrl = Config.apiBaseUrl;
     const [aircrafts, setAircrafts] = useState([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
@@ -34,7 +35,7 @@ export default function ManageAircraft() {
 
     const fetchAircrafts = async () => {
         try {
-            const response = await axios.get(`${API_BASE_URL}/api/aircrafts`);
+            const response = await axios.get(`${apiBaseUrl}/api/aircrafts`);
             setAircrafts(response.data);
             setLoading(false);
         } catch (err) {
@@ -68,10 +69,10 @@ export default function ManageAircraft() {
         e.preventDefault();
         try {
             if (editingAircraft) {
-                await axios.put(`${API_BASE_URL}/api/aircrafts/${editingAircraft._id}`, newAircraft);
+                await axios.put(`${apiBaseUrl}/api/aircrafts/${editingAircraft._id}`, newAircraft);
                 showToast('Aircraft Updated', `Aircraft ${newAircraft.code} has been updated.`, 'success');
             } else {
-                await axios.post(`${API_BASE_URL}/api/aircrafts`, newAircraft);
+                await axios.post(`${apiBaseUrl}/api/aircrafts`, newAircraft);
                 showToast('Aircraft Added', `Aircraft ${newAircraft.code} has been added.`, 'success');
             }
             fetchAircrafts();
@@ -108,7 +109,7 @@ export default function ManageAircraft() {
 
     const handleDelete = async (id) => {
         try {
-            await axios.delete(`${API_BASE_URL}/api/aircrafts/${id}`);
+            await axios.delete(`${apiBaseUrl}/api/aircrafts/${id}`);
             showToast('Aircraft Deleted', 'Aircraft has been removed successfully.', 'success');
             setAircrafts((prev) => prev.filter((a) => a._id !== id));
         } catch (err) {
@@ -123,7 +124,7 @@ export default function ManageAircraft() {
             fetchAircrafts();
         } else {
             try {
-                const response = await axios.get(`${API_BASE_URL}/api/aircrafts/type/${type}`);
+                const response = await axios.get(`${apiBaseUrl}/api/aircrafts/type/${type}`);
                 setAircrafts(response.data);
             } catch (err) {
                 console.error('Error filtering aircrafts:', err);
@@ -132,13 +133,13 @@ export default function ManageAircraft() {
         }
     };
 
-    if (loading) return (
-        <div className={aircraftStyle.loading}>
-            <Loader className={aircraftStyle.spinner} />
-            <p>Loading aircraft...</p>
-        </div>
-    );
-    if (error) return <p className={aircraftStyle.error}>{error}</p>;
+    // if (loading) return (
+    //     <div className={aircraftStyle.loading}>
+    //         <Loader className={aircraftStyle.spinner} />
+    //         <p>Loading aircraft...</p>
+    //     </div>
+    // );
+    // if (error) return <p className={aircraftStyle.error}>{error}</p>;
 
     return (
         <div className={aircraftStyle.aircraft_management}>
@@ -176,12 +177,14 @@ export default function ManageAircraft() {
                     </button>
                 </div>
             </div>
-
-            <div className={aircraftStyle.aircraft_grid}>
+            {loading ? (<div className={aircraftStyle.loading}>
+                <Loader className={aircraftStyle.spinner} />
+                <p>Loading aircraft...</p>
+            </div>) : (<div className={aircraftStyle.aircraft_grid}>
                 {aircrafts.map((aircraft) => (
                     <div key={aircraft._id} className={aircraftStyle.aircraft_card}>
                         <div className={aircraftStyle.aircraft_header}>
-                            <h2>{aircraft.manufacturer} {aircraft.model}</h2>
+                            <h2> {aircraft.model}</h2>
                             <span className={`${aircraftStyle.badge} ${aircraft.inService ? aircraftStyle.in_service : aircraftStyle.out_of_service}`}>
                                 {aircraft.inService ? "In Service" : "Out of Service"}
                             </span>
@@ -208,19 +211,29 @@ export default function ManageAircraft() {
                         </div>
                     </div>
                 ))}
-            </div>
+                {aircrafts.length === 0 && (
+                    <div className={aircraftStyle.no_aircraft}>
+                        <Plane size={48} />
+                        <p>No aircraft added yet</p>
+                        <p>Add your first aircraft to start managing your fleet.</p>
+                    </div>
+                )}
+            </div>)}
 
-            {aircrafts.length === 0 && (
+
+            {/* {aircrafts.length === 0 && (
                 <div className={aircraftStyle.no_aircraft}>
                     <Plane size={48} />
                     <p>No aircraft added yet</p>
                     <p>Add your first aircraft to start managing your fleet.</p>
                 </div>
-            )}
+            )} */}
 
 
             {isDialogOpen && (
-                <div className={aircraftStyle.modal_overlay}>
+                <div className={aircraftStyle.modal_overlay} onClick={(e) => {
+                    if (e.target === e.currentTarget) setIsDialogOpen(false);
+                }}>
                     <div className={aircraftStyle.modal}>
                         <h2>{editingAircraft ? 'Edit Aircraft' : 'Add New Aircraft'}</h2>
                         <form onSubmit={handleSubmit}>
@@ -364,9 +377,7 @@ export default function ManageAircraft() {
                                 </button>
                             </div>
                         </form>
-                        <button className={aircraftStyle.close_modal} onClick={() => setIsDialogOpen(false)}>
-                            <X size={24} />
-                        </button>
+
                     </div>
                 </div>
             )}

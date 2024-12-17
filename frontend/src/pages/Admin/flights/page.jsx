@@ -4,10 +4,12 @@ import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import { Plane, Edit, Trash2, Plus, Calendar, Search, Filter, Loader } from 'lucide-react';
 import * as Toast from '@radix-ui/react-toast';
-import API_BASE_URL from '../config';
 import flightStyle from './stylesFlights.module.css';
+import moment from 'moment';
+import Config from '~/Config';
 
 export default function ManageFlights() {
+    const apiBaseUrl = Config.apiBaseUrl;
     const [flights, setFlights] = useState([]);
     const [airports, setAirports] = useState([]);
     const [aircrafts, setAircrafts] = useState([]);
@@ -53,7 +55,7 @@ export default function ManageFlights() {
     const fetchFlights = async () => {
         try {
             setLoading(true);
-            const response = await axios.get(`${API_BASE_URL}/api/flights`);
+            const response = await axios.get(`${apiBaseUrl}/api/flights`);
             setFlights(response.data);
         } catch (error) {
             console.error('Error fetching flights:', error);
@@ -66,8 +68,8 @@ export default function ManageFlights() {
     const fetchAirportsAndAircrafts = async () => {
         try {
             const [airportsResponse, aircraftsResponse] = await Promise.all([
-                axios.get(`${API_BASE_URL}/api/airports`),
-                axios.get(`${API_BASE_URL}/api/aircrafts`),
+                axios.get(`${apiBaseUrl}/api/airports`),
+                axios.get(`${apiBaseUrl}/api/aircrafts`),
             ]);
             setAirports(airportsResponse.data.airports || []);
             setAircrafts(aircraftsResponse.data || []);
@@ -124,10 +126,10 @@ export default function ManageFlights() {
             };
 
             if (editingFlight) {
-                await axios.put(`${API_BASE_URL}/api/flights/${editingFlight._id}`, payload);
+                await axios.put(`${apiBaseUrl}/api/flights/${editingFlight._id}`, payload);
                 showToast('Success', 'Flight updated successfully.', 'success');
             } else {
-                await axios.post(`${API_BASE_URL}/api/flights`, payload);
+                await axios.post(`${apiBaseUrl}/api/flights`, payload);
                 showToast('Success', 'Flight added successfully.', 'success');
             }
             fetchFlights();
@@ -155,7 +157,7 @@ export default function ManageFlights() {
 
     const handleDelete = async (id) => {
         try {
-            await axios.delete(`${API_BASE_URL}/api/flights/${id}`);
+            await axios.delete(`${apiBaseUrl}/api/flights/${id}`);
             showToast('Success', 'Flight deleted successfully.', 'success');
             fetchFlights();
         } catch (error) {
@@ -267,7 +269,9 @@ export default function ManageFlights() {
 
 
             {isDialogOpen && (
-                <div className={flightStyle.modal_overlay}>
+                <div className={flightStyle.modal_overlay} onClick={(e) => {
+                    if (e.target === e.currentTarget) setIsDialogOpen(false);
+                }}>
                     <div className={flightStyle.modal}>
                         <h2>{editingFlight ? 'Edit Flight' : 'Add New Flight'}</h2>
                         <form onSubmit={handleSubmit}>
@@ -322,7 +326,7 @@ export default function ManageFlights() {
                                     id="departureTime"
                                     name="departureTime"
                                     type="datetime-local"
-                                    value={newFlight.departureTime}
+                                    value={newFlight.departureTime ? moment(newFlight.departureTime).format('YYYY-MM-DDTHH:mm') : ''}
                                     onChange={handleInputChange}
                                     required
                                 />
@@ -333,7 +337,7 @@ export default function ManageFlights() {
                                     id="arrivalTime"
                                     name="arrivalTime"
                                     type="datetime-local"
-                                    value={newFlight.arrivalTime}
+                                    value={newFlight.arrivalTime ? moment(newFlight.arrivalTime).format('YYYY-MM-DDTHH:mm') : ''}
                                     onChange={handleInputChange}
                                     required
                                 />

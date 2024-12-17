@@ -1,121 +1,108 @@
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
+import { useAuth } from "../components/contexts/AuthContext";
+import { Users, PlaneTakeoff, BarChart2, FileText, LandPlot, Plane, LogOut } from "lucide-react";
 
-import { Home, Users, PlaneTakeoff, BarChart2, Bell, FileText, LandPlot, Plane } from "lucide-react";
+export default function AdminSidebar({ setIsAuthenticated }) { // Add the setIsAuthenticated prop
+    const { logout } = useAuth();
+    const navigate = useNavigate();
 
-export default function AdminSidebar() {
     const styles = {
         aside: {
-            backgroundColor: "#009bd6", // bg-gray-800
-            color: "#ffffff", // text-white
-            width: "15rem", // w-64
-            height: "100vh", // 100% height of viewport
-            position: "fixed", // Fixed position
-            top: "0", // Stick to the top
-            left: "0", // Stick to the left
-            padding: "1rem", // p-4
+            backgroundColor: "#009bd6",
+            color: "#ffffff",
+            width: "15rem",
+            height: "100vh",
+            position: "fixed",
+            top: "0",
+            left: "0",
+            padding: "1rem",
             display: "flex",
             flexDirection: "column",
+            justifyContent: "space-between",
         },
         nav: {
             display: "flex",
             flexDirection: "column",
-            gap: "1rem", // space-y-4
+            gap: "1rem",
         },
         link: {
             display: "flex",
-            alignItems: "center", // flex items-center
-            gap: "0.5rem", // space-x-2
-            padding: "0.5rem", // p-2
-            borderRadius: "0.375rem", // rounded
-            textDecoration: "none", // remove underline
-            color: "#ffffff", // text color
+            alignItems: "center",
+            gap: "0.5rem",
+            padding: "0.5rem",
+            borderRadius: "0.375rem",
+            textDecoration: "none",
+            color: "#ffffff",
             transition: "background-color 0.2s ease",
         },
         linkHover: {
-            backgroundColor: "#374151", // hover:bg-gray-700
+            backgroundColor: "#374151",
         },
+        logout: {
+            display: "flex",
+            justifyContent: "center",
+            alignItems: "center",
+            gap: "0.5rem",
+            padding: "0.5rem",
+            borderRadius: "0.375rem",
+            textDecoration: "none",
+            color: "#ffffff",
+            cursor: "pointer",
+            transition: "background-color 0.2s ease",
+        },
+    };
+
+    const handleLogout = () => {
+        logout(); // Gọi hàm logout từ context
+        setIsAuthenticated(false); // Update isAuthenticated state to false
+        navigate("/admin/login"); // Chuyển hướng sang trang login
     };
 
     return (
         <aside style={styles.aside}>
+            {/* Navigation Links */}
             <nav style={styles.nav}>
-                {/* Dashboard */}
-                {/* <Link
-                    to="/admin/dashboard"
-                    style={styles.link}
-                    onMouseEnter={(e) => (e.currentTarget.style.backgroundColor = styles.linkHover.backgroundColor)}
-                    onMouseLeave={(e) => (e.currentTarget.style.backgroundColor = "transparent")}
-                >
-                    <Home size={20} />
-                    <span>Dashboard</span>
-                </Link> */}
-
-                {/* User Management */}
-                <Link
-                    to="/admin/users"
-                    style={styles.link}
-                    onMouseEnter={(e) => (e.currentTarget.style.backgroundColor = styles.linkHover.backgroundColor)}
-                    onMouseLeave={(e) => (e.currentTarget.style.backgroundColor = "transparent")}
-                >
+                <Link to="/admin/users" style={styles.link}>
                     <Users size={20} />
                     <span>User Management</span>
                 </Link>
 
-                {/* Flight Management */}
-                <Link
-                    to="/admin/flights"
-                    style={styles.link}
-                    onMouseEnter={(e) => (e.currentTarget.style.backgroundColor = styles.linkHover.backgroundColor)}
-                    onMouseLeave={(e) => (e.currentTarget.style.backgroundColor = "transparent")}
-                >
+                <Link to="/admin/flights" style={styles.link}>
                     <PlaneTakeoff size={20} />
                     <span>Flight Management</span>
                 </Link>
 
-                {/* Aircraft Management */}
-                <Link
-                    to="/admin/aircraft"
-                    style={styles.link}
-                    onMouseEnter={(e) => (e.currentTarget.style.backgroundColor = styles.linkHover.backgroundColor)}
-                    onMouseLeave={(e) => (e.currentTarget.style.backgroundColor = "transparent")}
-                >
+                <Link to="/admin/aircraft" style={styles.link}>
                     <Plane size={20} />
                     <span>Aircraft Management</span>
                 </Link>
 
-                {/* Airport Management */}
-                <Link
-                    to="/admin/airports"
-                    style={styles.link}
-                    onMouseEnter={(e) => (e.currentTarget.style.backgroundColor = styles.linkHover.backgroundColor)}
-                    onMouseLeave={(e) => (e.currentTarget.style.backgroundColor = "transparent")}
-                >
+                <Link to="/admin/airports" style={styles.link}>
                     <LandPlot size={20} />
                     <span>Airport Management</span>
                 </Link>
 
-                {/* CMS */}
-                <Link
-                    to="/admin/cms"
-                    style={styles.link}
-                    onMouseEnter={(e) => (e.currentTarget.style.backgroundColor = styles.linkHover.backgroundColor)}
-                    onMouseLeave={(e) => (e.currentTarget.style.backgroundColor = "transparent")}
-                >
+                <Link to="/admin/cms" style={styles.link}>
                     <FileText size={20} />
                     <span>CMS</span>
                 </Link>
 
-                {/* Reports */}
-                <Link
-                    to="/admin/reports"
-                    style={styles.link}
-                    onMouseEnter={(e) => (e.currentTarget.style.backgroundColor = styles.linkHover.backgroundColor)}
-                    onMouseLeave={(e) => (e.currentTarget.style.backgroundColor = "transparent")}
-                >
+                <Link to="/admin/reports" style={styles.link}>
                     <BarChart2 size={20} />
                     <span>Reports</span>
                 </Link>
             </nav>
+
+            {/* Logout Button */}
+            <div
+                style={styles.logout}
+                onMouseEnter={(e) => (e.currentTarget.style.backgroundColor = styles.linkHover.backgroundColor)}
+                onMouseLeave={(e) => (e.currentTarget.style.backgroundColor = "transparent")}
+                onClick={handleLogout} // Gọi hàm logout khi click
+            >
+                <LogOut size={20} />
+                <span>Logout</span>
+            </div>
         </aside>
     );
 }

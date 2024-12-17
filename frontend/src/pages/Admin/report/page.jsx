@@ -4,10 +4,11 @@ import React, { useEffect, useState } from 'react';
 import axios from 'axios';
 import { Calendar, Users, DollarSign, TrendingUp, Loader } from 'lucide-react';
 import * as Toast from '@radix-ui/react-toast';
-import API_BASE_URL from '../config';
 import reportStyle from './stylesReports.module.css';
+import Config from '~/Config';
 
 export default function Reports() {
+    const apiBaseUrl = Config.apiBaseUrl;
     const [stats, setStats] = useState(null);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
@@ -21,7 +22,7 @@ export default function Reports() {
         const fetchStatistics = async () => {
             setLoading(true);
             try {
-                const response = await axios.get(`${API_BASE_URL}/api/statistics`);
+                const response = await axios.get(`${apiBaseUrl}/api/statistics`);
                 setStats(response.data);
                 setError(null);
             } catch (error) {
@@ -64,7 +65,7 @@ export default function Reports() {
             <div className={reportStyle.header}>
                 <h1 className={reportStyle.heading}>Booking Statistics</h1>
                 <div className={reportStyle.width_sorter}>
-                    <label htmlFor="width-select">Card Width:</label>
+                    <label htmlFor="width-select">View: </label>
                     <select id="width-select" value={cardWidth} onChange={handleWidthChange}>
                         <option value="250px">Narrow (250px)</option>
                         <option value="300px">Medium (300px)</option>

@@ -17,13 +17,13 @@ body {
 .cms_container {
     max-width: 1200px;
     margin: 0 auto;
-    padding: 2rem;
+    padding: 20px;
 }
 
 .cms_heading {
-    color: var(--secondary);
+    color: var(--accent-color);
     font-size: 2.5rem;
-    margin-bottom: 2rem;
+    margin-bottom: 20px;
 }
 
 .add_button {
@@ -76,7 +76,7 @@ body {
 }
 
 .tab_content {
-    padding: 2rem;
+    padding: 0rem;
 }
 
 .cms_table {
@@ -107,6 +107,15 @@ body {
     cursor: pointer;
     padding: 0.25rem;
     margin-right: 0.5rem;
+}
+
+.image_preview {
+    width: 80px;
+    height: 80px;
+    object-fit: cover;
+    border-radius: 8px;
+    margin-top: 8px;
+    border: 1px solid #ddd;
 }
 
 .edit_button {

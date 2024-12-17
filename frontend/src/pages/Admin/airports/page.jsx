@@ -4,10 +4,11 @@ import { useState, useEffect } from 'react';
 import axios from 'axios';
 import { Edit, Trash2, Plus, Plane, X, Loader } from 'lucide-react';
 import * as Toast from '@radix-ui/react-toast';
-import API_BASE_URL from '../config';
 import styleAirport from './stylesAirport.module.css';
+import Config from '~/Config';
 
 const AdminAirportManagement = () => {
+    const apiBaseUrl = Config.apiBaseUrl;
     const [airports, setAirports] = useState([]);
     const [newAirport, setNewAirport] = useState({ code: '', name: '', city: '' });
     const [editingAirport, setEditingAirport] = useState(null);
@@ -21,7 +22,7 @@ const AdminAirportManagement = () => {
     const fetchAirports = async () => {
         try {
             setLoading(true);
-            const response = await axios.get(`${API_BASE_URL}/api/airports`);
+            const response = await axios.get(`${apiBaseUrl}/api/airports`);
             setAirports(response.data.airports || []);
         } catch (error) {
             console.error("Error fetching airports:", error);
@@ -49,10 +50,10 @@ const AdminAirportManagement = () => {
         e.preventDefault();
         try {
             if (editingAirport) {
-                await axios.put(`${API_BASE_URL}/api/airports/${editingAirport._id}`, newAirport);
+                await axios.put(`${apiBaseUrl}/api/airports/${editingAirport._id}`, newAirport);
                 showToast("Airport Updated", "Airport details updated successfully.", "success");
             } else {
-                await axios.post(`${API_BASE_URL}/api/airports`, newAirport);
+                await axios.post(`${apiBaseUrl}/api/airports`, newAirport);
                 showToast("Airport Added", "New airport added successfully.", "success");
             }
             fetchAirports();
@@ -73,7 +74,7 @@ const AdminAirportManagement = () => {
 
     const handleDelete = async (id) => {
         try {
-            await axios.delete(`${API_BASE_URL}/api/airports/${id}`);
+            await axios.delete(`${apiBaseUrl}/api/airports/${id}`);
             setAirports(airports.filter(airport => airport._id !== id));
             showToast("Airport Deleted", "Airport has been removed successfully.", "success");
         } catch (error) {
@@ -110,7 +111,7 @@ const AdminAirportManagement = () => {
                         airports.map((airport) => (
                             <div key={airport._id} className={styleAirport.airport_card}>
                                 <div className={styleAirport.airport_header}>
-                                    <Plane size={24} className={styleAirport.airport_icon} />
+                                    {/* <Plane size={24} className={styleAirport.airport_icon} /> */}
                                     <h2>{airport.name}</h2>
                                 </div>
                                 <p className={styleAirport.airport_city}>City: {airport.city}</p>
@@ -140,7 +141,9 @@ const AdminAirportManagement = () => {
             )}
 
             {isDialogOpen && (
-                <div className={styleAirport.modal_overlay}>
+                <div className={styleAirport.modal_overlay} onClick={(e) => {
+                    if (e.target === e.currentTarget) setIsDialogOpen(false);
+                }}>
                     <div className={styleAirport.modal}>
                         <h2>{editingAirport ? "Edit Airport" : "Add New Airport"}</h2>
                         <form onSubmit={handleSubmit}>
@@ -200,8 +203,8 @@ const AdminAirportManagement = () => {
             <Toast.Provider>
                 <Toast.Root
                     className={`${styleAirport.toast} ${toastMessage.type === "success"
-                            ? styleAirport.success
-                            : styleAirport.error
+                        ? styleAirport.success
+                        : styleAirport.error
                         }`}
                     open={toastOpen}
                     onOpenChange={setToastOpen}

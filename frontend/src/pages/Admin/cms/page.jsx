@@ -4,10 +4,11 @@ import { useState, useEffect } from 'react';
 import axios from 'axios';
 import { Plus, Edit, Trash2, ImageIcon, Loader } from 'lucide-react';
 import * as Toast from '@radix-ui/react-toast';
-import API_BASE_URL from '../config';
 import cmsStyle from './stylesCMS.module.css';
+import Config from '~/Config';
 
 export default function CMSPage() {
+    const apiBaseUrl = Config.apiBaseUrl;
     const [introduction, setIntroduction] = useState([]);
     const [promotions, setPromotions] = useState([]);
     const [news, setNews] = useState([]);
@@ -21,11 +22,12 @@ export default function CMSPage() {
     const [toastMessage, setToastMessage] = useState({ title: '', description: '', type: '' });
     const [toastOpen, setToastOpen] = useState(false);
 
+
     const fetchContent = async () => {
         setLoading(true);
         try {
 
-            const response = await axios.get(`${API_BASE_URL}/api/content`);
+            const response = await axios.get(`${apiBaseUrl}/api/content`);
 
             const allContent = response.data;
 
@@ -68,7 +70,7 @@ export default function CMSPage() {
 
     const handleDelete = async (id) => {
         try {
-            await axios.delete(`${API_BASE_URL}/api/content/${id}`);
+            await axios.delete(`${apiBaseUrl}/api/content/${id}`);
             fetchContent();
             showToast('Content Deleted', 'The content was successfully deleted.', 'success');
         } catch (error) {
@@ -81,9 +83,9 @@ export default function CMSPage() {
         e.preventDefault();
         try {
             if (editingItem._id) {
-                await axios.put(`${API_BASE_URL}/api/content/${editingItem._id}`, editingItem);
+                await axios.put(`${apiBaseUrl}/api/content/${editingItem._id}`, editingItem);
             } else {
-                await axios.post(`${API_BASE_URL}/api/content`, editingItem);
+                await axios.post(`${apiBaseUrl}/api/content`, editingItem);
             }
             fetchContent();
             setEditingItem(null);
@@ -97,6 +99,7 @@ export default function CMSPage() {
 
     const handleFileUpload = (e) => {
         const file = e.target.files[0];
+        const imageUrl = URL.createObjectURL(file);
         if (file) {
             setEditingItem((prevItem) => ({
                 ...prevItem,
@@ -203,7 +206,9 @@ export default function CMSPage() {
             </div>
 
             {isDialogOpen && (
-                <div className={cmsStyle.modal_overlay}>
+                <div className={cmsStyle.modal_overlay} onClick={(e) => {
+                    if (e.target === e.currentTarget) setIsDialogOpen(false);
+                }}>
                     <div className={cmsStyle.modal}>
                         <h2>{editingItem?._id ? 'Edit Content' : 'Add Content'}</h2>
                         <form onSubmit={handleSave}>
@@ -255,8 +260,13 @@ export default function CMSPage() {
                                         onChange={handleFileUpload}
                                     />
                                     <label htmlFor="image" className={cmsStyle.file_input_label}>
-                                        <ImageIcon size={18} />
-                                        {editingItem.image ? editingItem.image : 'Choose a file'}
+                                        {/* <ImageIcon size={18} /> */}
+                                        {/* {editingItem.image ? editingItem.image : 'Choose a file'} */}
+                                        {editingItem.image ? (
+                                            <img src={`../../../assets/uploads/${editingItem.image}`} alt="Preview" className={cmsStyle.image_preview} />
+                                        ) : (
+                                            'Choose a file'
+                                        )}
                                     </label>
                                 </div>
                             </div>
@@ -280,8 +290,8 @@ export default function CMSPage() {
             <Toast.Provider>
                 <Toast.Root
                     className={`${cmsStyle.toast} ${toastMessage.type === 'success'
-                            ? cmsStyle.success
-                            : cmsStyle.error
+                        ? cmsStyle.success
+                        : cmsStyle.error
                         }`}
                     open={toastOpen}
                     onOpenChange={setToastOpen}
