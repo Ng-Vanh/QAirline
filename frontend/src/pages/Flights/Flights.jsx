@@ -63,10 +63,17 @@ export default function Flights() {
   const [doneChoosing, setDoneChoosing] = useState(false)
   const [isAutoSearch, setIsAutoSearch] = useState(true)
   const [airports, setAirports] = useState([])
+
   const [openSuggestions, setOpenSuggestions] = useState(null)
   const suggestionRefs = useRef({})
 
-  const [listBookingResults, setListBookingResuls] = useState([])
+  const flightModalRef = useRef()
+  const passengerModalRef = useRef()
+  const cartPopverRef = useRef()
+
+  const [emailErrors, setEmailErrors] = useState(Array(passengers.length).fill(''));
+
+  // const [listBookingResults, setListBookingResuls] = useState([])
 
   const isFlightsPage = () => {
     return window.location.pathname === '/flights'
@@ -590,6 +597,27 @@ export default function Flights() {
     };
   }, [openSuggestions]);
 
+
+  useEffect(() => {
+    const handleClickOutsideEvent = (event, elementRef, setterFunction) => {
+      if (elementRef.current && !elementRef.current.contains(event.target)) {
+        setterFunction(false);
+      }
+    };
+
+    const handleClickOutside = (event) => {
+      handleClickOutsideEvent(event, flightModalRef, setShowFlightDetails);
+      handleClickOutsideEvent(event, passengerModalRef, setShowPassengerInfo);
+      handleClickOutsideEvent(event, cartPopverRef, setIsCartOpen);
+    }
+
+    document.addEventListener('mousedown', handleClickOutside);
+
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+    };
+  }, [setShowFlightDetails, setShowPassengerInfo, setIsCartOpen]);
+
   const getFilteredAirports = (value) => {
     if (value.trim() === '') {
       return airports.slice(0, 5); // Return first 5 airports when input is empty
@@ -889,7 +917,8 @@ export default function Flights() {
             )
           })
         ) : (
-          <p>No suitable flights found for this route and date. Please try different search criteria or adjust your previous flight selection.</p>
+          // <p>No suitable flights found for this route and date. Please try different search criteria or adjust your previous flight selection.</p>
+          <></>
         )}
       </div>
     )
@@ -1033,6 +1062,25 @@ export default function Flights() {
   const handlePassengerInfoChange = (index, field, value) => {
     setPassengers(prevPassengers => {
       const newPassengers = [...prevPassengers];
+
+      if (field === 'email') {
+        const emailRegex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
+        if (value && !emailRegex.test(value)) {
+          setEmailErrors(prevErrors => {
+            const newErrors = [...prevErrors];
+            newErrors[index] = 'Invalid email address';
+            return newErrors;
+          });
+          // return prevPassengers;
+        } else {
+          setEmailErrors(prevErrors => {
+            const newErrors = [...prevErrors];
+            newErrors[index] = '';
+            return newErrors;
+          });
+        }
+      }
+
       newPassengers[index] = { ...newPassengers[index], [field]: value };
       return newPassengers;
     });
@@ -1136,7 +1184,7 @@ export default function Flights() {
 
       console.log("Booking promises: ", bookingPromises);
 
-      setListBookingResuls(bookingResults);
+      // setListBookingResuls(bookingResults);
 
       console.log('Booking results:', bookingResults);
 
@@ -1646,7 +1694,7 @@ export default function Flights() {
       </button>
 
       {isCartOpen && (
-        <div className={FlightsStyle.cart_popover}>
+        <div ref={cartPopverRef} className={FlightsStyle.cart_popover}>
           <h2 className={FlightsStyle.cart_title}>Your Cart</h2>
           <div className={FlightsStyle.cart_scroll_area}>
             {Object.entries(selectedFlights).map(([index, item]) => (
@@ -1700,7 +1748,7 @@ export default function Flights() {
       {showPassengerInfo && (
         <div className={FlightsStyle.modal}>
 
-          <div className={FlightsStyle.modal_content}>
+          <div ref={passengerModalRef} className={FlightsStyle.modal_content}>
             {/* {1 && (
             <div className={`${FlightsStyle.loader_container} ${FlightsStyle.loader_container_absolute}`}>
               <div className={FlightsStyle.loader}></div>
@@ -1708,32 +1756,44 @@ export default function Flights() {
           )} */}
             <button className={FlightsStyle.close_button} onClick={() => setShowPassengerInfo(false)}>×</button>
             <h2 className={FlightsStyle.center_text}>Passenger Information</h2>
-            {passengers.map((passenger, index) => (
-              <div key={index} className={`${FlightsStyle.passenger_form} ${FlightsStyle.details_container}`}>
-                <h3>Passenger {index + 1}</h3>
-                <input
-                  spellCheck={false}
-                  type="text"
-                  placeholder="Name"
-                  value={passenger.name}
-                  onChange={(e) => handlePassengerInfoChange(index, 'name', e.target.value)}
-                />
-                <input
-                  spellCheck={false}
-                  type="email"
-                  placeholder="Email"
-                  value={passenger.email}
-                  onChange={(e) => handlePassengerInfoChange(index, 'email', e.target.value)}
-                />
-              </div>
-            ))}
+            <div className={FlightsStyle.passenger_form_container}>
+              {passengers.map((passenger, index) => (
+                <div key={index} className={`${FlightsStyle.passenger_form} ${FlightsStyle.details_container}`}>
+                  <h3>Passenger {index + 1}</h3>
+                  <input
+                    spellCheck={false}
+                    type="text"
+                    placeholder="Name"
+                    value={passenger.name}
+                    onChange={(e) => handlePassengerInfoChange(index, 'name', e.target.value)}
+                  />
+                  <input
+                    spellCheck={false}
+                    type="email"
+                    placeholder="Email"
+                    value={passenger.email}
+                    onChange={(e) => handlePassengerInfoChange(index, 'email', e.target.value)}
+                  />
+                  {emailErrors[index] && <span style={{ color: 'red' }}>{emailErrors[index]}</span>}
+                </div>
+              ))}
+            </div>
             <button className={`${FlightsStyle.button} ${FlightsStyle.bottom_button}`} onClick={handleConfirmBooking}>
-              <h2 className={FlightsStyle.white_text}>Confirm Booking</h2>
-              {isLoadingConfirmBooking && (
+              {/* <h2 className={FlightsStyle.white_text}>Confirm Booking</h2> */}
+              {/* {isLoadingConfirmBooking && (
                 <div className={`${FlightsStyle.loader_container} ${FlightsStyle.loader_container_absolute}`}>
                   <div className={FlightsStyle.loader}></div>
                 </div>
-              )}
+              )} */}
+
+              {isLoadingConfirmBooking ? <div className={FlightsStyle.loader}></div> : <h2 className={FlightsStyle.white_text}>Confirm Booking</h2>}
+              {/* <div className={FlightsStyle.loader}></div> */}
+
+              {/* {1 && (
+                <div className={`${FlightsStyle.loader_container} ${FlightsStyle.loader_container_absolute}`}>
+                  <div className={FlightsStyle.loader}></div>
+                </div>
+              )} */}
             </button>
           </div>
         </div>
@@ -1741,7 +1801,7 @@ export default function Flights() {
 
       {showFlightDetails && (
         <div className={FlightsStyle.modal}>
-          <div className={FlightsStyle.modal_content}>
+          <div ref={flightModalRef} className={FlightsStyle.modal_content}>
             <h2 className={FlightsStyle.center_text}>Flight Details</h2>
             {selectedFlight && (
               <div className={FlightsStyle.details_container}>
