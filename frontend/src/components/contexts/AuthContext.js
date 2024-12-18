@@ -1,8 +1,10 @@
 import React, { createContext, useContext, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
+import Config from '../../Config.js'
 
 const AuthContext = createContext();
+const apiBaseUrl = Config.apiBaseUrl;
 
 export const AuthProvider = ({ children }) => {
   const [isAuthenticated, setIsAuthenticated] = useState(
@@ -15,7 +17,7 @@ export const AuthProvider = ({ children }) => {
 
   const login = async (username, password) => {
     try {
-      const response = await axios.post('https://qairline-t28f.onrender.com/api/users/login', {
+      const response = await axios.post(`${apiBaseUrl}/api/users/login`, {
         username,
         password,
       });
@@ -36,7 +38,7 @@ export const AuthProvider = ({ children }) => {
 
   const signup = async (name, username, password) => {
     try {
-      const response = await axios.post('https://qairline-t28f.onrender.com/api/users', {
+      const response = await axios.post(`${apiBaseUrl}/api/users`, {
         name,
         username,
         password,
