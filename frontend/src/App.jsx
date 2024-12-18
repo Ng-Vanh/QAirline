@@ -5,7 +5,7 @@ import Flights from "./pages/Flights/Flights";
 import Bookings from "./pages/Bookings/Bookings";
 import Login from "./pages/Login/Login";
 import Admin from "./pages/Admin/index";
-import AdminLoginPage from "./pages/Admin/login/page";
+// import AdminLoginPage from "./pages/Admin/login/page";
 import Reports from "./pages/Admin/report/page";
 import CMSPage from "./pages/Admin/cms/page";
 import UserManagement from "./pages/Admin/user/page";
@@ -15,11 +15,11 @@ import AdminAirportManagement from "./pages/Admin/airports/page";
 
 import Navbar from "./components/navbar/Navbar";
 import Footer from "./components/Footer";
-import AdminSidebar from "./components/AdminSidebar"; // Import AdminSidebar component
-import { useAuth } from "./components/contexts/AuthContext"; // Import AuthContext for role-based checks
+import AdminSidebar from "./components/AdminSidebar";
+import { useAuth } from "./components/contexts/AuthContext";
 
 const App = () => {
-  const { isAuthenticated, role, login } = useAuth(); // Use role from AuthProvider
+  const { isAuthenticated, role } = useAuth();
   const [isAdminRoute, setIsAdminRoute] = useState(false);
 
   useEffect(() => {
