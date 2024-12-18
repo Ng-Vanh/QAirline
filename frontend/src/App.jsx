@@ -21,15 +21,17 @@ import { useAuth } from "./components/contexts/AuthContext";
 const App = () => {
   const { isAuthenticated, role } = useAuth();
   const [isAdminRoute, setIsAdminRoute] = useState(false);
+  const [isAdminLogin, setIsAdminLogin] = useState(false);
 
   useEffect(() => {
     const currentPath = window.location.pathname;
     setIsAdminRoute(currentPath.startsWith('/admin'));
+    setIsAdminLogin(currentPath.startsWith('/admin/login'));
   }, [window.location.pathname]);
 
   return (
     <>
-      {!isAdminRoute && <Navbar />}
+      {(!isAdminRoute || isAdminLogin) && <Navbar />}
 
       <div>
         <Routes>
