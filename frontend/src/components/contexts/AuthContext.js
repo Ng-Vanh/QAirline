@@ -1,7 +1,7 @@
 import React, { createContext, useContext, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
-import Config from '../../Config.js'
+import Config from '../../Config.js';
 
 const AuthContext = createContext();
 const apiBaseUrl = Config.apiBaseUrl;
@@ -12,6 +12,7 @@ export const AuthProvider = ({ children }) => {
   );
   const [userId, setUserId] = useState(localStorage.getItem('userId') || null);
   const [name, setName] = useState(localStorage.getItem('name') || null);
+  const [role, setRole] = useState(localStorage.getItem('role') || null); 
 
   const navigate = useNavigate();
 
@@ -26,8 +27,11 @@ export const AuthProvider = ({ children }) => {
       setIsAuthenticated(true);
       setUserId(user.userId);
       setName(user.name);
+      setRole(user.role); 
+
       localStorage.setItem('userId', user.userId);
       localStorage.setItem('name', user.name);
+      localStorage.setItem('role', user.role);
 
       return { success: true };
     } catch (error) {
@@ -36,20 +40,24 @@ export const AuthProvider = ({ children }) => {
     }
   };
 
-  const signup = async (name, username, password) => {
+  const signup = async (name, username, password, role = 'user') => {
     try {
       const response = await axios.post(`${apiBaseUrl}/api/users`, {
         name,
         username,
         password,
+        role,
       });
       const { user } = response.data;
 
       setIsAuthenticated(true);
       setUserId(user._id);
       setName(user.name);
+      setRole(user.role); 
+
       localStorage.setItem('userId', user._id);
       localStorage.setItem('name', user.name);
+      localStorage.setItem('role', user.role);
 
       return { success: true };
     } catch (error) {
@@ -62,8 +70,10 @@ export const AuthProvider = ({ children }) => {
     setIsAuthenticated(false);
     setUserId(null);
     setName(null);
+    setRole(null);
     localStorage.removeItem('userId');
     localStorage.removeItem('name');
+    localStorage.removeItem('role'); 
     navigate('/');
   };
 
@@ -73,6 +83,7 @@ export const AuthProvider = ({ children }) => {
         isAuthenticated,
         userId,
         name,
+        role,
         login,
         signup,
         logout,

@@ -16,15 +16,16 @@ import AdminAirportManagement from "./pages/Admin/airports/page";
 import Navbar from "./components/navbar/Navbar";
 import Footer from "./components/Footer";
 import AdminSidebar from "./components/AdminSidebar"; // Import AdminSidebar component
+import { useAuth } from "./components/contexts/AuthContext"; // Import AuthContext for role-based checks
 
 const App = () => {
-  const [isAuthenticated, setIsAuthenticated] = useState(false);
+  const { isAuthenticated, role, login } = useAuth(); // Use role from AuthProvider
   const [isAdminRoute, setIsAdminRoute] = useState(false);
 
   useEffect(() => {
     const currentPath = window.location.pathname;
     setIsAdminRoute(currentPath.startsWith('/admin'));
-  }, []);
+  }, [window.location.pathname]);
 
   return (
     <>
@@ -38,34 +39,56 @@ const App = () => {
           <Route path="/bookings" element={<Bookings />} />
           <Route path="/login" element={<Login />} />
 
-          {/* Redirect /admin to /admin/login */}
-          <Route path="/admin" element={<Navigate to="/admin/login" />} />
-
-          {/* Admin Login */}
+          {/* Redirect /admin to /admin/reports if authenticated as admin */}
           <Route
-            path="/admin/login"
+            path="/admin"
             element={
-              isAuthenticated ? (
-                <Navigate to="/admin/reports" />
+              isAuthenticated && role === 'admin' ? (
+                <Navigate to="/admin/reports" replace />
               ) : (
-                <AdminLoginPage onLoginSuccess={() => setIsAuthenticated(true)} />
+                <Navigate to="/admin/login" replace />
               )
             }
           />
 
-          {/* Admin Layout with Default Route */}
-          {isAuthenticated ? (
-            <Route path="/admin/*" element={<Admin />}>
-              <Route path="reports" element={<Reports />} />
-              <Route path="users" element={<UserManagement />} />
-              <Route path="flights" element={<ManageFlights />} />
-              <Route path="aircraft" element={<ManageAircraft />} />
-              <Route path="airports" element={<AdminAirportManagement />} />
-              <Route path="cms" element={<CMSPage />} />
-            </Route>
-          ) : (
-            <Route path="/admin/*" element={<Navigate to="/admin/login" />} />
-          )}
+          {/* Admin Login Route */}
+          <Route
+            path="/admin/login"
+            element={
+              isAuthenticated ? (
+                role === 'admin' ? (
+                  <Navigate to="/admin/reports" replace />
+                ) : (
+                  <Navigate to="/" replace />
+                )
+              ) : (
+                <Login />
+              )
+            }
+          />
+
+          {/* Protected Admin Routes */}
+          <Route
+            path="/admin/*"
+            element={
+              isAuthenticated && role === 'admin' ? (
+                <Admin />
+              ) : (
+                <Navigate to="/admin/login" replace />
+              )
+            }
+          />
+
+          {/* Admin components */}
+          <Route path="/admin/*" element={<Admin />}>
+            <Route path="reports" element={<Reports />} />
+            <Route path="users" element={<UserManagement />} />
+            <Route path="flights" element={<ManageFlights />} />
+            <Route path="aircraft" element={<ManageAircraft />} />
+            <Route path="airports" element={<AdminAirportManagement />} />
+            <Route path="cms" element={<CMSPage />} />
+          </Route>
+
         </Routes>
       </div>
 
@@ -73,7 +96,7 @@ const App = () => {
       {!isAdminRoute && <Footer />}
 
       {/* Conditionally render Sidebar based on authentication */}
-      {isAuthenticated && <AdminSidebar setIsAuthenticated={setIsAuthenticated} />}
+      {isAuthenticated && isAdminRoute && role === 'admin' && <AdminSidebar />}
     </>
   );
 };
