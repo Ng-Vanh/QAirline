@@ -3,9 +3,10 @@
 import { useState, useRef, useEffect } from 'react';
 import { ChevronRight } from 'lucide-react';
 import styles from './ContentSection.module.css';
-import API_BASE_URL from '../../pages/Admin/config';
+import Config from '~/Config';
 
 export default function ContentSection({ type }) {
+    const apiBaseUrl = Config.apiBaseUrl;
     const scrollContainerRef = useRef(null);
     const [content, setContent] = useState([]);
     const [showScrollButton, setShowScrollButton] = useState(true);
@@ -27,7 +28,7 @@ export default function ContentSection({ type }) {
         const fetchContent = async () => {
             try {
                 setIsLoading(true);
-                const response = await fetch(`${API_BASE_URL}/api/content`);
+                const response = await fetch(`${apiBaseUrl}/api/content`);
                 const data = await response.json();
                 const filteredContent = data.filter(
                     (item) => item.contentType === type && item.isActive

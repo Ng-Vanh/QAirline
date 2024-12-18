@@ -15,6 +15,7 @@ import AdminAirportManagement from "./pages/Admin/airports/page";
 
 import Navbar from "./components/navbar/Navbar";
 import Footer from "./components/Footer";
+import AdminSidebar from "./components/AdminSidebar"; // Import AdminSidebar component
 
 const App = () => {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
@@ -55,14 +56,12 @@ const App = () => {
           {/* Admin Layout with Default Route */}
           {isAuthenticated ? (
             <Route path="/admin/*" element={<Admin />}>
-              <Route index element={<Navigate to="reports" />} />
               <Route path="reports" element={<Reports />} />
               <Route path="users" element={<UserManagement />} />
               <Route path="flights" element={<ManageFlights />} />
               <Route path="aircraft" element={<ManageAircraft />} />
               <Route path="airports" element={<AdminAirportManagement />} />
               <Route path="cms" element={<CMSPage />} />
-              <Route path="*" element={<Navigate to="reports" />} />
             </Route>
           ) : (
             <Route path="/admin/*" element={<Navigate to="/admin/login" />} />
@@ -72,6 +71,9 @@ const App = () => {
 
       {/* Conditionally render Footer */}
       {!isAdminRoute && <Footer />}
+
+      {/* Conditionally render Sidebar based on authentication */}
+      {isAuthenticated && <AdminSidebar setIsAuthenticated={setIsAuthenticated} />}
     </>
   );
 };

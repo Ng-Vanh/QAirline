@@ -21,13 +21,13 @@ body {
 .airport_management {
     max-width: 1200px;
     margin: 0 auto;
-    padding: 2rem;
+    padding: 20px;
 }
 
 .page_title {
-    color: var(--secondary);
+    color: var(--accent-color);
     font-size: 2.5rem;
-    margin-bottom: 2rem;
+    margin-bottom: 20px;
 }
 
 .controls {
@@ -72,6 +72,7 @@ body {
 .airport_header {
     display: flex;
     align-items: center;
+    /* Căn giữa icon và văn bản */
     gap: 1rem;
     margin-bottom: 1rem;
 }
@@ -82,9 +83,18 @@ body {
 
 .airport_header h2 {
     margin: 0;
-    font-size: 1.5rem;
+    font-size: 1.2rem;
     color: var(--secondary);
+    line-height: 1.5;
+    height: calc(1.5em * 2);
+    overflow: hidden;
+    text-overflow: ellipsis;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    word-break: break-word;
 }
+
 
 .airport_city {
     font-size: 1.1rem;
