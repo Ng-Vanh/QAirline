@@ -1,9 +1,10 @@
 'use client';
 
 import { useState, useRef, useEffect } from 'react';
-import { ChevronRight } from 'lucide-react';
+import { ChevronRight, Pause, ChevronUp, ChevronDown, ChevronLeft } from 'lucide-react';
 import styles from './ContentSection.module.css';
 import Config from '~/Config';
+
 
 export default function ContentSection({ type }) {
     const apiBaseUrl = Config.apiBaseUrl;
@@ -13,6 +14,9 @@ export default function ContentSection({ type }) {
     const [isLoading, setIsLoading] = useState(true);
     const [error, setError] = useState(null);
     const [isSmallScreen, setIsSmallScreen] = useState(window.innerWidth < 1200);
+    const [currentIndex, setCurrentIndex] = useState(0);
+    const intervalRef = useRef(null);
+    const [animationClass, setAnimationClass] = useState(styles.slideUp);
 
     // Update screen size state on resize
     useEffect(() => {
@@ -44,11 +48,36 @@ export default function ContentSection({ type }) {
         fetchContent();
     }, [type]);
 
+    useEffect(() => {
+        if (type === "News" && content.length > 1) {
+            intervalRef.current = setInterval(() => {
+                setCurrentIndex((prevIndex) => (prevIndex + 1) % content.length);
+            }, 5000);
+
+            return () => clearInterval(intervalRef.current);
+        }
+    }, [type, content]);
+    const nextNewsItem = () => {
+        setAnimationClass(styles.slideUp);
+        setCurrentIndex((prevIndex) => (prevIndex + 1) % content.length);
+    };
+
+    const prevNewsItem = () => {
+        setAnimationClass(styles.slideDown);
+        setCurrentIndex((prevIndex) => (prevIndex - 1 + content.length) % content.length);
+    };
+
     const scrollRight = () => {
         if (scrollContainerRef.current) {
             scrollContainerRef.current.scrollBy({ left: 300, behavior: 'smooth' });
         }
     };
+    const scrollLeft = () => {
+        if (scrollContainerRef.current) {
+            scrollContainerRef.current.scrollBy({ left: -300, behavior: 'smooth' });
+        }
+    };
+
 
     const handleScroll = (e) => {
         const container = e.target;
@@ -61,34 +90,20 @@ export default function ContentSection({ type }) {
         return <div className={styles.error}>{error}</div>;
     }
 
-    // Render Skeleton khi đang loading
     if (isLoading) {
         return (
-            <div className={styles.sectionContainer}>
-                <div className={styles.scrollContainer}>
-                    {Array(4).fill().map((_, index) => (
-                        <div key={index} className={`${styles.card} ${styles.skeleton}`}>
-                            <div className={`${styles.imageWrapper} ${styles.skeletonImage}`}></div>
-                            <div className={styles.content}>
-                                <div className={`${styles.skeletonTitle} ${styles.skeletonAnimation}`}></div>
-                                <div className={`${styles.skeletonDescription} ${styles.skeletonAnimation}`}></div>
-                                <div className={`${styles.skeletonDescription} ${styles.skeletonAnimation}`}></div>
-                            </div>
-                        </div>
-                    ))}
-                </div>
+            <div className={styles.loadingContainer}>
+                <div className={styles.spinner}></div>
             </div>
         );
     }
+
 
     if (!isLoading && content.length === 0) {
         return <div className={styles.noContent}>No content available.</div>;
     }
 
     // Tuỳ thuộc vào type (session) để áp dụng bố cục
-    // Session 1: 50-25/25 (3 thẻ: 1 thẻ lớn bên trái, 2 thẻ chồng bên phải)
-    // Session 3: 25/25-50 (3 thẻ: 2 thẻ chồng bên trái, 1 thẻ lớn bên phải)
-    // Session 2 & 4: như cũ (các thẻ chia đều)
     let layoutContent;
 
     if (!isSmallScreen && type === "Introduction" && content.length >= 3) {
@@ -113,11 +128,26 @@ export default function ContentSection({ type }) {
                 <div className={styles.right50}>{renderCard(content[2])}</div>
             </div>
         );
-    } else {
-        // Default layout (Session 2 and 4)
+    } else if (type === "News") {
         layoutContent = (
-            <div className={styles.scrollContainer} ref={scrollContainerRef} onScroll={handleScroll}>
-                {content.map((item) => renderCard(item))}
+            <div className={styles.newsCarousel}>
+                {content.length > 0 && renderNewsItem(content[currentIndex], currentIndex, content.length, nextNewsItem, prevNewsItem, animationClass)}
+            </div>
+        );
+
+    }
+    else {
+        // Default layout (Session 2 and other cases)
+        layoutContent = (
+            <div className={styles.scrollContainerWrapper}>
+                {showScrollButton && content.length > 3 && (
+                    <button className={`${styles.scrollButton} ${styles.scrollLeftButton}`} onClick={scrollLeft}>
+                        <ChevronLeft />
+                    </button>
+                )}
+                <div className={styles.scrollContainer} ref={scrollContainerRef} onScroll={handleScroll}>
+                    {content.map((item) => renderCard(item))}
+                </div>
                 {showScrollButton && content.length > 3 && (
                     <button className={styles.scrollButton} onClick={scrollRight}>
                         <ChevronRight />
@@ -125,6 +155,7 @@ export default function ContentSection({ type }) {
                 )}
             </div>
         );
+
     }
 
     return <div className={styles.sectionContainer}>{layoutContent}</div>;
@@ -144,6 +175,44 @@ function renderCard(item) {
                 <h3>{item.title}</h3>
                 <p>{item.description}</p>
             </div>
+        </div>
+    );
+}
+
+function formatDateTime(dateString) {
+    const date = new Date(dateString);
+    const day = String(date.getDate()).padStart(2, '0');
+    const month = String(date.getMonth() + 1).padStart(2, '0');
+    const year = date.getFullYear();
+    const hours = String(date.getHours()).padStart(2, '0');
+    const minutes = String(date.getMinutes()).padStart(2, '0');
+
+    return `${day}/${month}/${year} ${hours}:${minutes}`;
+}
+
+function renderNewsItem(item, currentIndex, totalItems, nextNewsItem, prevNewsItem, animationClass) {
+    return (
+        <div key={item._id} className={`${styles.newsItem} `}>
+            <div className={styles.newsLeft}>
+                <span className={styles.newsLogo}>📰</span>
+                <span className={styles.newsLabel}>News</span>
+            </div>
+            <div className={`${styles.newsContent} ${animationClass}`}>
+                <span className={styles.newsDate}>
+                    {formatDateTime(item.updatedAt || item.createdAt)}
+                </span>
+                <a href={item.link} className={styles.newsTitle}>
+                    {item.title}
+                </a>
+            </div>
+            <div className={styles.newsCounter}>
+                <ChevronLeft className={styles.navIcon} onClick={prevNewsItem} />
+                <span>{currentIndex + 1}/{totalItems}</span>
+                <ChevronRight className={styles.navIcon} onClick={nextNewsItem} />
+            </div>
+            <a href={item.link} className={styles.newsButton}>
+                See more <ChevronRight />
+            </a>
         </div>
     );
 }
