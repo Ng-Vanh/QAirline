@@ -16,6 +16,7 @@ export default function UserManagement() {
         name: '',
         username: '',
         password: '',
+        role: 'user',
     });
     const [searchTerm, setSearchTerm] = useState('');
     const [loading, setLoading] = useState(true);
@@ -80,7 +81,7 @@ export default function UserManagement() {
     };
 
     const resetForm = () => {
-        setNewUser({ name: '', username: '', password: '' });
+        setNewUser({ name: '', username: '', password: '', role: 'user' });
         setEditingUser(null);
         setIsDialogOpen(false);
     };
@@ -141,7 +142,7 @@ export default function UserManagement() {
                                 <tr>
                                     <th>Name</th>
                                     <th>Username</th>
-                                    {/* <th>Password</th> */}
+                                    <th>Role</th>
                                     <th>Actions</th>
                                 </tr>
                             </thead>
@@ -150,7 +151,7 @@ export default function UserManagement() {
                                     <tr key={user._id}>
                                         <td>{user.name}</td>
                                         <td>{user.username}</td>
-                                        {/* <td>{user.password}</td> */}
+                                        <td>{user.role}</td>
                                         <td>
                                             <button
                                                 onClick={() => handleEdit(user)}
@@ -209,6 +210,19 @@ export default function UserManagement() {
                                         onChange={handleInputChange}
                                         required
                                     />
+                                </div>
+                                <div className={userStyle.form_group}>
+                                    <label htmlFor="role">Role</label>
+                                    <select
+                                        id="role"
+                                        name="role"
+                                        value={newUser.role}
+                                        onChange={handleInputChange}
+                                        required
+                                    >
+                                        <option value="user">User</option>
+                                        <option value="admin">Admin</option>
+                                    </select>
                                 </div>
                                 <div className={userStyle.dialog_actions}>
                                     <button type="submit" className={userStyle.save_button}>
