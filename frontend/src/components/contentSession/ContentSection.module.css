@@ -79,6 +79,11 @@
     transition: background-color 0.3s ease;
 }
 
+.scrollLeftButton {
+    left: 10px;
+    z-index: 1000;
+}
+
 .scrollButton:hover {
     background-color: rgba(255, 255, 255, 1);
 }
@@ -101,7 +106,6 @@
     }
 }
 
-/* Skeleton loading styles */
 .skeleton {
     background-color: #f0f0f0;
 }
@@ -142,7 +146,6 @@
     }
 }
 
-/* Layout cho session 1: 50 - 25/25 */
 .sessionOneLayout {
     display: flex;
     width: 100%;
@@ -178,10 +181,8 @@
 .right50Stack>.card {
     flex: 0 0 auto;
     width: 100%;
-    /* height: 40%; */
 }
 
-/* Layout cho session 3: 25/25 - 50 */
 .sessionThreeLayout {
     display: flex;
     width: 100%;
@@ -217,4 +218,162 @@
 
 .right50>.card h3 {
     font-size: 2rem;
+}
+
+.newsCarousel {
+    position: relative;
+    overflow: hidden;
+    width: 100%;
+    height: 80px;
+    background-color: #f9f9f9;
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.05);
+
+}
+
+.newsItem {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 10px 20px;
+    background-color: #f9f9f9;
+    border-radius: 8px;
+    width: 100%;
+    height: 80px;
+}
+
+.newsLeft {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-weight: bold;
+    color: #004085;
+    border-right: 2px solid #7c7b7b;
+    padding: 4px 8px 4px 0px;
+}
+
+.newsLogo {
+    font-size: 1.5rem;
+}
+
+.newsLabel {
+    font-size: 1rem;
+}
+
+.newsContent {
+    flex-grow: 1;
+    padding: 0 20px;
+}
+
+.newsDate {
+    font-size: 0.875rem;
+    color: #666;
+    display: block;
+    margin-bottom: 4px;
+}
+
+.newsTitle {
+    font-size: 1rem;
+    font-weight: bold;
+    color: #004085;
+    text-decoration: none;
+}
+
+.newsCounter {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    color: #666;
+    font-size: 0.875rem;
+}
+
+.newsCounter span {
+    font-size: 1.2rem;
+}
+
+.navIcon {
+    cursor: pointer;
+}
+
+.pauseIcon {
+    cursor: pointer;
+    color: #666;
+}
+
+.newsButton {
+    color: #0056b3;
+    font-weight: bold;
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    padding: 0.6rem;
+    background-color: #b5d9ff;
+    border-radius: 8px;
+    margin-left: 2rem;
+}
+
+.newsButton:hover {
+    cursor: pointer;
+    scale: 1.01;
+}
+
+.spinner {
+    width: 40px;
+    height: 40px;
+    border: 4px solid rgba(0, 0, 255, 0.2);
+    border-top: 4px solid #0056b3;
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+    margin: 20px auto;
+}
+
+@keyframes spin {
+    0% {
+        transform: rotate(0deg);
+    }
+
+    100% {
+        transform: rotate(360deg);
+    }
+}
+
+.loadingContainer {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 200px;
+}
+
+.slideUp {
+    animation: slideUp 0.5s ease forwards;
+}
+
+.slideDown {
+    animation: slideDown 0.5s ease forwards;
+}
+
+@keyframes slideUp {
+    from {
+        transform: translateY(100%);
+        opacity: 0;
+    }
+
+    to {
+        transform: translateY(0);
+        opacity: 1;
+    }
+}
+
+@keyframes slideDown {
+    from {
+        transform: translateY(-100%);
+        opacity: 0;
+    }
+
+    to {
+        transform: translateY(0);
+        opacity: 1;
+    }
 }
