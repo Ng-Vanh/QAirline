@@ -11,6 +11,10 @@ export default function Login() {
     const { login, signup } = useAuth(); // Removed redirectPath and setRedirectPath
     const location = useLocation();
     const navigate = useNavigate();
+    const [isAdminRoute, setIsAdminRoute] = useState(false);
+    const [loginText, setLoginText] = useState();
+    const [registerText, setRegisterText] = useState();
+    const [role, setRole] = useState();
 
     const [isLogin, setIsLogin] = useState(true);
     const [formData, setFormData] = useState({
@@ -23,8 +27,22 @@ export default function Login() {
     const [toastOpen, setToastOpen] = useState(false);
     const [toastMessage, setToastMessage] = useState({ title: '', description: '', status: '' });
 
+
     useEffect(() => {
         window.scrollTo(0, 0);
+        const currentPath = window.location.pathname;
+        if (currentPath.startsWith('/admin')) {
+            setLoginText("Admin Login");
+            setRegisterText("Admin Register");
+            setIsAdminRoute(true);
+            setRole('admin');
+        }
+        else {
+            setLoginText("Login to QAirline");
+            setRegisterText("Register to QAirline");
+            setIsAdminRoute(false);
+            setRole('user');
+        }   
     }, []);
 
     const handleInputChange = (e) => {
@@ -43,7 +61,7 @@ export default function Login() {
             // Perform login or signup
             const result = isLogin
                 ? await login(formData.username, formData.password)
-                : await signup(formData.name, formData.username, formData.password);
+                : await signup(formData.name, formData.username, formData.password, role);
 
             if (result.success) {
                 setToastMessage({
@@ -54,9 +72,10 @@ export default function Login() {
                 setToastOpen(true);
 
                 // Redirect back to the saved path or home
-                const redirectTo = location.state?.from || '/'; // Default to home if no state
+                const redirectTo = isAdminRoute ? '/admin' : (location.state?.from || '/'); // Default to home if no state
                 const thePrevState = location.state?.prevState || {}; // Retrieve previous state
 
+                console.log("Redirecting to: ", redirectTo);
                 navigate(redirectTo, {
                     state: {
                         from: location.pathname,
@@ -101,7 +120,7 @@ export default function Login() {
         <Toast.Provider swipeDirection="right">
             <div className={styles.container}>
                 <form className={styles.form} onSubmit={handleSubmit}>
-                    <h2>{isLogin ? 'Login to QAirline' : 'Register to QAirline'}</h2>
+                    <h2>{isLogin ? `${loginText}` : `${registerText}`}</h2>
                     {!isLogin && (
                         <div className={styles.formGroup}>
                             <label htmlFor="name">Full Name</label>

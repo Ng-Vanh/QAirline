@@ -3,7 +3,7 @@ const User = require('../models/UserModel');
 // Controller for creating a user
 exports.createUser = async (req, res) => {
   try {
-    const { name, username, password } = req.body;
+    const { name, username, password, role } = req.body;
 
     if (!name || !username || !password) {
       return res.status(400).json({ message: 'Name, username, and password are required' });
@@ -17,7 +17,8 @@ exports.createUser = async (req, res) => {
     const newUser = new User({
       name,
       username,
-      password
+      password,
+      role,
     });
 
     await newUser.save();
@@ -34,8 +35,7 @@ exports.getUserById = async (req, res) => {
   try {
     const userId = req.params.id;
 
-    // const user = await User.findById(userId).populate('bookings');
-    const user = await User.findById(userId);
+    const user = await User.findById(userId).populate('bookings');
     if (!user) {
       return res.status(404).json({ message: 'User not found' });
     }
@@ -67,7 +67,7 @@ exports.getAllUsers = async (req, res) => {
 exports.updateUser = async (req, res) => {
   try {
     const userId = req.params.id;
-    const { name, username, password } = req.body;
+    const { name, username, password, role } = req.body;
 
     const user = await User.findById(userId);
     if (!user) {
@@ -84,6 +84,7 @@ exports.updateUser = async (req, res) => {
 
     if (name) user.name = name;
     if (password) user.password = password;
+    if (role) user.role = role;
 
     await user.save();
 
@@ -111,7 +112,7 @@ exports.deleteUser = async (req, res) => {
   }
 };
 
-// Controller for user login (simple username/password check)
+// Controller for user login
 exports.loginUser = async (req, res) => {
   try {
     const { username, password } = req.body;
@@ -125,13 +126,14 @@ exports.loginUser = async (req, res) => {
       return res.status(401).json({ message: 'Invalid username or password' });
     }
 
-    if (user.password !== password) {
+    const isPasswordValid = await user.comparePassword(password);
+    if (!isPasswordValid) {
       return res.status(401).json({ message: 'Invalid username or password' });
     }
 
     return res.status(200).json({
       message: 'Login successful',
-      user: { userId: user._id, name: user.name }
+      user: { userId: user._id, name: user.name, role: user.role },
     });
   } catch (error) {
     console.error('Error logging in:', error);

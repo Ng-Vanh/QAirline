@@ -53,9 +53,8 @@ export default function AdminSidebar({ setIsAuthenticated }) { // Add the setIsA
     };
 
     const handleLogout = () => {
-        logout(); // Gọi hàm logout từ context
-        setIsAuthenticated(false); // Update isAuthenticated state to false
-        navigate("/admin/login"); // Chuyển hướng sang trang login
+        logout();
+        // navigate("/admin/login");
     };
 
     return (
