@@ -8,7 +8,7 @@ import * as Toast from '@radix-ui/react-toast';
 import styles from './Login.module.css';
 
 export default function Login() {
-    const { login, signup } = useAuth(); // Removed redirectPath and setRedirectPath
+    const { login, signup } = useAuth();
     const location = useLocation();
     const navigate = useNavigate();
     const [isAdminRoute, setIsAdminRoute] = useState(false);
@@ -72,8 +72,8 @@ export default function Login() {
                 setToastOpen(true);
 
                 // Redirect back to the saved path or home
-                const redirectTo = isAdminRoute ? '/admin' : (location.state?.from || '/'); // Default to home if no state
-                const thePrevState = location.state?.prevState || {}; // Retrieve previous state
+                const redirectTo = isAdminRoute ? '/admin' : (location.state?.from || '/');
+                const thePrevState = location.state?.prevState || {};
 
                 console.log("Redirecting to: ", redirectTo);
                 navigate(redirectTo, {
