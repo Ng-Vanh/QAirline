@@ -91,6 +91,8 @@ const App = () => {
             <Route path="cms" element={<CMSPage />} />
           </Route>
 
+          <Route path="*" element={<Navigate to="/" replace/>} />
+          
         </Routes>
       </div>
 
@@ -99,6 +101,7 @@ const App = () => {
 
       {/* Conditionally render Sidebar based on authentication */}
       {isAuthenticated && isAdminRoute && role === 'admin' && <AdminSidebar />}
+      
     </>
   );
 };
