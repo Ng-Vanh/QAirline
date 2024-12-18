@@ -11,6 +11,10 @@ const isPositionRelative = () => {
     return window.location.pathname === '/flights' || window.location.pathname === '/bookings';
 };
 
+const isAdminLogin = () => {
+    return window.location.pathname.startsWith('/admin');
+}
+
 export default function Navbar() {
     const { isAuthenticated, name, logout } = useAuth();
     const [isDropdownOpen, setIsDropdownOpen] = useState(false);
@@ -81,6 +85,15 @@ export default function Navbar() {
         }
     }, [window.location.hash]);
 
+    if (isAdminLogin()) {
+        return (
+            <nav className={`${styles.navbar} ${isPositionRelative() ? styles.position_relative : ''}`}>
+                <div className={styles.logo} onClick={() => navigateTo('/')}>
+                    <img src={logo} alt="QAirline Logo" className={styles.logoImage} />
+                </div>
+            </nav>
+        )
+    }
     return (
         <nav className={`${styles.navbar} ${isPositionRelative() ? styles.position_relative : ''}`}>
             <div className={styles.logo} onClick={() => navigateTo('/')}>
