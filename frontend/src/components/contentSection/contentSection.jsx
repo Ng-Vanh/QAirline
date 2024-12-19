@@ -170,6 +170,7 @@ export default function ContentSection({ type }) {
 }
 
 function renderCard(item, handleClick) {
+    const apiBaseUrl = Config.apiBaseUrl;
     const slug = item.title
         .toLowerCase()
         .replace(/[^a-z0-9]+/g, '-')
@@ -179,7 +180,7 @@ function renderCard(item, handleClick) {
         <div key={item._id} className={styles.card} onClick={() => handleClick(slug)} style={{ cursor: 'pointer' }}>
             <div className={styles.imageWrapper}>
                 <img
-                    src={require(`../../assets/${item.image}`)}
+                    src={`${apiBaseUrl}/api/files/image/${item.image}`}
                     alt={item.title}
                     className={styles.image}
                 />

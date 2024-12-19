@@ -2,17 +2,21 @@
 
 import { useState, useEffect } from 'react';
 import axios from 'axios';
-import { Plus, Edit, Trash2, ImageIcon, Loader } from 'lucide-react';
+import { Plus, Edit, Trash2, Loader } from 'lucide-react';
 import * as Toast from '@radix-ui/react-toast';
 import cmsStyle from './stylesCMS.module.css';
 import Config from '~/Config';
 
 export default function CMSPage() {
     const apiBaseUrl = Config.apiBaseUrl;
+
+    // State for content
     const [introduction, setIntroduction] = useState([]);
     const [promotions, setPromotions] = useState([]);
     const [news, setNews] = useState([]);
     const [alerts, setAlerts] = useState([]);
+
+    // State for UI interactions
     const [activeTab, setActiveTab] = useState('introduction');
     const [editingItem, setEditingItem] = useState(null);
     const [isDialogOpen, setIsDialogOpen] = useState(false);
@@ -22,13 +26,17 @@ export default function CMSPage() {
     const [toastMessage, setToastMessage] = useState({ title: '', description: '', type: '' });
     const [toastOpen, setToastOpen] = useState(false);
 
+    // Loading for save operation
+    const [isSaving, setIsSaving] = useState(false);
 
+    // Temporary image file for preview
+    const [tempImageFile, setTempImageFile] = useState(null);
+
+    // Fetch content from backend
     const fetchContent = async () => {
         setLoading(true);
         try {
-
             const response = await axios.get(`${apiBaseUrl}/api/content`);
-
             const allContent = response.data;
 
             setIntroduction(allContent.filter(item => item.contentType === 'Introduction'));
@@ -56,15 +64,17 @@ export default function CMSPage() {
         setEditingItem({
             title: '',
             description: '',
-            image: '',
+            image: '', // No image initially
             isActive: true,
             contentType: '',
         });
+        setTempImageFile(null); // Clear temporary file
         setIsDialogOpen(true);
     };
 
     const handleEdit = (item) => {
-        setEditingItem(item);
+        setEditingItem({ ...item }); // Set existing content for editing
+        setTempImageFile(null); // Clear temporary file
         setIsDialogOpen(true);
     };
 
@@ -81,12 +91,41 @@ export default function CMSPage() {
 
     const handleSave = async (e) => {
         e.preventDefault();
+        setIsSaving(true); // Start the saving process
+
         try {
-            if (editingItem._id) {
-                await axios.put(`${apiBaseUrl}/api/content/${editingItem._id}`, editingItem);
-            } else {
-                await axios.post(`${apiBaseUrl}/api/content`, editingItem);
+            if (!editingItem.title || !editingItem.description || !editingItem.contentType) {
+                showToast('Validation Error', 'Title, description, and content type are required.', 'error');
+                setIsSaving(false);
+                return;
             }
+
+            let uploadedImageFilename = editingItem.image;
+
+            // Upload the new image if selected
+            if (tempImageFile) {
+                const formData = new FormData();
+                formData.append('image', tempImageFile);
+
+                const uploadResponse = await axios.post(`${apiBaseUrl}/api/files/upload`, formData, {
+                    headers: { 'Content-Type': 'multipart/form-data' },
+                });
+
+                uploadedImageFilename = uploadResponse.data.file.filename;
+            }
+
+            // Prepare content data
+            const contentData = {
+                ...editingItem,
+                image: uploadedImageFilename,
+            };
+
+            if (editingItem._id) {
+                await axios.put(`${apiBaseUrl}/api/content/${editingItem._id}`, contentData);
+            } else {
+                await axios.post(`${apiBaseUrl}/api/content`, contentData);
+            }
+
             fetchContent();
             setEditingItem(null);
             setIsDialogOpen(false);
@@ -94,16 +133,18 @@ export default function CMSPage() {
         } catch (error) {
             console.error('Error saving content:', error);
             showToast('Error', 'Failed to save changes.', 'error');
+        } finally {
+            setIsSaving(false); // End the saving process
         }
     };
 
-    const handleFileUpload = (e) => {
+    const handleFileChange = (e) => {
         const file = e.target.files[0];
-        const imageUrl = URL.createObjectURL(file);
         if (file) {
-            setEditingItem((prevItem) => ({
-                ...prevItem,
-                image: file.name,
+            setTempImageFile(file);
+            setEditingItem((prev) => ({
+                ...prev,
+                image: URL.createObjectURL(file), // Use URL for instant preview
             }));
         }
     };
@@ -126,7 +167,7 @@ export default function CMSPage() {
                         <td>
                             {item.image && (
                                 <img
-                                    src={`../../../assets/uploads/${item.image}`}
+                                    src={`${apiBaseUrl}/api/files/image/${item.image}`}
                                     alt={item.title}
                                     className={cmsStyle.table_image}
                                 />
@@ -162,30 +203,15 @@ export default function CMSPage() {
 
             <div className={cmsStyle.tabs}>
                 <div className={cmsStyle.tab_list}>
-                    <button
-                        className={`${cmsStyle.tab_button} ${activeTab === 'introduction' ? cmsStyle.active : ''}`}
-                        onClick={() => setActiveTab('introduction')}
-                    >
-                        Introduction
-                    </button>
-                    <button
-                        className={`${cmsStyle.tab_button} ${activeTab === 'promotions' ? cmsStyle.active : ''}`}
-                        onClick={() => setActiveTab('promotions')}
-                    >
-                        Promotions
-                    </button>
-                    <button
-                        className={`${cmsStyle.tab_button} ${activeTab === 'news' ? cmsStyle.active : ''}`}
-                        onClick={() => setActiveTab('news')}
-                    >
-                        News
-                    </button>
-                    <button
-                        className={`${cmsStyle.tab_button} ${activeTab === 'alerts' ? cmsStyle.active : ''}`}
-                        onClick={() => setActiveTab('alerts')}
-                    >
-                        Alerts
-                    </button>
+                    {['introduction', 'promotions', 'news', 'alerts'].map((tab) => (
+                        <button
+                            key={tab}
+                            className={`${cmsStyle.tab_button} ${activeTab === tab ? cmsStyle.active : ''}`}
+                            onClick={() => setActiveTab(tab)}
+                        >
+                            {tab.charAt(0).toUpperCase() + tab.slice(1)}
+                        </button>
+                    ))}
                 </div>
 
                 <div className={cmsStyle.tab_content}>
@@ -206,9 +232,12 @@ export default function CMSPage() {
             </div>
 
             {isDialogOpen && (
-                <div className={cmsStyle.modal_overlay} onClick={(e) => {
-                    if (e.target === e.currentTarget) setIsDialogOpen(false);
-                }}>
+                <div
+                    className={cmsStyle.modal_overlay}
+                    onClick={(e) => {
+                        if (e.target === e.currentTarget) setIsDialogOpen(false);
+                    }}
+                >
                     <div className={cmsStyle.modal}>
                         <h2>{editingItem?._id ? 'Edit Content' : 'Add Content'}</h2>
                         <form onSubmit={handleSave}>
@@ -257,27 +286,42 @@ export default function CMSPage() {
                                         type="file"
                                         id="image"
                                         accept="image/*"
-                                        onChange={handleFileUpload}
+                                        onChange={handleFileChange}
                                     />
-                                    <label htmlFor="image" className={cmsStyle.file_input_label}>
-                                        {/* <ImageIcon size={18} /> */}
-                                        {/* {editingItem.image ? editingItem.image : 'Choose a file'} */}
-                                        {editingItem.image ? (
-                                            <img src={`../../../assets/uploads/${editingItem.image}`} alt="Preview" className={cmsStyle.image_preview} />
-                                        ) : (
-                                            'Choose a file'
-                                        )}
-                                    </label>
+                                    {editingItem.image && (
+                                        <img
+                                            src={
+                                                tempImageFile
+                                                    ? editingItem.image // Temporary uploaded file
+                                                    : `${apiBaseUrl}/api/files/image/${editingItem.image}` // Fetched URL
+                                            }
+                                            alt="Preview"
+                                            className={cmsStyle.image_preview}
+                                        />
+                                    )}
                                 </div>
                             </div>
                             <div className={cmsStyle.form_actions}>
-                                <button type="submit" className={cmsStyle.save_button}>
-                                    Save
+                                {/* <Loader className={cmsStyle.spinner} />  */}
+                                <button
+                                    type="submit"
+                                    className={cmsStyle.save_button}
+                                    disabled={isSaving}
+                                >
+
+                                {isSaving ? (
+                                    <div className={cmsStyle.save_button_container}>
+                                        Processing
+                                        <Loader className={`${cmsStyle.spinner} ${cmsStyle.spinner_save}`} />
+                                    </div>
+                                ) : 'Save'}
+
                                 </button>
                                 <button
                                     type="button"
                                     onClick={() => setIsDialogOpen(false)}
                                     className={cmsStyle.cancel_button}
+                                    disabled={isSaving}
                                 >
                                     Cancel
                                 </button>
@@ -289,10 +333,7 @@ export default function CMSPage() {
 
             <Toast.Provider>
                 <Toast.Root
-                    className={`${cmsStyle.toast} ${toastMessage.type === 'success'
-                        ? cmsStyle.success
-                        : cmsStyle.error
-                        }`}
+                    className={`${cmsStyle.toast} ${toastMessage.type === 'success' ? cmsStyle.success : cmsStyle.error}`}
                     open={toastOpen}
                     onOpenChange={setToastOpen}
                 >
