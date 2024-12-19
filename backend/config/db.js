@@ -1,4 +1,5 @@
 const mongoose = require('mongoose');
+const { startScheduler } = require('../controllers/SchedulerController');
 
 const dbURI = 'mongodb+srv://admin:admin@cluster0.33dyt9o.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0';
 
@@ -22,10 +23,15 @@ const connectDB = async () => {
     });
 
     console.log('GridFSBucket initialized');
-    isConnected = true; // Update connection status
+    isConnected = true; 
+
+    startScheduler();
+
+    ///////////////////////////////////////////
+    console.log('Successfully started backend');
   } catch (err) {
     console.error('MongoDB connection error:', err);
-    process.exit(1); // Exit the app if the connection fails
+    process.exit(1);
   }
 };
 
@@ -36,6 +42,7 @@ const getBucket = () => {
   }
   return bucket;
 };
+
 
 module.exports = {
   dbURI,
