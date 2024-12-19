@@ -70,7 +70,7 @@ export default function DetailPage() {
                 <span className={styles.date}>{formatDateTime(content.updatedAt || content.createdAt)}</span>
             </div>
             <h1 className={styles.title}>{content.title}</h1>
-            <img src={require(`../../assets/${content.image}`)} alt={content.title} className={styles.image} />
+            <img src={`${apiBaseUrl}/api/files/image/${content.image}`} alt={content.title} className={styles.image} />
             <p className={styles.description}>{content.description}</p>
         </div>
     );
