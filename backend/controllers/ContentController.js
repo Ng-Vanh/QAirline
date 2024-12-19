@@ -14,15 +14,31 @@ exports.getAllContent = async (req, res) => {
 // Create new content
 exports.createContent = async (req, res) => {
   try {
-    const { title, image, description, contentType } = req.body;
+    const { title, description, image, isActive, contentType } = req.body;
 
-    const newContent = new Content({ title, image, description, contentType });
-    await newContent.save();
+    // Validate required fields
+    if (!title || !description || !contentType) {
+      return res.status(400).json({ message: 'Title, description, and contentType are required.' });
+    }
 
-    return res.status(201).json({ message: 'Content created successfully', newContent });
-  } catch (error) {
-    console.error('Error creating content:', error);
-    return res.status(500).json({ message: 'Server error' });
+    // Validate image field (expecting filename from previous upload)
+    if (!image) {
+      return res.status(400).json({ message: 'Image filename is required.' });
+    }
+
+    const newContent = {
+      title,
+      description,
+      image, // Use the filename provided in the request body
+      isActive: isActive !== undefined ? isActive : true,
+      contentType,
+    };
+
+    const savedContent = await Content.create(newContent);
+    res.status(201).json({ message: 'Content created successfully', savedContent });
+  } catch (err) {
+    console.error('Error creating content:', err);
+    res.status(500).json({ message: 'Failed to create content', error: err.message });
   }
 };
 
@@ -49,23 +65,24 @@ exports.updateContent = async (req, res) => {
   }
 };
 
-// Controller for getting an aircraft by its ID
+// Get content by ID
 exports.getContentById = async (req, res) => {
-    try {
-      const id = req.params.id;
-      const content = await Content.findById(id);
-  
-      if (!content) {
-        return res.status(404).json({ message: 'Content not found' });
-      }
-  
-      return res.status(200).json(content);
-    } catch (error) {
-      console.error('Error fetching aircraft:', error);
-      return res.status(500).json({ message: 'Server error' });
-    }
-  };
+  try {
+    const id = req.params.id;
+    const content = await Content.findById(id);
 
+    if (!content) {
+      return res.status(404).json({ message: 'Content not found' });
+    }
+
+    return res.status(200).json(content);
+  } catch (error) {
+    console.error('Error fetching content:', error);
+    return res.status(500).json({ message: 'Server error' });
+  }
+};
+
+// Delete content
 exports.deleteContent = async (req, res) => {
   try {
     const { id } = req.params;
