@@ -4,6 +4,8 @@ import { useState, useRef, useEffect } from 'react';
 import { ChevronRight, Pause, ChevronUp, ChevronDown, ChevronLeft } from 'lucide-react';
 import styles from './ContentSection.module.css';
 import Config from '~/Config';
+import { useNavigate } from 'react-router-dom';
+
 
 
 export default function ContentSection({ type }) {
@@ -16,7 +18,13 @@ export default function ContentSection({ type }) {
     const [isSmallScreen, setIsSmallScreen] = useState(window.innerWidth < 1200);
     const [currentIndex, setCurrentIndex] = useState(0);
     const intervalRef = useRef(null);
+    const navigate = useNavigate();
     const [animationClass, setAnimationClass] = useState(styles.slideUp);
+
+    const handleClick = (slug) => {
+        navigate(`/detail/${slug}`);
+    };
+
 
     // Update screen size state on resize
     useEffect(() => {
@@ -110,10 +118,10 @@ export default function ContentSection({ type }) {
         // Session 1 layout
         layoutContent = (
             <div className={styles.sessionOneLayout}>
-                <div className={styles.left50}>{renderCard(content[0])}</div>
+                <div className={styles.left50}>{renderCard(content[0], handleClick)}</div>
                 <div className={styles.right50Stack}>
-                    {renderCard(content[1])}
-                    {renderCard(content[2])}
+                    {renderCard(content[1], handleClick)}
+                    {renderCard(content[2], handleClick)}
                 </div>
             </div>
         );
@@ -122,16 +130,16 @@ export default function ContentSection({ type }) {
         layoutContent = (
             <div className={styles.sessionThreeLayout}>
                 <div className={styles.left50Stack}>
-                    {renderCard(content[0])}
-                    {renderCard(content[1])}
+                    {renderCard(content[0], handleClick)}
+                    {renderCard(content[1], handleClick)}
                 </div>
-                <div className={styles.right50}>{renderCard(content[2])}</div>
+                <div className={styles.right50}>{renderCard(content[2], handleClick)}</div>
             </div>
         );
     } else if (type === "News") {
         layoutContent = (
             <div className={styles.newsCarousel}>
-                {content.length > 0 && renderNewsItem(content[currentIndex], currentIndex, content.length, nextNewsItem, prevNewsItem, animationClass)}
+                {content.length > 0 && renderNewsItem(content[currentIndex], currentIndex, content.length, nextNewsItem, prevNewsItem, animationClass, handleClick)}
             </div>
         );
 
@@ -146,7 +154,7 @@ export default function ContentSection({ type }) {
                     </button>
                 )}
                 <div className={styles.scrollContainer} ref={scrollContainerRef} onScroll={handleScroll}>
-                    {content.map((item) => renderCard(item))}
+                    {content.map((item) => renderCard(item, handleClick))}
                 </div>
                 {showScrollButton && content.length > 3 && (
                     <button className={styles.scrollButton} onClick={scrollRight}>
@@ -161,15 +169,21 @@ export default function ContentSection({ type }) {
     return <div className={styles.sectionContainer}>{layoutContent}</div>;
 }
 
-function renderCard(item) {
+function renderCard(item, handleClick) {
+    const slug = item.title
+        .toLowerCase()
+        .replace(/[^a-z0-9]+/g, '-')
+        .replace(/(^-|-$)+/g, '');
+
     return (
-        <div key={item._id} className={styles.card}>
+        <div key={item._id} className={styles.card} onClick={() => handleClick(slug)} style={{ cursor: 'pointer' }}>
             <div className={styles.imageWrapper}>
                 <img
                     src={require(`../../assets/${item.image}`)}
                     alt={item.title}
                     className={styles.image}
                 />
+                <div className={styles.hoverLine}></div>
             </div>
             <div className={styles.content}>
                 <h3>{item.title}</h3>
@@ -178,6 +192,7 @@ function renderCard(item) {
         </div>
     );
 }
+
 
 function formatDateTime(dateString) {
     const date = new Date(dateString);
@@ -190,14 +205,18 @@ function formatDateTime(dateString) {
     return `${day}/${month}/${year} ${hours}:${minutes}`;
 }
 
-function renderNewsItem(item, currentIndex, totalItems, nextNewsItem, prevNewsItem, animationClass) {
+function renderNewsItem(item, currentIndex, totalItems, nextNewsItem, prevNewsItem, animationClass, handleClick) {
+    const slug = item.title
+        .toLowerCase()
+        .replace(/[^a-z0-9]+/g, '-')
+        .replace(/(^-|-$)+/g, '');
     return (
         <div key={item._id} className={`${styles.newsItem} `}>
             <div className={styles.newsLeft}>
                 <span className={styles.newsLogo}>📰</span>
                 <span className={styles.newsLabel}>News</span>
             </div>
-            <div className={`${styles.newsContent} ${animationClass}`}>
+            <div className={`${styles.newsContent} ${animationClass}`} onClick={() => handleClick(slug)} style={{ cursor: 'pointer' }}>
                 <span className={styles.newsDate}>
                     {formatDateTime(item.updatedAt || item.createdAt)}
                 </span>

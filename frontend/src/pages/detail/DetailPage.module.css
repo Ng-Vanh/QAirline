@@ -1,0 +1,85 @@
+:root {
+    --primary: #00b8ff;
+    --primary-dark: #009bd6;
+    --secondary: #00415a;
+    --background: #f0f4f8;
+    --text: #333;
+    --border: #e0e0e0;
+    --success: #4caf50;
+    --error: #f44336;
+}
+
+.detailContainer {
+    max-width: 1200px;
+    margin: 2rem auto;
+    padding: 1rem;
+    position: relative;
+    margin-top: 120px;
+    border-top: 1px solid var(--primary);
+    padding-top: 10vh;
+}
+
+.dateContainer {
+    position: absolute;
+    top: 2rem;
+    left: 1rem;
+    background-color: #95dffc;
+    padding: 0.5rem 1rem;
+    border-radius: 4px;
+    font-size: 0.9rem;
+    color: var(--secondary);
+}
+
+.title {
+    font-size: 2rem;
+    margin-top: 3rem;
+    margin-bottom: 1rem;
+    color: var(--secondary);
+}
+
+.image {
+    width: 80%;
+    height: auto;
+    border-radius: 8px;
+    margin-bottom: 1rem;
+}
+
+.description {
+    font-size: 1rem;
+    line-height: 1.6;
+    color: var(--text);
+}
+
+.loading,
+.error {
+    margin-top: 25vh;
+    text-align: center;
+    font-size: 1.5rem;
+    color: var(--error);
+}
+
+.loadingContainer {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+}
+
+.spinner {
+    width: 50px;
+    height: 50px;
+    border: 6px solid #f3f3f3;
+    border-top: 6px solid var(--primary);
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+    0% {
+        transform: rotate(0deg);
+    }
+
+    100% {
+        transform: rotate(360deg);
+    }
+}
