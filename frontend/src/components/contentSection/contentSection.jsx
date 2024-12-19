@@ -96,6 +96,19 @@ export default function ContentSection({ type }) {
         return <div className={styles.error}>{error}</div>;
     }
 
+    const handleNext = () => {
+        if (currentIndex + 3 < content.length) {
+            setCurrentIndex((prevIndex) => prevIndex + 3);
+        }
+    };
+
+    // Xử lý chuyển sang nhóm trước đó
+    const handlePrev = () => {
+        if (currentIndex - 3 >= 0) {
+            setCurrentIndex((prevIndex) => prevIndex - 3);
+        }
+    };
+
     if (isLoading) {
         return (
             <div className={styles.loadingContainer}>
@@ -109,32 +122,68 @@ export default function ContentSection({ type }) {
         return <div className={styles.noContent}>No content available.</div>;
     }
 
+    const visibleContent = content.slice(currentIndex, currentIndex + 3);
+
     // Tuỳ thuộc vào type (session) để áp dụng bố cục
     let layoutContent;
 
-    if (!isSmallScreen && type === "Introduction" && content.length >= 3) {
-        // Session 1 layout
+    // if (!isSmallScreen && type === "Introduction" && content.length >= 3) {
+    //     // Session 1 layout
+    //     layoutContent = (
+    //         <div className={styles.sessionOneLayout}>
+    //             <div className={styles.left50}>{renderCard(content[0], handleClick)}</div>
+    //             <div className={styles.right50Stack}>
+    //                 {renderCard(content[1], handleClick)}
+    //                 {renderCard(content[2], handleClick)}
+    //             </div>
+    //         </div>
+    //     );
+    // } else if (!isSmallScreen && type === "Alerts" && content.length >= 3) {
+    //     // Session 3 layout
+    //     layoutContent = (
+    //         <div className={styles.sessionThreeLayout}>
+    //             <div className={styles.left50Stack}>
+    //                 {renderCard(content[0], handleClick)}
+    //                 {renderCard(content[1], handleClick)}
+    //             </div>
+    //             <div className={styles.right50}>{renderCard(content[2], handleClick)}</div>
+    //         </div>
+    //     );
+    // } 
+    if (!isSmallScreen && type === "Introduction" && visibleContent.length >= 3) {
         layoutContent = (
             <div className={styles.sessionOneLayout}>
-                <div className={styles.left50}>{renderCard(content[0], handleClick)}</div>
+                <button className={`${styles.scrollButton} ${styles.scrollLeftButton}`} onClick={handlePrev} disabled={currentIndex === 0}>
+                    <ChevronLeft />
+                </button>
+                <div className={styles.left50}>{renderCard(visibleContent[0], handleClick)}</div>
                 <div className={styles.right50Stack}>
-                    {renderCard(content[1], handleClick)}
-                    {renderCard(content[2], handleClick)}
+                    {renderCard(visibleContent[1], handleClick)}
+                    {renderCard(visibleContent[2], handleClick)}
                 </div>
+                <button className={styles.scrollButton} onClick={handleNext} disabled={currentIndex + 3 >= content.length} style={{ right: '-6px' }}>
+                    <ChevronRight />
+                </button>
             </div>
         );
-    } else if (!isSmallScreen && type === "Alerts" && content.length >= 3) {
-        // Session 3 layout
+    } else if (!isSmallScreen && type === "Alerts" && visibleContent.length >= 1) {
         layoutContent = (
             <div className={styles.sessionThreeLayout}>
+                <button className={`${styles.scrollButton} ${styles.scrollLeftButton}`} onClick={handlePrev} disabled={currentIndex === 0}>
+                    <ChevronLeft />
+                </button>
                 <div className={styles.left50Stack}>
-                    {renderCard(content[0], handleClick)}
-                    {renderCard(content[1], handleClick)}
+                    {renderCard(visibleContent[1], handleClick)}
+                    {renderCard(visibleContent[2], handleClick)}
                 </div>
-                <div className={styles.right50}>{renderCard(content[2], handleClick)}</div>
-            </div>
+                <div className={styles.right50}>{renderCard(visibleContent[0], handleClick)}</div>
+                <button className={styles.scrollButton} onClick={handleNext} disabled={currentIndex + 3 >= content.length} style={{ right: '-6px' }} >
+                    <ChevronRight />
+                </button>
+            </div >
         );
-    } else if (type === "News") {
+    }
+    else if (type === "News") {
         layoutContent = (
             <div className={styles.newsCarousel}>
                 {content.length > 0 && renderNewsItem(content[currentIndex], currentIndex, content.length, nextNewsItem, prevNewsItem, animationClass, handleClick)}
