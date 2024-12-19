@@ -4,7 +4,7 @@ const swaggerUi = require('swagger-ui-express');
 const swaggerJSDoc = require('swagger-jsdoc');
 const bodyParser = require('body-parser');
 const cors = require('cors');
-const { connectDB } = require('./config/db'); // Import connection function
+const { connectDB } = require('./config/db');
 // MongoDB Atlas Connection URI
 // const dbURI = 'mongodb+srv://admin:admin@cluster0.33dyt9o.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0';
 
@@ -38,6 +38,7 @@ const AircraftRoute = require('./routes/AircraftRoute');
 const StatisticsRoute = require('./routes/StatisticsRoute');
 const ContentRoute = require('./routes/ContentRoute');
 const FileRoute = require('./routes/FileRoute');
+const SchedulerRoutes = require('./routes/SchedulerRoute');
 
 connectDB();
 
@@ -50,6 +51,7 @@ app.use('/api/passengers', PassengerRoutes);
 app.use('/api/aircrafts', AircraftRoute);
 app.use('/api/statistics', StatisticsRoute);
 app.use('/api/content', ContentRoute);
+app.use('/scheduler', SchedulerRoutes);
 app.use('/api/files', FileRoute);
 
 // Middleware for Debugging
