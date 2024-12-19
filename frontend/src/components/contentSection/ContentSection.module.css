@@ -28,14 +28,7 @@
 }
 
 .card:hover {
-    transform: translateY(-5px);
-    box-shadow: 0 6px 12px rgba(0, 102, 204, 0.15);
-}
-
-.imageWrapper {
-    position: relative;
-    height: 200px;
-    overflow: hidden;
+    box-shadow: 0 6px 12px rgba(0, 102, 204, 0.25);
 }
 
 .image {
@@ -43,7 +36,40 @@
     height: 100%;
     object-fit: contain;
     border-radius: 8px;
+    transition: transform 0.3s ease;
 }
+
+.card:hover .image {
+    transform: scale(1.03);
+}
+
+
+.hoverLine {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    width: 0;
+    height: 3px;
+    background-color: #00b8ff;
+    transition: width 0.3s ease;
+}
+
+.card:hover .hoverLine {
+    width: 100%;
+}
+
+.card:hover h3 {
+    color: #00b8ff;
+
+}
+
+.imageWrapper {
+    position: relative;
+    height: 200px;
+    overflow: hidden;
+
+}
+
 
 .content {
     padding: 1.5rem;
@@ -52,13 +78,24 @@
 .card h3 {
     font-size: 1.25rem;
     margin-bottom: 0.5rem;
-    color: #333333;
+    color: var(--text);
+    transition: width 0.3s ease;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+
 }
 
 .card p {
     font-size: 0.875rem;
     color: #666666;
     line-height: 1.5;
+    height: 3em;
+    overflow: hidden;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    text-overflow: ellipsis;
 }
 
 .scrollButton {
@@ -279,6 +316,9 @@
     font-weight: bold;
     color: #004085;
     text-decoration: none;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
 }
 
 .newsCounter {

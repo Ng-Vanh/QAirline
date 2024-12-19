@@ -12,6 +12,7 @@ import UserManagement from "./pages/Admin/user/page";
 import ManageAircraft from "./pages/Admin/aircraft/page";
 import ManageFlights from "./pages/Admin/flights/page";
 import AdminAirportManagement from "./pages/Admin/airports/page";
+import DetailPage from "./pages/detail/DetailPage";
 
 import Navbar from "./components/navbar/Navbar";
 import Footer from "./components/Footer";
@@ -37,6 +38,7 @@ const App = () => {
         <Routes>
           {/* Public Routes */}
           <Route path="/" element={<Home />} />
+          <Route path="/detail/:slug" element={<DetailPage />} />
           <Route path="/flights" element={<Flights />} />
           <Route path="/bookings" element={<Bookings />} />
           <Route path="/login" element={<Login />} />
@@ -91,8 +93,8 @@ const App = () => {
             <Route path="cms" element={<CMSPage />} />
           </Route>
 
-          <Route path="*" element={<Navigate to="/" replace/>} />
-          
+          <Route path="*" element={<Navigate to="/" replace />} />
+
         </Routes>
       </div>
 
@@ -101,7 +103,7 @@ const App = () => {
 
       {/* Conditionally render Sidebar based on authentication */}
       {isAuthenticated && isAdminRoute && role === 'admin' && <AdminSidebar />}
-      
+
     </>
   );
 };
