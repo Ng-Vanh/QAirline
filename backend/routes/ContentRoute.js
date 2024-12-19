@@ -1,20 +1,13 @@
 const express = require('express');
-const router = express.Router();
 const ContentController = require('../controllers/ContentController');
 
-// Route to get all content
-router.get('/', ContentController.getAllContent);
+const router = express.Router();
 
-// Route to get content by Id
-router.get('/:id', ContentController.getContentById);
-
-// Route to create new content
-router.post('/', ContentController.createContent);
-
-// Route to update content
-router.put('/:id', ContentController.updateContent);
-
-// Route to delete content
-router.delete('/:id', ContentController.deleteContent);
+// Routes
+router.get('/', ContentController.getAllContent); // Get all content
+router.post('/', ContentController.createContent); // Create new content
+router.put('/:id', ContentController.updateContent); // Update existing content
+router.get('/:id', ContentController.getContentById); // Get content by ID
+router.delete('/:id', ContentController.deleteContent); // Delete content by ID
 
 module.exports = router;

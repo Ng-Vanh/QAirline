@@ -161,24 +161,45 @@ export default function ContentSection({ type }) {
     return <div className={styles.sectionContainer}>{layoutContent}</div>;
 }
 
-function renderCard(item) {
-    return (
-        <div key={item._id} className={styles.card}>
-            <div className={styles.imageWrapper}>
-                <img
-                    src={require(`../../assets/${item.image}`)}
-                    alt={item.title}
-                    className={styles.image}
-                />
-            </div>
-            <div className={styles.content}>
-                <h3>{item.title}</h3>
-                <p>{item.description}</p>
-            </div>
-        </div>
-    );
-}
+// function renderCard(item) {
+//     return (
+//         <div key={item._id} className={styles.card}>
+//             <div className={styles.imageWrapper}>
+//                 <img
+//                     src={require(`../../assets/${item.image}`)}
+//                     alt={item.title}
+//                     className={styles.image}
+//                 />
+//             </div>
+//             <div className={styles.content}>
+//                 <h3>{item.title}</h3>
+//                 <p>{item.description}</p>
+//             </div>
+//         </div>
+//     );
+// }
 
+function renderCard(item) {
+    const apiBaseUrl = Config.apiBaseUrl;
+  
+    return (
+      <div key={item._id} className={styles.card}>
+        <div className={styles.imageWrapper}>
+          <img
+            src={`${apiBaseUrl}/api/files/image/${item.image}`} // Dynamic image URL
+            alt={item.title}
+            className={styles.image}
+          />
+        </div>
+        <div className={styles.content}>
+          <h3>{item.title}</h3>
+          <p>{item.description}</p>
+        </div>
+      </div>
+    );
+  }
+
+  
 function formatDateTime(dateString) {
     const date = new Date(dateString);
     const day = String(date.getDate()).padStart(2, '0');

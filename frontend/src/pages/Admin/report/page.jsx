@@ -64,7 +64,7 @@ export default function Reports() {
         <div className={reportStyle.container}>
             <div className={reportStyle.header}>
                 <h1 className={reportStyle.heading}>Booking Statistics</h1>
-                <div className={reportStyle.width_sorter}>
+                {/* <div className={reportStyle.width_sorter}>
                     <label htmlFor="width-select">View: </label>
                     <select id="width-select" value={cardWidth} onChange={handleWidthChange}>
                         <option value="250px">Narrow (250px)</option>
@@ -72,7 +72,7 @@ export default function Reports() {
                         <option value="350px">Wide (350px)</option>
                         <option value="100%">Full Width</option>
                     </select>
-                </div>
+                </div> */}
             </div>
             {loading ? (
                 <div className={reportStyle.loading}>
