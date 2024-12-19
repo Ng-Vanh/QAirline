@@ -52,6 +52,56 @@ export default function Bookings() {
     const [selectedBooking, setSelectedBooking] = useState(null)
     const [showModal, setShowModal] = useState(false)
     const [sortBy, setSortBy] = useState('departureDate')
+    const [countdowns, setCountdowns] = useState({});
+
+    useEffect(() => {
+        const interval = setInterval(() => {
+            if (activeTab === 'upcoming') {
+                const updatedCountdowns = {};
+                bookings.forEach((booking) => {
+                    const now = new Date();
+                    const departureTime = new Date(booking.departureTime);
+                    const timeDiff = departureTime - now;
+    
+                    if (timeDiff > 0) {
+                        const days = Math.floor(timeDiff / (1000 * 60 * 60 * 24));
+                        const hours = Math.floor((timeDiff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+                        const minutes = Math.floor((timeDiff % (1000 * 60 * 60)) / (1000 * 60));
+                        const seconds = Math.floor((timeDiff % (1000 * 60)) / 1000);
+    
+                        if (days > 0) {
+                            updatedCountdowns[booking._id] = `${days}d ${hours}h ${minutes}m`;
+                        } else if (hours > 0) {
+                            updatedCountdowns[booking._id] = `${hours}h ${minutes}m ${seconds}s`;
+                        } else if (minutes > 0) {
+                            updatedCountdowns[booking._id] = `${minutes}m ${seconds}s`;
+                        } else {
+                            updatedCountdowns[booking._id] = `${seconds}s`;
+                        }
+                    } else {
+                        updatedCountdowns[booking._id] = 'Departed';
+                    }
+                });
+                setCountdowns(updatedCountdowns);
+            }
+        }, 1000);
+    
+        return () => clearInterval(interval); 
+    }, [bookings, activeTab]);
+    
+
+    const renderCountdown = (bookingId) => {
+        const countdownValue = countdowns[bookingId];
+        if (!countdownValue) {
+            return 'Calculating...';
+        }
+        else if (countdownValue === 'Departed') {
+            return '';
+        }
+        else {
+            return "Time until departure: " + countdownValue;
+        }
+    };
 
     useEffect(() => {
         window.scrollTo(0, 0);
@@ -207,7 +257,9 @@ export default function Bookings() {
                                             <div className={BookingsStyle.flight_duration}>
                                                 <Plane className={BookingsStyle.flight_icon} />
                                                 <span className={BookingsStyle.duration}>{booking.flightDuration}</span>
-
+                                                <span className={BookingsStyle.countdown}>
+                                                    {renderCountdown(booking._id)}
+                                                </span>
                                             </div>
                                             <div className={BookingsStyle.airport_info}>
                                                 <p className={BookingsStyle.city}>{booking.arrivalAirport.city}</p>

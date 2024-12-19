@@ -13,6 +13,13 @@ export default function AllNewsPage() {
     const itemsPerPage = 9; // Hiển thị tối đa 3 hàng x 3 cột = 9 items
     const navigate = useNavigate();
 
+    const scrollToTop = () => {
+        window.scrollTo({
+            top: 0,
+            behavior: 'smooth',
+        });
+    };
+
     useEffect(() => {
         const fetchNews = async () => {
             try {
@@ -27,7 +34,8 @@ export default function AllNewsPage() {
                 setIsLoading(false);
             }
         };
-
+        
+        scrollToTop();
         fetchNews();
     }, []);
 
