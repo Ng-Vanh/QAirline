@@ -1,18 +1,23 @@
 import { useParams } from 'react-router-dom';
 import { useEffect, useState } from 'react';
 import styles from './DetailPage.module.css';
+import { useNavigate } from 'react-router-dom';
 import Config from '~/Config';
 
 export default function DetailPage() {
     const { slug } = useParams();
     const apiBaseUrl = Config.apiBaseUrl;
     const [content, setContent] = useState(null);
+    const [recentPosts, setRecentPosts] = useState([]);
     const [isLoading, setIsLoading] = useState(true);
     const [error, setError] = useState(null);
+    const navigate = useNavigate();
+
 
     useEffect(() => {
         const fetchContent = async () => {
             try {
+                setIsLoading(true);
                 const response = await fetch(`${apiBaseUrl}/api/content`);
                 const data = await response.json();
 
@@ -30,6 +35,12 @@ export default function DetailPage() {
                 } else {
                     setError('Content not found.');
                 }
+
+                // Lấy 6 bài viết mới nhất
+                const recent = data
+                    .filter((entry) => entry.isActive && entry._id !== item._id)
+                    .slice(0, 6);
+                setRecentPosts(recent);
             } catch (err) {
                 setError('Failed to load content. Please try again later.');
             } finally {
@@ -38,7 +49,11 @@ export default function DetailPage() {
         };
 
         fetchContent();
-    }, [slug]);
+    }, [slug, apiBaseUrl]);
+    const handleClick = (title) => {
+        const slug = title.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)+/g, '');
+        navigate(`/detail/${slug}`);
+    };
 
     // Hàm định dạng ngày tháng
     const formatDateTime = (dateString) => {
@@ -65,13 +80,27 @@ export default function DetailPage() {
     }
 
     return (
-        <div className={styles.detailContainer}>
-            <div className={styles.dateContainer}>
-                <span className={styles.date}>{formatDateTime(content.updatedAt || content.createdAt)}</span>
+        <div className={styles.detailPageContainer}>
+            <div className={styles.recentPosts}>
+                <p>Hot news</p>
+                {recentPosts.map((post) => (
+                    <div key={post._id} className={styles.recentPostItem} onClick={() => handleClick(post.title)}>
+                        <img src={`${apiBaseUrl}/api/files/image/${post.image}`} alt={post.title} className={styles.recentImage} />
+                        <div className={styles.recentContent}>
+                            <h4 className={styles.recentTitle}>{post.title}</h4>
+                            <p className={styles.recentDescription}>{post.description}</p>
+                        </div>
+                    </div>
+                ))}
             </div>
-            <h1 className={styles.title}>{content.title}</h1>
-            <img src={`${apiBaseUrl}/api/files/image/${content.image}`} alt={content.title} className={styles.image} />
-            <p className={styles.description}>{content.description}</p>
+            <div className={styles.detailContainer}>
+                <span className={styles.date}>{formatDateTime(content.updatedAt || content.createdAt)}</span>
+                <h1 className={styles.title}>{content.title}</h1>
+                <img src={`${apiBaseUrl}/api/files/image/${content.image}`} alt={content.title} className={styles.image} />
+                <div className={styles.descriptionContainer}>
+                    <p className={styles.description}>{content.description}</p>
+                </div>
+            </div>
         </div>
     );
 }
