@@ -169,6 +169,7 @@ export default function ContentSection({ type }) {
     return <div className={styles.sectionContainer}>{layoutContent}</div>;
 }
 
+
 function renderCard(item, handleClick) {
     const apiBaseUrl = Config.apiBaseUrl;
     const slug = item.title
