@@ -6,8 +6,6 @@ import styles from './ContentSection.module.css';
 import Config from '~/Config';
 import { useNavigate } from 'react-router-dom';
 
-
-
 export default function ContentSection({ type }) {
     const apiBaseUrl = Config.apiBaseUrl;
     const scrollContainerRef = useRef(null);
