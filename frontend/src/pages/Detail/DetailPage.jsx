@@ -14,6 +14,13 @@ export default function DetailPage() {
     const navigate = useNavigate();
 
 
+    const scrollToTop = () => {
+        window.scrollTo({
+            top: 0,
+            behavior: 'smooth',
+        });
+    }
+
     useEffect(() => {
         const fetchContent = async () => {
             try {
@@ -48,8 +55,10 @@ export default function DetailPage() {
             }
         };
 
+        scrollToTop();
         fetchContent();
     }, [slug, apiBaseUrl]);
+
     const handleClick = (title) => {
         const slug = title.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)+/g, '');
         navigate(`/detail/${slug}`);
@@ -82,7 +91,7 @@ export default function DetailPage() {
     return (
         <div className={styles.detailPageContainer}>
             <div className={styles.recentPosts}>
-                <p>Hot news</p>
+                <p>You may like</p>
                 {recentPosts.map((post) => (
                     <div key={post._id} className={styles.recentPostItem} onClick={() => handleClick(post.title)}>
                         <img src={`${apiBaseUrl}/api/files/image/${post.image}`} alt={post.title} className={styles.recentImage} />

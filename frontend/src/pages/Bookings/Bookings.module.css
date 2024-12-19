@@ -550,3 +550,11 @@
     margin-bottom: 0.5rem;
   }
 }
+
+.countdown {
+  margin-top: 10px;
+  font-weight: bold;
+  color: #7f8c8d;
+  text-align: center;
+  font-size: 0.8rem;
+}
