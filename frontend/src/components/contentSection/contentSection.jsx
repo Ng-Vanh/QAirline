@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useRef, useEffect } from 'react';
-import { ChevronRight, Pause, ChevronUp, ChevronDown, ChevronLeft } from 'lucide-react';
+import { ChevronRight, ChevronLeft } from 'lucide-react';
 import styles from './contentSection.module.css';
 import Config from '~/Config';
 import { useNavigate } from 'react-router-dom';
@@ -21,6 +21,9 @@ export default function ContentSection({ type }) {
 
     const handleClick = (slug) => {
         navigate(`/detail/${slug}`);
+    };
+    const handleAllNews = () => {
+        navigate('/all-news');
     };
 
 
@@ -186,7 +189,7 @@ export default function ContentSection({ type }) {
     else if (type === "News") {
         layoutContent = (
             <div className={styles.newsCarousel}>
-                {content.length > 0 && renderNewsItem(content[currentIndex], currentIndex, content.length, nextNewsItem, prevNewsItem, animationClass, handleClick)}
+                {content.length > 0 && renderNewsItem(content[currentIndex], currentIndex, content.length, nextNewsItem, prevNewsItem, animationClass, handleClick, handleAllNews)}
             </div>
         );
 
@@ -254,11 +257,12 @@ function formatDateTime(dateString) {
     return `${day}/${month}/${year} ${hours}:${minutes}`;
 }
 
-function renderNewsItem(item, currentIndex, totalItems, nextNewsItem, prevNewsItem, animationClass, handleClick) {
+function renderNewsItem(item, currentIndex, totalItems, nextNewsItem, prevNewsItem, animationClass, handleClick, handleAllNews) {
     const slug = item.title
         .toLowerCase()
         .replace(/[^a-z0-9]+/g, '-')
         .replace(/(^-|-$)+/g, '');
+
     return (
         <div key={item._id} className={`${styles.newsItem} `}>
             <div className={styles.newsLeft}>
@@ -278,9 +282,10 @@ function renderNewsItem(item, currentIndex, totalItems, nextNewsItem, prevNewsIt
                 <span>{currentIndex + 1}/{totalItems}</span>
                 <ChevronRight className={styles.navIcon} onClick={nextNewsItem} />
             </div>
-            <a href={item.link} className={styles.newsButton}>
+            <button className={styles.newsButton} onClick={handleAllNews}>
                 See more <ChevronRight />
-            </a>
+            </button>
         </div>
     );
 }
+
