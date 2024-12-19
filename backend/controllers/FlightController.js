@@ -31,7 +31,11 @@ exports.searchFlights = async (req, res) => {
       return res.status(400).json({ message: 'Missing required fields' });
     }
 
-    const departureDateObj = new Date(departureDate);
+    const beginDate = new Date(departureDate);
+    beginDate.setHours(0, 0, 0, 0);
+    
+    const endDate = new Date(departureDate);
+    endDate.setHours(23, 59, 59, 999);
 
     const flights = await Flight.aggregate([
       {
@@ -73,8 +77,8 @@ exports.searchFlights = async (req, res) => {
           'arrivalAirportDetails.city': destinationCity,
           // departureTime: { $gte: departureDateObj }, 
           departureTime: {
-            $gte: new Date(departureDateObj.setHours(0, 0, 0, 0)),
-            $lt: new Date(departureDateObj.setHours(23, 59, 59, 999))
+            $gte: beginDate,
+            $lt: endDate
           }
         }
       },
@@ -248,6 +252,30 @@ exports.getFlightById = async (req, res) => {
     return res.status(500).json({ message: 'Server error' });
   }
 };
+
+// Controller for getting a flight by flightCode
+exports.getFlightByCode = async (req, res) => {
+  try {
+    const flightCode = req.params.code;
+
+    if (!flightCode) {
+      return res.status(400).json({ message: 'Flight code is required' });
+    }
+
+    const flight = await Flight.findOne({ flightCode })
+      .populate('departureAirport arrivalAirport aircraft');
+
+    if (!flight) {
+      return res.status(404).json({ message: 'Flight not found' });
+    }
+
+    return res.status(200).json(flight);
+  } catch (error) {
+    console.error('Error fetching flight by code:', error);
+    return res.status(500).json({ message: 'Server error' });
+  }
+};
+
 
 // Controller for getting all flights
 exports.getAllFlights = async (req, res) => {

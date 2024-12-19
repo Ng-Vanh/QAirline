@@ -120,9 +120,14 @@ export default function ManageFlights() {
     const handleSubmit = async (e) => {
         e.preventDefault();
         try {
+            const departureTimeUTC = new Date(newFlight.departureTime).toISOString();
+            const arrivalTimeUTC = new Date(newFlight.arrivalTime).toISOString();
+
             const payload = {
                 ...newFlight,
-                flightDuration: Math.floor((new Date(newFlight.arrivalTime) - new Date(newFlight.departureTime)) / 60000),
+                departureTime: departureTimeUTC,
+                arrivalTime: arrivalTimeUTC,
+                // flightDuration: Math.floor((new Date(newFlight.arrivalTime) - new Date(newFlight.departureTime)) / 60000),
             };
 
             if (editingFlight) {
@@ -241,8 +246,8 @@ export default function ManageFlights() {
                             <div className={flightStyle.flight_info}>
                                 <p><strong>From:</strong> {flight.departureAirport?.name || "Unknown"}</p>
                                 <p><strong>To:</strong> {flight.arrivalAirport?.name || "Unknown"}</p>
-                                <p><strong>Departure:</strong> {new Date(flight.departureTime).toLocaleString()}</p>
-                                <p><strong>Arrival:</strong> {new Date(flight.arrivalTime).toLocaleString()}</p>
+                                <p><strong>Departure:</strong> {new Date(flight.departureTime).toLocaleString("en-GB", { day: "2-digit", month: "2-digit", year: "numeric", hour: "2-digit", minute: "2-digit", hour12: true }).replace('am', 'AM').replace('pm', 'PM')}</p>
+                                <p><strong>Arrival:</strong> {new Date(flight.arrivalTime).toLocaleString("en-GB", { day: "2-digit", month: "2-digit", year: "numeric", hour: "2-digit", minute: "2-digit", hour12: true }).replace('am', 'AM').replace('pm', 'PM')}</p>
                                 <p><strong>Aircraft:</strong> {flight.aircraft?.model || "Unknown"}</p>
                             </div>
                             <div className={flightStyle.flight_actions}>

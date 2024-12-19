@@ -21,5 +21,8 @@ router.get('/', FlightController.getAllFlights);
 // DELETE route for deleting a flight by ID
 router.delete('/:id', FlightController.deleteFlight);
 
+// GET route for getting a flight by flight code
+router.get('/code/:code', FlightController.getFlightByCode);
+
 // Export the router to be used in the main app
 module.exports = router;

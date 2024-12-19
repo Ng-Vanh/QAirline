@@ -337,8 +337,12 @@ export default function Flights() {
   //   }
   // }, [location.state]);
 
-  useEffect(() => {
+  const scrollToTop = () => {
     window.scrollTo(0, 0);
+  }
+
+  useEffect(() => {
+    scrollToTop();
   }, []);
 
   useEffect(() => {
@@ -1198,6 +1202,8 @@ export default function Flights() {
       setShowPassengerInfo(false);
       setIsCartOpen(false);
       resetState();
+
+      scrollToTop();
     } catch (error) {
       console.error('Error during booking process:', error);
 
