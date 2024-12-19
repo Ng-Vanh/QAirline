@@ -12,7 +12,7 @@ import UserManagement from "./pages/Admin/user/page";
 import ManageAircraft from "./pages/Admin/aircraft/page";
 import ManageFlights from "./pages/Admin/flights/page";
 import AdminAirportManagement from "./pages/Admin/airports/page";
-import DetailPage from "./pages/detail/DetailPage";
+import DetailPage from "./pages/Detail/DetailPage";
 
 import Navbar from "./components/navbar/Navbar";
 import Footer from "./components/Footer";
