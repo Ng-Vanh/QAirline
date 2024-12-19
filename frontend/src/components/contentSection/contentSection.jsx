@@ -2,7 +2,7 @@
 
 import { useState, useRef, useEffect } from 'react';
 import { ChevronRight, Pause, ChevronUp, ChevronDown, ChevronLeft } from 'lucide-react';
-import styles from './ContentSection.module.css';
+import styles from './contentSection.module.css';
 import Config from '~/Config';
 import { useNavigate } from 'react-router-dom';
 
