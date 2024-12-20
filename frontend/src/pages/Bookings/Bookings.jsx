@@ -106,7 +106,7 @@ export default function Bookings() {
     const renderCountdown = (bookingId) => {
         const countdownValue = countdowns[bookingId];
         if (!countdownValue) {
-            return 'Calculating...';
+            return '';
         }
         else if (countdownValue === 'Departed') {
             return '';

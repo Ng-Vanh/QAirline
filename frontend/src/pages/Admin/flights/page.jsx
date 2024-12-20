@@ -183,7 +183,7 @@ export default function ManageFlights() {
         switch (status) {
             case "Scheduled": return flightStyle.status_scheduled;
             case "Delayed": return flightStyle.status_delayed;
-            case "On time": return flightStyle.status_in_air;
+            case "On time": return flightStyle.status_on_time;
             case "Landed": return flightStyle.status_landed;
             case "In flight": return flightStyle.status_in_flight;
             default: return flightStyle.status_default;
