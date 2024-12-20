@@ -3,7 +3,7 @@ const Content = require('../models/ContentModel.js');
 // Get all content
 exports.getAllContent = async (req, res) => {
   try {
-    const content = await Content.find({ isActive: true });
+    const content = await Content.find();
     return res.status(200).json(content);
   } catch (error) {
     console.error('Error fetching content:', error);

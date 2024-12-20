@@ -33,22 +33,22 @@ exports.searchFlights = async (req, res) => {
 
     const beginDate = new Date(departureDate);
     beginDate.setHours(0, 0, 0, 0);
-    
+
     const endDate = new Date(departureDate);
     endDate.setHours(23, 59, 59, 999);
 
     const flights = await Flight.aggregate([
       {
         $lookup: {
-          from: 'airports', 
+          from: 'airports',
           localField: 'departureAirport',
           foreignField: '_id',
-          as: 'departureAirportDetails'  
+          as: 'departureAirportDetails'
         }
       },
       {
         $lookup: {
-          from: 'airports',  
+          from: 'airports',
           localField: 'arrivalAirport',
           foreignField: '_id',
           as: 'arrivalAirportDetails'
@@ -56,24 +56,24 @@ exports.searchFlights = async (req, res) => {
       },
       {
         $lookup: {
-          from: 'aircrafts',  
+          from: 'aircrafts',
           localField: 'aircraft',
           foreignField: '_id',
           as: 'aircraftDetails'
         }
       },
       {
-        $unwind: '$departureAirportDetails'  
+        $unwind: '$departureAirportDetails'
       },
       {
-        $unwind: '$arrivalAirportDetails' 
+        $unwind: '$arrivalAirportDetails'
       },
       {
         $unwind: '$aircraftDetails'
       },
       {
         $match: {
-          'departureAirportDetails.city': departureCity,  
+          'departureAirportDetails.city': departureCity,
           'arrivalAirportDetails.city': destinationCity,
           // departureTime: { $gte: departureDateObj }, 
           departureTime: {
@@ -89,20 +89,20 @@ exports.searchFlights = async (req, res) => {
           // departureAirport: '$departureAirportDetails.name',
           // arrivalAirport: '$arrivalAirportDetails.name',
           departureAirportDetails: 1,
-          arrivalAirportDetails: 1, 
+          arrivalAirportDetails: 1,
           departureTime: 1,
           flightDuration: 1,
           arrivalTime: 1,
           flightClass: 1,
           aircraft: '$aircraftDetails.model',
-          availableSeats: { 
+          availableSeats: {
             $max: ['$flightClass.economy.seatsAvailable', '$flightClass.business.seatsAvailable']
           }
         }
       },
       {
         $match: {
-          availableSeats: { $gte: passengerCount } 
+          availableSeats: { $gte: passengerCount }
         }
       }
     ]);
@@ -136,9 +136,9 @@ const formatFlightDuration = (durationInMinutes) => {
 // Controller for creating a flight
 exports.createFlight = async (req, res) => {
   try {
-    const { departureAirport, arrivalAirport, departureTime, arrivalTime, flightClass, aircraft, flightStatus, flightCode} = req.body;
+    const { departureAirport, arrivalAirport, departureTime, arrivalTime, flightClass, aircraft, flightStatus, flightCode } = req.body;
 
-    if (!departureAirport || !arrivalAirport || !departureTime || !arrivalTime || !flightClass || !aircraft || !flightStatus || !flightCode ) {
+    if (!departureAirport || !arrivalAirport || !departureTime || !arrivalTime || !flightClass || !aircraft || !flightStatus || !flightCode) {
       return res.status(400).json({ message: 'Missing required fields' });
     }
 
@@ -149,7 +149,7 @@ exports.createFlight = async (req, res) => {
     const departureDate = new Date(departureTime);
     const arrivalDate = new Date(arrivalTime);
 
-    const flightDurationInMinutes  = (arrivalDate - departureDate) / (1000 * 60);
+    const flightDurationInMinutes = (arrivalDate - departureDate) / (1000 * 60);
 
     if (flightDurationInMinutes <= 0) {
       return res.status(400).json({ message: 'Arrival time must be after departure time' });
@@ -166,7 +166,7 @@ exports.createFlight = async (req, res) => {
       flightDuration,
       flightClass,
       aircraft,
-      flightStatus, 
+      flightStatus,
       flightCode
     });
 
@@ -209,7 +209,7 @@ exports.updateFlight = async (req, res) => {
       return res.status(400).json({ message: 'Arrival time must be after departure time' });
     }
 
-    const flightDuration = formatFlightDuration(flightDurationInMinutes);   
+    const flightDuration = formatFlightDuration(flightDurationInMinutes);
 
     flight.departureAirport = departureAirport || flight.departureAirport;
     flight.arrivalAirport = arrivalAirport || flight.arrivalAirport;
@@ -240,7 +240,7 @@ exports.getFlightById = async (req, res) => {
   try {
     const flightId = req.params.id;
     const flight = await Flight.findById(flightId)
-      .populate('departureAirport arrivalAirport aircraft'); 
+      .populate('departureAirport arrivalAirport aircraft');
 
     if (!flight) {
       return res.status(404).json({ message: 'Flight not found' });
@@ -261,8 +261,10 @@ exports.getFlightByCode = async (req, res) => {
     if (!flightCode) {
       return res.status(400).json({ message: 'Flight code is required' });
     }
+    
+    const sanitizedFlightCode = flightCode.replace(/\s+/g, '').toLowerCase();
 
-    const flight = await Flight.findOne({ flightCode })
+    const flight = await Flight.findOne({ flightCode: new RegExp(sanitizedFlightCode, 'i') })
       .populate('departureAirport arrivalAirport aircraft');
 
     if (!flight) {
@@ -280,7 +282,7 @@ exports.getFlightByCode = async (req, res) => {
 // Controller for getting all flights
 exports.getAllFlights = async (req, res) => {
   try {
-    const flights = await Flight.find().populate('departureAirport arrivalAirport aircraft'); 
+    const flights = await Flight.find().populate('departureAirport arrivalAirport aircraft');
     return res.status(200).json(flights);
   } catch (error) {
     console.error('Error fetching all flights:', error);
