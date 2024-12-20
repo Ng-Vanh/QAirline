@@ -114,6 +114,14 @@
     cursor: pointer;
     box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
     transition: background-color 0.3s ease;
+
+}
+
+
+
+.scrollButton:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
 }
 
 .scrollLeftButton {
@@ -251,7 +259,10 @@
 
 .right50>.card>.imageWrapper {
     height: 80%;
+    /* max-height: 544px; */
 }
+
+
 
 .right50>.card h3 {
     font-size: 2rem;

@@ -112,6 +112,28 @@ tbody tr:hover {
     background-color: #e8e8e8;
 }
 
+/* Chia tỷ lệ các cột trong bảng */
+th:nth-child(1),
+td:nth-child(1) {
+    width: 35%;
+}
+
+th:nth-child(2),
+td:nth-child(2) {
+    width: 25%;
+}
+
+th:nth-child(3),
+td:nth-child(3) {
+    width: 20%;
+}
+
+th:nth-child(4),
+td:nth-child(4) {
+    width: 20%;
+}
+
+
 .edit_button,
 .delete_button {
     background: none;
