@@ -43,9 +43,18 @@ export default function ContentSection({ type }) {
                 setIsLoading(true);
                 const response = await fetch(`${apiBaseUrl}/api/content`);
                 const data = await response.json();
-                const filteredContent = data.filter(
+
+                let filteredContent = data.filter(
                     (item) => item.contentType === type && item.isActive
                 );
+
+                // Nếu type là "News", chỉ lấy 5 news mới nhất
+                if (type === "News") {
+                    filteredContent = filteredContent
+                        .sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt)) // Sắp xếp từ mới nhất đến cũ nhất
+                        .slice(0, 5); // Giới hạn lấy 5 news mới nhất
+                }
+
                 setContent(filteredContent);
             } catch (err) {
                 setError('Failed to load content. Please try again later.');
@@ -156,7 +165,7 @@ export default function ContentSection({ type }) {
     if (!isSmallScreen && type === "Introduction" && visibleContent.length >= 3) {
         layoutContent = (
             <div className={styles.sessionOneLayout}>
-                <button className={`${styles.scrollButton} ${styles.scrollLeftButton}`} onClick={handlePrev} disabled={currentIndex === 0}>
+                <button className={`${styles.scrollButton} ${styles.scrollLeftButton}`} onClick={handlePrev} >
                     <ChevronLeft />
                 </button>
                 <div className={styles.left50}>{visibleContent[0] && renderCard(visibleContent[0], handleClick)}</div>
@@ -164,7 +173,7 @@ export default function ContentSection({ type }) {
                     {visibleContent[1] && renderCard(visibleContent[1], handleClick)}
                     {visibleContent[2] && renderCard(visibleContent[2], handleClick)}
                 </div>
-                <button className={styles.scrollButton} onClick={handleNext} disabled={currentIndex + 3 >= content.length} style={{ right: '-6px' }}>
+                <button className={styles.scrollButton} onClick={handleNext} style={{ right: '-6px' }}>
                     <ChevronRight />
                 </button>
             </div>
@@ -172,7 +181,7 @@ export default function ContentSection({ type }) {
     } else if (!isSmallScreen && type === "Alerts" && visibleContent.length >= 1) {
         layoutContent = (
             <div className={styles.sessionThreeLayout}>
-                <button className={`${styles.scrollButton} ${styles.scrollLeftButton}`} onClick={handlePrev} disabled={currentIndex === 0}>
+                <button className={`${styles.scrollButton} ${styles.scrollLeftButton}`} onClick={handlePrev} >
                     <ChevronLeft />
                 </button>
                 <div className={styles.left50Stack}>
@@ -180,7 +189,7 @@ export default function ContentSection({ type }) {
                     {visibleContent[1] && renderCard(visibleContent[1], handleClick)}
                 </div>
                 <div className={styles.right50}>{visibleContent[2] && renderCard(visibleContent[2], handleClick)}</div>
-                <button className={styles.scrollButton} onClick={handleNext} disabled={currentIndex + 3 >= content.length} style={{ right: '-6px' }} >
+                <button className={styles.scrollButton} onClick={handleNext} style={{ right: '-6px' }} >
                     <ChevronRight />
                 </button>
             </div >
@@ -198,19 +207,17 @@ export default function ContentSection({ type }) {
         // Default layout (Session 2 and other cases)
         layoutContent = (
             <div className={styles.scrollContainerWrapper}>
-                {showScrollButton && content.length > 3 && (
-                    <button className={`${styles.scrollButton} ${styles.scrollLeftButton}`} onClick={scrollLeft}>
-                        <ChevronLeft />
-                    </button>
-                )}
+
+                <button className={`${styles.scrollButton} ${styles.scrollLeftButton}`} onClick={scrollLeft} >
+                    <ChevronLeft />
+                </button>
+
                 <div className={styles.scrollContainer} ref={scrollContainerRef} onScroll={handleScroll}>
                     {content.map((item) => renderCard(item, handleClick))}
                 </div>
-                {showScrollButton && content.length > 3 && (
-                    <button className={styles.scrollButton} onClick={scrollRight}>
-                        <ChevronRight />
-                    </button>
-                )}
+                <button className={styles.scrollButton} onClick={scrollRight} >
+                    <ChevronRight />
+                </button>
             </div>
         );
 
