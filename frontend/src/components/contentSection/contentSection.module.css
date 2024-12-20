@@ -143,12 +143,52 @@
     .card {
         width: calc(50% - 20px);
     }
+
+    .newsContent {
+        max-width: 300px;
+        /* Điều chỉnh kích thước theo ý muốn */
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+    }
+
+    .newsTitle {
+        font-size: 0.9rem;
+        /* Thu nhỏ font một chút để phù hợp */
+    }
 }
 
 @media (max-width: 600px) {
     .card {
         width: calc(100% - 20px);
     }
+
+    .newsLeft {
+        display: none !important;
+    }
+
+    .newsItem {
+        flex-direction: row;
+        padding: 4px 6px;
+        border: 1px solid var(--primary);
+        box-shadow: 2px 2px 6px var(--primary);
+
+    }
+
+    .newsTitle {
+        font-size: 0.8rem;
+        max-width: 120px;
+    }
+
+    .newsButton {
+        font-size: 0.8rem;
+        padding: 0.15rem;
+    }
+
+    .newsCounter {
+        display: none !important;
+    }
+
 }
 
 .skeleton {
