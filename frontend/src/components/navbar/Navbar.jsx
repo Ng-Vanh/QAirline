@@ -22,9 +22,11 @@ export default function Navbar() {
     const navigate = useNavigate();
     const location = useLocation();
     const dropdownRef = useRef(null);
+    const mobileMenuRef = useRef(null);
 
     const handleLoginRedirect = () => {
         setIsDropdownOpen(false);
+        setIsMenuOpen(false);
         if (window.location.pathname != '/login') {
             console.log("current: ", window.location.path)
             navigate('/login', {
@@ -37,16 +39,20 @@ export default function Navbar() {
     };
 
     const handleLogOut = () => {
+        setIsMenuOpen(false);
         setIsDropdownOpen(false);
         logout();
     };
 
     const navigateTo = (path) => {
+        setIsMenuOpen(false);
         setIsDropdownOpen(false);
         navigate(path);
     };
 
     const scrollToSection = (id) => {
+        setIsMenuOpen(false);
+        setIsDropdownOpen(false);
         navigate(`/#${id}`);
     };
 
@@ -67,6 +73,24 @@ export default function Navbar() {
             document.removeEventListener('click', handleClickOutside);
         };
     }, [isDropdownOpen]);
+
+    useEffect(() => {
+        const handleClickOutside = (event) => {
+            if (mobileMenuRef.current && !mobileMenuRef.current.contains(event.target)) {
+                setIsMenuOpen(false);
+            }
+        };
+
+        if (isMenuOpen) {
+            document.addEventListener('mousedown', handleClickOutside);
+        } else {
+            document.removeEventListener('mousedown', handleClickOutside);
+        }
+
+        return () => {
+            document.removeEventListener('mousedown', handleClickOutside);
+        };
+    }, [isMenuOpen])
 
     useEffect(() => {
         const currentUrl = window.location.href;
@@ -168,12 +192,12 @@ export default function Navbar() {
             </div>
 
             {/* Mobile Menu Button */}
-            <button className={styles.mobileMenuButton} onClick={() => setIsMenuOpen(true)}>
+            <button className={styles.mobileMenuButton} onClick={() => { console.log('Opening menu'); setIsMenuOpen(true); }}>
                 ☰
             </button>
 
             {/* Sliding Panel for Mobile */}
-            <div className={`${styles.mobileNavPanel} ${isMenuOpen ? styles.open : ''}`}>
+            <div ref={mobileMenuRef} className={`${styles.mobileNavPanel} ${isMenuOpen ? styles.open : ''}`}>
                 <button className={styles.closeButton} onClick={() => setIsMenuOpen(false)}>
                     ×
                 </button>
