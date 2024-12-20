@@ -176,10 +176,10 @@ export default function ContentSection({ type }) {
                     <ChevronLeft />
                 </button>
                 <div className={styles.left50Stack}>
+                    {visibleContent[0] && renderCard(visibleContent[0], handleClick)}
                     {visibleContent[1] && renderCard(visibleContent[1], handleClick)}
-                    {visibleContent[2] && renderCard(visibleContent[2], handleClick)}
                 </div>
-                <div className={styles.right50}>{visibleContent[0] && renderCard(visibleContent[0], handleClick)}</div>
+                <div className={styles.right50}>{visibleContent[2] && renderCard(visibleContent[0], handleClick)}</div>
                 <button className={styles.scrollButton} onClick={handleNext} disabled={currentIndex + 3 >= content.length} style={{ right: '-6px' }} >
                     <ChevronRight />
                 </button>
