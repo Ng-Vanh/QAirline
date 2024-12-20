@@ -13,6 +13,7 @@ export default function ManageAircraft() {
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
     const [filterType, setFilterType] = useState('All');
+    const [isSaving, setIsSaving] = useState(false);
     const [newAircraft, setNewAircraft] = useState({
         code: '',
         manufacturer: '',
@@ -67,6 +68,7 @@ export default function ManageAircraft() {
 
     const handleSubmit = async (e) => {
         e.preventDefault();
+        setIsSaving(true);
         try {
             if (editingAircraft) {
                 await axios.put(`${apiBaseUrl}/api/aircrafts/${editingAircraft._id}`, newAircraft);
@@ -80,6 +82,8 @@ export default function ManageAircraft() {
         } catch (err) {
             console.error('Error saving aircraft:', err);
             showToast('Error', 'Failed to save aircraft.', 'error');
+        } finally {
+            setIsSaving(false);
         }
     };
 
@@ -369,8 +373,14 @@ export default function ManageAircraft() {
                                 </div>
                             </div>
                             <div className={aircraftStyle.form_actions}>
-                                <button type="submit" className={aircraftStyle.save_button}>
-                                    {editingAircraft ? 'Update' : 'Add'} Aircraft
+                                <button type="submit" className={aircraftStyle.save_button} disabled={isSaving}>
+
+                                    {isSaving ? (
+                                        <div className={aircraftStyle.save_button_container}>
+                                            Processing
+                                            <Loader className={`${aircraftStyle.spinner} ${aircraftStyle.spinner_save}`} />
+                                        </div>
+                                    ) : 'Save'}
                                 </button>
                                 <button type="button" className={aircraftStyle.cancel_button} onClick={() => setIsDialogOpen(false)}>
                                     Cancel

@@ -181,9 +181,15 @@ body {
 }
 
 .file_input_wrapper input[type="file"] {
-    position: absolute;
-    left: -9999px;
+    /* position: absolute; */
+    /* left: -9999px; */
+    background-color: var(--primary);
+    color: #000;
+
 }
+
+
+
 
 .file_input_label {
     display: inline-flex;
