@@ -70,6 +70,9 @@ export default function PopularFlights() {
                             <Plane className={styles.icon} />
                             <h3>{flight.departureCity} to {flight.arrivalCity}</h3>
                             <p>{flight.flightCount} flights</p>
+                            <div className={styles.bookNow}>
+                                <span>Book now</span>
+                            </div>
                         </div>
                     ))}
                 </div>
