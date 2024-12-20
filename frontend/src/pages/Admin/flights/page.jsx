@@ -177,6 +177,7 @@ export default function ManageFlights() {
             case "Delayed": return flightStyle.status_delayed;
             case "On time": return flightStyle.status_in_air;
             case "Landed": return flightStyle.status_landed;
+            case "In flight": return flightStyle.status_in_flight;
             default: return flightStyle.status_default;
         }
     };
@@ -206,6 +207,7 @@ export default function ManageFlights() {
                     <option value="Delayed">Delayed</option>
                     <option value="On time">On time</option>
                     <option value="Landed">Landed</option>
+                    <option value="In flight">In flight</option>
                 </select>
                 <button className={flightStyle.add_button} onClick={() => {
                     setEditingFlight(null);

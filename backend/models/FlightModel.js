@@ -24,7 +24,7 @@ const FlightSchema = new Schema({
 
   flightStatus: {
     type: String,
-    enum: ['Scheduled', 'On time', 'Delayed', 'Landed'],
+    enum: ['Scheduled', 'On time', 'Delayed', 'Landed', 'In flight'],
     required: true,
     default: 'Scheduled' 
   }

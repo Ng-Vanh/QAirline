@@ -7,12 +7,25 @@ import { useAuth } from '../../components/contexts/AuthContext';
 import { useLocation, useNavigate } from 'react-router-dom';
 import FlightsStyle from './Flights.module.css'
 import Config from '../../Config.js'
+import * as Toast from "@radix-ui/react-toast"
 
 export default function Flights() {
   const { isAuthenticated, name, userId } = useAuth();
   const navigate = useNavigate();
   const location = useLocation();
   const apiBaseUrl = Config.apiBaseUrl;
+
+  const [isToastOpen, setIsToastOpen] = useState(false);
+  const [toastMessage, setToastMessage] = useState({
+    title: '',
+    description: '',
+    type: '',
+  });
+
+  const showToast = (title, description, type) => {
+    setToastMessage({ title, description, type });
+    setIsToastOpen(true);
+  }
 
   // const handleLoginRedirect = (thePrevState = {}) => {
   //   console.log("Inside handle redirect, the prev state is: ", thePrevState);
@@ -578,7 +591,8 @@ export default function Flights() {
       }
     } catch (error) {
       console.error('Error searching flights:', error)
-      alert('An error occurred while searching for flights. Please try again.')
+      showToast( 'Error', 'An error occurred while searching for flights. Please try again.', 'error' );
+      // alert('An error occurred while searching for flights. Please try again.')
     } finally {
       setIsLoading(false)
     }
@@ -1208,7 +1222,8 @@ export default function Flights() {
       console.error('Error during booking process:', error);
 
       // Display user-friendly error
-      alert(error.message || 'An unexpected error occurred while confirming your booking. Please try again.');
+      // alert(error.message || 'An unexpected error occurred while confirming your booking. Please try again.');
+      showToast('Error', error.message || 'An unexpected error occurred while confirming your booking. Please try again.', 'error' );
     } finally {
       setIsLoadingConfirmBooking(false);
       // setBookingConfirmed(true);
@@ -1850,7 +1865,26 @@ export default function Flights() {
           </div>
         </div>
       )}
+
+      <Toast.Provider>
+        <Toast.Root
+          className={`${FlightsStyle.toast} ${toastMessage.type === 'error' ? FlightsStyle.toastError : FlightsStyle.toastSuccess}`}
+          open={isToastOpen}
+          onOpenChange={setIsToastOpen}
+        >
+          <Toast.Title className={FlightsStyle.toastTitle}>
+            {toastMessage.title}
+          </Toast.Title>
+
+          <Toast.Description className={FlightsStyle.toastDescription}>
+            {toastMessage.description}
+          </Toast.Description>
+        </Toast.Root>
+
+        <Toast.Viewport className={FlightsStyle.toastViewport} />
+      </Toast.Provider>
     </div>
+
   )
 
 }

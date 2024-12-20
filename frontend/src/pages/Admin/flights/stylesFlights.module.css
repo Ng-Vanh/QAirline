@@ -140,6 +140,12 @@ body {
     color: white;
 }
 
+.status_in_flight {
+    background-color: var(--in_flight_bg_color);
+    color: white;
+  }
+  
+
 .status_default {
     background-color: #95a5a6;
     color: white;
