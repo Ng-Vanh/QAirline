@@ -8,6 +8,7 @@ import { useLocation, useNavigate } from 'react-router-dom';
 import FlightsStyle from './Flights.module.css'
 import Config from '../../Config.js'
 import * as Toast from "@radix-ui/react-toast"
+import { set } from 'mongoose';
 
 export default function Flights() {
   const { isAuthenticated, name, userId } = useAuth();
@@ -59,6 +60,19 @@ export default function Flights() {
     { departureCity: '', destinationCity: '', departureDate: '' },
     { departureCity: '', destinationCity: '', departureDate: '' }
   ])
+
+  const [lockedSearchCriteria, setLockedSearchCriteria] = useState({
+    departureCity: '',
+    destinationCity: '',
+    departureDate: '',
+    passengerCount: 1
+  })
+  const [lockedReturnDate, setLockedReturnDate] = useState('')
+  const [lockedMultiCityFlights, setLockedMultiCityFlights] = useState([
+    { departureCity: '', destinationCity: '', departureDate: '' },
+    { departureCity: '', destinationCity: '', departureDate: '' }
+  ])
+
   const [searchResults, setSearchResults] = useState([])
   const [isLoading, setIsLoading] = useState(false)
   const [isLoadingConfirmBooking, setIsLoadingConfirmBooking] = useState(false)
@@ -557,6 +571,19 @@ export default function Flights() {
 
     let searchPromises = []
 
+    const validPassengerCount = (count) => {
+      if (isNaN(count) || count <= 0) {
+        return 1; 
+      }
+      return Math.min(9, count);
+    };
+    
+    searchCriteria.passengerCount = validPassengerCount(searchCriteria.passengerCount);
+
+    setLockedSearchCriteria(searchCriteria)
+    setLockedReturnDate(returnDate)
+    setLockedMultiCityFlights(multiCityFlights)
+    
     if (searchType === 'oneWay') {
       searchPromises = [searchFlights(searchCriteria)]
     } else if (searchType === 'roundTrip') {
@@ -747,6 +774,18 @@ export default function Flights() {
     //   setDoneChoosing(true);
     // }
 
+    const existingItem = selectedFlights[currentStep];
+    if (existingItem && existingItem.flight._id !== flight._id) {
+      setSelectedFlights(prev => {
+        const updatedFlights = { ...prev };
+        for (let step = currentStep + 1; step < getTotalRoutes(); step++) {
+          delete updatedFlights[step];
+        }
+        return updatedFlights;
+      });
+    }
+  
+
     if (currentStep === getTotalRoutes() - 1) {
       setDoneChoosing(true);
     }
@@ -816,18 +855,28 @@ export default function Flights() {
       <div className={FlightsStyle.flight_results}>
 
         <h2 className={FlightsStyle.flight_results_title}>
-          {filteredFlights.length > 0
-            ? `${filteredFlights.length} Flights found `
-            : 'No flights found '}
-          for {filteredFlights.length > 0
-            ? `${filteredFlights[0].departureAirportDetails.city} to ${filteredFlights[0].arrivalAirportDetails.city}, `
-            : ' your selected route'}
-          {filteredFlights.length > 0
-            ? `${new Date(filteredFlights[0].departureTime).getDate()}/${new Date(filteredFlights[0].departureTime).getMonth() + 1}/${new Date(filteredFlights[0].departureTime).getFullYear()}`
-            : ''}
+          {(() => {
+            const formatDate = (dateString) => {
+              const date = new Date(dateString);
+              return `${date.getDate()}/${date.getMonth() + 1}/${date.getFullYear()}`;
+            };
+
+            if (searchType === 'oneWay') {
+              return `${filteredFlights.length} flights from ${lockedSearchCriteria.departureCity} to ${lockedSearchCriteria.destinationCity} on ${formatDate(lockedSearchCriteria.departureDate)}`;
+            } else if (searchType === 'roundTrip') {
+              if (currentStep === 0) {
+                return `${filteredFlights.length} flights from ${lockedSearchCriteria.departureCity} to ${lockedSearchCriteria.destinationCity} on ${formatDate(lockedSearchCriteria.departureDate)}`;
+              } else {
+                return `${filteredFlights.length} return flights from ${lockedSearchCriteria.destinationCity} to ${lockedSearchCriteria.departureCity} on ${formatDate(lockedReturnDate)}`;
+              }
+            } else if (searchType === 'multiCity') {
+              const currentFlight = lockedMultiCityFlights[currentStep];
+              return `${filteredFlights.length} flights from ${currentFlight.departureCity} to ${currentFlight.destinationCity} on ${formatDate(currentFlight.departureDate)}`;
+            }
+            return '';
+          })()}
         </h2>
 
-        {/* <h2 className={FlightsStyle.flight_results_title}> */}
         {/* {filteredFlights.length > 0 ? `${filteredFlights.length} Flights found` : 'No flights found'} for {filteredFlights[0].departureAirportDetails.city} to {filteredFlights[0].arrivalAirportDetails.city}, {`${new Date(filteredFlights[0].departureTime).getDate()}/${new Date(filteredFlights[0].departureTime).getMonth() + 1}/${new Date(filteredFlights[0].departureTime).getFullYear()}`} */}
 
         {/* {filteredFlights.length > 0 ? `${filteredFlights.length} Flights found` : 'No flights found'} for {searchCriteria.departureCity} to {searchCriteria.destinationCity}, {searchCriteria.departureDate} */}
@@ -847,7 +896,8 @@ export default function Flights() {
 
         </div> */}
 
-        {filteredFlights.length > 0 && searchType != 'oneWay' && (
+        {/* filteredFlights.length > 0 &&  */}
+        {searchType != 'oneWay' && (
           <div className={FlightsStyle.navigation_buttons_section}>
 
             <button className={`${FlightsStyle.button} ${FlightsStyle.navigation_buttons}`} onClick={handleBack} disabled={currentStep === 0}>
@@ -855,6 +905,7 @@ export default function Flights() {
               Back
             </button>
 
+            <h5>{currentStep + 1}/{getTotalRoutes()}</h5>
             <button className={`${FlightsStyle.button} ${FlightsStyle.navigation_buttons}`} onClick={handleNext} disabled={currentStep >= maxReachedStep || currentStep >= getTotalRoutes() - 1}>
               Next
               <ArrowRight className={FlightsStyle.button_icon} />
@@ -1142,6 +1193,11 @@ export default function Flights() {
   }
 
   const handleConfirmBooking = async () => {
+    if (Object.keys(selectedFlights).length === 0) {
+      showToast('Error', 'Please select flights to proceed.', 'error');
+      return;
+    }
+
     setIsLoadingConfirmBooking(true);
 
     if (!isAuthenticated) {
@@ -1162,6 +1218,7 @@ export default function Flights() {
 
           if (!response.ok) {
             const errorData = await response.json();
+            showToast('Error', errorData.message || response.statusText, 'error');
             throw new Error(`Passenger creation failed: ${errorData.message || response.statusText}`);
           }
 
@@ -1191,6 +1248,7 @@ export default function Flights() {
 
         if (!response.ok) {
           const errorData = await response.json();
+          showToast('Error', errorData.message || response.statusText, 'error');
           throw new Error(`Booking creation failed: ${errorData.message || response.statusText}`);
         }
 
@@ -1432,8 +1490,9 @@ export default function Flights() {
                         className={FlightsStyle.input}
                         type="number"
                         value={searchCriteria.passengerCount}
-                        onChange={(e) => setSearchCriteria({ ...searchCriteria, passengerCount: parseInt(e.target.value) })}
+                        onChange={(e) => setSearchCriteria({ ...searchCriteria, passengerCount: Math.min(9, parseInt(e.target.value))})}
                         min={1}
+                        max={9}
                       />
                     </div>
                   </div>
@@ -1534,8 +1593,9 @@ export default function Flights() {
                       className={FlightsStyle.input}
                       type="number"
                       value={searchCriteria.passengerCount}
-                      onChange={(e) => setSearchCriteria({ ...searchCriteria, passengerCount: parseInt(e.target.value) })}
+                      onChange={(e) => setSearchCriteria({ ...searchCriteria, passengerCount: Math.min(9, parseInt(e.target.value)) })}
                       min={1}
+                      max={9}
                     />
                   </div>
                 </div>
@@ -1658,8 +1718,9 @@ export default function Flights() {
                       className={FlightsStyle.input}
                       type="number"
                       value={searchCriteria.passengerCount}
-                      onChange={(e) => setSearchCriteria({ ...searchCriteria, passengerCount: parseInt(e.target.value) })}
+                      onChange={(e) => setSearchCriteria({ ...searchCriteria, passengerCount: Math.min(9, parseInt(e.target.value)) })}
                       min={1}
+                      max={9}
                     />
                   </div>
                 </div>
