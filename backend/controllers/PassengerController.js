@@ -10,9 +10,15 @@ exports.createPassenger = async (req, res) => {
       return res.status(400).json({ message: 'Name and email are required' });
     }
 
+    // Validate email format using regex
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(email)) {
+      return res.status(400).json({ message: 'Invalid email address' });
+    }
+
     const newPassenger = new Passenger({
       name,
-      email
+      email,
     });
 
     await newPassenger.save();

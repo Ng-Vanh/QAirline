@@ -26,7 +26,11 @@ body {
 .container {
   width: 100%;
   max-width: 1280px;
-  margin: 0 auto;
+  margin-left: auto;
+  margin-right: auto;
+  margin-top: auto;
+  
+  margin-bottom: 200px;
   padding: 1rem 1rem;
 }
 
@@ -572,6 +576,7 @@ h3 {
   justify-content: space-between;
   margin-bottom: 1.5rem;
   margin-top: 1rem;
+  align-items: center;
 }
 
 .navigation_buttons {
@@ -721,6 +726,11 @@ h2 {
   color: var(--main_text_color);
 }
 
+h5 {
+  color: grey;
+  font-size: 0.95rem;
+}
+
 Trash2 {
   color: #4f46e5;
 }
@@ -838,6 +848,7 @@ select:-webkit-autofill:focus {
 .not_in_flights {
   background: var(--transparent_main_color);
   border-radius: 1rem;
+  margin-bottom: 0;;
 }
 
 .autocomplete_wrapper {
