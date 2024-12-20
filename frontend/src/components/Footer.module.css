@@ -21,7 +21,7 @@
     max-width: 380px;
 }
 
-.column:last-child>h3 {
+.column:last-child h3 {
     margin-left: 8px;
 }
 
@@ -96,4 +96,74 @@
         margin-right: 0;
         justify-content: center;
     }
+
+    .emailSection {
+        text-align: center;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        flex-direction: column;
+    }
+
+    .inputGroup {
+        flex-direction: column;
+        align-items: stretch;
+        gap: 0.5rem;
+        max-width: 50vw;
+    }
+
+    .emailInput {
+        width: 100%;
+    }
+
+    .submitButton {
+        width: 100%;
+    }
+}
+
+.emailSection {
+    margin-top: 1.5rem;
+    text-align: left;
+}
+
+.helpForm {
+    margin-top: 1rem;
+}
+
+.inputGroup {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.emailInput {
+    flex: 1;
+    padding: 0.5rem;
+    border: 1px solid #d1d5db;
+    border-radius: 4px;
+    font-size: 0.9rem;
+    outline: none;
+    transition: border-color 0.2s ease;
+    min-width: 200px;
+}
+
+.emailInput:focus {
+    border-color: var(--primary);
+}
+
+.submitButton {
+    padding: 0.5rem 0.8rem;
+    background-color: var(--primary-dark);
+    color: white;
+    border: none;
+    border-radius: 4px;
+    font-size: 0.8rem;
+    cursor: pointer;
+    transition: background-color 0.2s ease, transform 0.2s ease;
+}
+
+.submitButton:hover {
+    background-color: var(--primary);
+    transform: scale(1.02);
 }
