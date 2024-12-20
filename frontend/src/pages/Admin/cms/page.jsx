@@ -148,6 +148,17 @@ export default function CMSPage() {
             }));
         }
     };
+    const handleToggleActive = async (item) => {
+        try {
+            const updatedItem = { ...item, isActive: !item.isActive };
+            await axios.put(`${apiBaseUrl}/api/content/${item._id}`, updatedItem);
+            fetchContent();
+            showToast('Status Updated', 'The content status has been updated.', 'success');
+        } catch (error) {
+            console.error('Error updating status:', error);
+            showToast('Error', 'Failed to update status.', 'error');
+        }
+    };
 
     const renderTable = (items) => (
         <table className={cmsStyle.cms_table}>
@@ -156,6 +167,7 @@ export default function CMSPage() {
                     <th>Title</th>
                     <th>Description</th>
                     <th>Image</th>
+                    <th>Active</th>
                     <th>Actions</th>
                 </tr>
             </thead>
@@ -163,7 +175,7 @@ export default function CMSPage() {
                 {items.map((item) => (
                     <tr key={item._id}>
                         <td>{item.title}</td>
-                        <td>{item.description}</td>
+                        <td className={cmsStyle.table_description}>{item.description}</td>
                         <td>
                             {item.image && (
                                 <img
@@ -172,6 +184,16 @@ export default function CMSPage() {
                                     className={cmsStyle.table_image}
                                 />
                             )}
+                        </td>
+                        <td>
+                            <label className={cmsStyle.toggle_switch}>
+                                <input
+                                    type="checkbox"
+                                    checked={item.isActive}
+                                    onChange={() => handleToggleActive(item)}
+                                />
+                                <span className={cmsStyle.slider}></span>
+                            </label>
                         </td>
                         <td>
                             <button
@@ -309,12 +331,12 @@ export default function CMSPage() {
                                     disabled={isSaving}
                                 >
 
-                                {isSaving ? (
-                                    <div className={cmsStyle.save_button_container}>
-                                        Processing
-                                        <Loader className={`${cmsStyle.spinner} ${cmsStyle.spinner_save}`} />
-                                    </div>
-                                ) : 'Save'}
+                                    {isSaving ? (
+                                        <div className={cmsStyle.save_button_container}>
+                                            Processing
+                                            <Loader className={`${cmsStyle.spinner} ${cmsStyle.spinner_save}`} />
+                                        </div>
+                                    ) : 'Save'}
 
                                 </button>
                                 <button
