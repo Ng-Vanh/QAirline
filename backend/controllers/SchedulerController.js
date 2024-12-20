@@ -11,10 +11,12 @@ const updateFlightStatuses = async () => {
         const flights = await Flight.find();
 
         for (const flight of flights) {
-            if (flight.flightStatus !== "Delayed" && (flight.departureTime <= new Date(now.getTime() + 30 * 60 * 1000) && flight.arrivalTime > now)) {
-                flight.flightStatus = 'On time';
-            } else if (flight.arrivalTime <= now) {
+            if (flight.arrivalTime <= now) {
                 flight.flightStatus = 'Landed';
+            } else if (flight.departureTime <= now && flight.arrivalTime > now) {
+                flight.flightStatus = 'In flight';
+            } else if (flight.flightStatus !== "Delayed" && (flight.departureTime <= new Date(now.getTime() + 30 * 60 * 1000) && flight.arrivalTime > now)) {
+                flight.flightStatus = 'On time';
             }
 
             await flight.save();
