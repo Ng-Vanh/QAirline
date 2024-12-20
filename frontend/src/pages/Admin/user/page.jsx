@@ -22,6 +22,8 @@ export default function UserManagement() {
     const [loading, setLoading] = useState(true);
     const [toastMessage, setToastMessage] = useState({ title: "", description: "", status: "" });
     const [isToastOpen, setIsToastOpen] = useState(false);
+    const [isSaving, setIsSaving] = useState(false);
+
 
     const fetchUsers = async () => {
         try {
@@ -59,6 +61,7 @@ export default function UserManagement() {
 
     const handleSubmit = async (e) => {
         e.preventDefault();
+        setIsSaving(true);
         try {
             if (editingUser) {
                 const response = await axios.put(`${apiBaseUrl}/api/users/${newUser._id}`, newUser);
@@ -77,6 +80,8 @@ export default function UserManagement() {
                 error.response?.data?.message || 'Failed to process request. Please check your input.',
                 "error"
             );
+        } finally {
+            setIsSaving(false);
         }
     };
 
@@ -226,7 +231,12 @@ export default function UserManagement() {
                                 </div>
                                 <div className={userStyle.dialog_actions}>
                                     <button type="submit" className={userStyle.save_button}>
-                                        Save
+                                        {isSaving ? (
+                                            <div className={userStyle.save_button_container}>
+                                                Processing
+                                                <Loader className={`${userStyle.spinner} ${userStyle.spinner_save}`} />
+                                            </div>
+                                        ) : 'Save'}
                                     </button>
                                     <button
                                         type="button"

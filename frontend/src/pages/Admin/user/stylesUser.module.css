@@ -222,6 +222,15 @@ tbody tr:hover {
     color: var(--primary);
 }
 
+.spinner_save {
+    color: white;
+}
+
+.save_button_container {
+    display: flex;
+    gap: 0.65rem;
+}
+
 @keyframes spin {
     0% {
         transform: rotate(0deg);

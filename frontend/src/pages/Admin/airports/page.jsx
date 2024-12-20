@@ -19,6 +19,9 @@ const AdminAirportManagement = () => {
     const [toastMessage, setToastMessage] = useState({ title: '', description: '', type: '' });
     const [toastOpen, setToastOpen] = useState(false);
 
+    const [isSaving, setIsSaving] = useState(false);
+
+
     const fetchAirports = async () => {
         try {
             setLoading(true);
@@ -48,6 +51,8 @@ const AdminAirportManagement = () => {
 
     const handleSubmit = async (e) => {
         e.preventDefault();
+        setIsSaving(true);
+
         try {
             if (editingAirport) {
                 await axios.put(`${apiBaseUrl}/api/airports/${editingAirport._id}`, newAirport);
@@ -63,6 +68,8 @@ const AdminAirportManagement = () => {
         } catch (error) {
             console.error("Error saving airport:", error);
             showToast("Error", "Failed to save airport details.", "error");
+        } finally {
+            setIsSaving(false);
         }
     };
 
@@ -178,8 +185,13 @@ const AdminAirportManagement = () => {
                                 />
                             </div>
                             <div className={styleAirport.form_actions}>
-                                <button type="submit" className={styleAirport.save_button}>
-                                    {editingAirport ? "Update Airport" : "Add Airport"}
+                                <button type="submit" className={styleAirport.save_button} disabled={isSaving}>
+                                    {isSaving ? (
+                                        <div className={styleAirport.save_button_container}>
+                                            Processing
+                                            <Loader className={`${styleAirport.spinner} ${styleAirport.spinner_save}`} />
+                                        </div>
+                                    ) : 'Save'}
                                 </button>
                                 <button
                                     type="button"

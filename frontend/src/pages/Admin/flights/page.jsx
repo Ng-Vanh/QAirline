@@ -38,6 +38,9 @@ export default function ManageFlights() {
     const [toastMessage, setToastMessage] = useState({ title: '', description: '', type: '' });
     const [toastOpen, setToastOpen] = useState(false);
 
+    const [isSaving, setIsSaving] = useState(false);
+
+
     useEffect(() => {
         fetchFlights();
         fetchAirportsAndAircrafts();
@@ -119,6 +122,8 @@ export default function ManageFlights() {
 
     const handleSubmit = async (e) => {
         e.preventDefault();
+        setIsSaving(true);
+
         try {
             const departureTimeUTC = new Date(newFlight.departureTime).toISOString();
             const arrivalTimeUTC = new Date(newFlight.arrivalTime).toISOString();
@@ -142,6 +147,9 @@ export default function ManageFlights() {
         } catch (error) {
             console.error('Error:', error);
             showToast('Error', 'Failed to process request. Please check your input.', 'error');
+        } finally {
+            setIsSaving(false);
+
         }
     };
 
@@ -424,8 +432,14 @@ export default function ManageFlights() {
                                 </div>
                             </div>
                             <div className={flightStyle.form_actions}>
-                                <button type="submit" className={flightStyle.submit_button}>
-                                    {editingFlight ? "Update" : "Add"} Flight
+                                <button type="submit" className={flightStyle.submit_button} disabled={isSaving}>
+                                    {isSaving ? (
+                                        <div className={flightStyle.save_button_container}>
+                                            Processing
+                                            <Loader className={`${flightStyle.spinner} ${flightStyle.spinner_save}`} />
+                                        </div>
+                                    ) : 'Save'}
+
                                 </button>
                                 <button type="button" onClick={() => setIsDialogOpen(false)} className={flightStyle.cancel_button}>
                                     Cancel
