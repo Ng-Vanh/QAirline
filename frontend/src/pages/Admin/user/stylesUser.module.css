@@ -112,7 +112,6 @@ tbody tr:hover {
     background-color: #e8e8e8;
 }
 
-/* Chia tỷ lệ các cột trong bảng */
 th:nth-child(1),
 td:nth-child(1) {
     width: 35%;
@@ -263,7 +262,6 @@ td:nth-child(4) {
     }
 }
 
-/* Toast Container */
 .toast {
     background-color: #fff;
     color: #333;
@@ -279,33 +277,26 @@ td:nth-child(4) {
     border-left: 4px solid;
 }
 
-/* Success Toast */
 .success {
     border-left-color: #4caf50;
-    /* Green */
 }
 
-/* Error Toast */
 .error {
     border-left-color: #f44336;
-    /* Red */
 }
 
-/* Toast Title */
 .toastTitle {
     font-size: 16px;
     font-weight: bold;
     margin: 0;
 }
 
-/* Toast Description */
 .toastDescription {
     font-size: 14px;
     margin: 0;
     color: #666;
 }
 
-/* Toast Viewport */
 .toastViewport {
     position: fixed;
     top: 20px;
@@ -318,7 +309,6 @@ td:nth-child(4) {
     outline: none;
 }
 
-/* Animations */
 @keyframes fadeIn {
     from {
         opacity: 0;

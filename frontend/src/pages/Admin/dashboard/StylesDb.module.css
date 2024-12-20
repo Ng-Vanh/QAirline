@@ -7,9 +7,7 @@
 
 .dashboard_title {
     font-size: 1.875rem;
-    /* text-3xl */
     font-weight: bold;
-    /* font-bold */
 }
 
 .dashboard_grid {
@@ -33,13 +31,9 @@
 .dashboard_card {
     text-decoration: none;
     background-color: #ffffff;
-    /* bg-white */
     padding: 1.5rem;
-    /* p-6 */
     border-radius: 0.5rem;
-    /* rounded-lg */
     box-shadow: 0px 2px 4px rgba(0, 0, 0, 0.1);
-    /* shadow-md */
     transition: box-shadow 0.3s ease;
     display: flex;
     align-items: center;

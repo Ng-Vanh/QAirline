@@ -4,16 +4,28 @@
     margin: 0 auto;
     padding: 0 0;
     overflow-x: hidden;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
 }
 
 body {
     margin: 0;
-    /* margin: 0 40px; */
     box-sizing: border-box;
     overflow-x: hidden;
-    /* Ngăn cuộn ngang toàn trang */
 }
 
+.mainContent {
+    width: 100%;
+    max-width: 1400px;
+    margin: 0 auto;
+}
+
+.topSection {
+    width: 100vw !important;
+    margin-left: calc((100% - 100vw) / 2);
+    margin-right: calc((100% - 100vw) / 2);
+}
 
 .topSection,
 .searchBarContainer {
