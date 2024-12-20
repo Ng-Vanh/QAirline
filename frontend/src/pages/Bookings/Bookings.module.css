@@ -457,28 +457,6 @@
   }
 }
 
-.sort_container {
-  display: flex;
-  justify-content: flex-end;
-  margin-bottom: 1rem;
-}
-
-.sort_select {
-  padding: 0.5rem 1rem;
-  border-radius: 20px;
-  border: 1px solid #3498db;
-  background-color: white;
-  color: #3498db;
-  font-size: 0.9rem;
-  cursor: pointer;
-  transition: all 0.3s ease;
-}
-
-.sort_select:hover {
-  background-color: #3498db;
-  color: white;
-}
-
 .passenger_button {
   background-color: rgba(255, 255, 255, 0.3);
   color: #ffffff;
@@ -609,4 +587,43 @@
   gap: 10px;
   z-index: 100000;
   outline: none;
+}
+
+.sortDropdownContainer {
+  display: flex;
+  justify-content: flex-end;
+  margin-bottom: 1rem;
+  /* backdrop-filter: blur(10px); */
+}
+
+.halfWidth {
+  width: 50%;
+}
+
+.sortDropdown {
+  /* appearance: none; */
+  background-color: rgba(255, 255, 255);
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  padding: 10px;
+  font-size: 16px;
+  color: #333;
+  outline: none;
+  cursor: pointer;
+  transition: border-color 0.3s ease;
+  backdrop-filter: blur(10px);
+}
+
+.sortDropdown:hover {
+  border-color: #888;
+}
+
+.sortDropdown:focus {
+  border-color: #555;
+}
+
+.sortDropdown option {
+  border-radius: 20px;
+  background-color: #fff;
+  color: #333;
 }

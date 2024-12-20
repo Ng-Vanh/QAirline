@@ -330,7 +330,7 @@ export default function Bookings() {
 
             <div className={BookingsStyle.tabs}>
                 <button
-                    className={`${BookingsStyle.tab} ${activeTab === 'upcoming' ? BookingsStyle.tab_active : ''}`}
+                    className={`${BookingsStyle.tab} ${BookingsStyle.halfWidth} ${activeTab === 'upcoming' ? BookingsStyle.tab_active : ''}`}
                     onClick={() => {
                         // setActiveTab('upcoming')
                         activeTab !== 'upcoming' && setActiveTab('upcoming')
@@ -340,7 +340,7 @@ export default function Bookings() {
                     Upcoming Flights
                 </button>
                 <button
-                    className={`${BookingsStyle.tab} ${activeTab === 'past' ? BookingsStyle.tab_active : ''}`}
+                    className={`${BookingsStyle.tab} ${BookingsStyle.halfWidth} ${activeTab === 'past' ? BookingsStyle.tab_active : ''}`}
                     onClick={() => {
                         activeTab !== 'past' && setActiveTab('past')
                         // setActiveTab('past')
@@ -351,16 +351,17 @@ export default function Bookings() {
                 </button>
             </div>
 
-            <div className={BookingsStyle.sort_container}>
+            <div className={BookingsStyle.sortDropdownContainer}>
                 <select
-                    className={BookingsStyle.sort_select}
-                    value={sortBy}
+                    className={BookingsStyle.sortDropdown}
                     onChange={(e) => setSortBy(e.target.value)}
+                    value={sortBy}
                 >
                     <option value="departureDate">Sort by departure date</option>
                     <option value="bookingDate">Sort by booking date</option>
                 </select>
             </div>
+
 
             {renderBookings()}
 
