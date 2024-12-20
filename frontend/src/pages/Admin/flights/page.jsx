@@ -62,7 +62,8 @@ export default function ManageFlights() {
             setFlights(response.data);
         } catch (error) {
             console.error('Error fetching flights:', error);
-            showToast('Error', 'Failed to fetch flights.', 'error');
+            const errorMessage = error.response?.data?.message || error.message || 'An unexpected error occurred';
+            showToast('Error', errorMessage, 'error');
         } finally {
             setLoading(false);
         }
@@ -78,7 +79,8 @@ export default function ManageFlights() {
             setAircrafts(aircraftsResponse.data || []);
         } catch (error) {
             console.error('Error fetching airports or aircrafts:', error);
-            showToast('Error', 'Failed to fetch airports or aircrafts.', 'error');
+            const errorMessage = error.response?.data?.message || error.message || 'An unexpected error occurred';
+            showToast('Error', errorMessage, 'error');
         }
     };
 
@@ -146,7 +148,8 @@ export default function ManageFlights() {
             setIsDialogOpen(false);
         } catch (error) {
             console.error('Error:', error);
-            showToast('Error', 'Failed to process request. Please check your input.', 'error');
+            const errorMessage = error.response?.data?.message || error.message || 'An unexpected error occurred';
+            showToast('Error', errorMessage, 'error');
         } finally {
             setIsSaving(false);
 
@@ -175,7 +178,8 @@ export default function ManageFlights() {
             fetchFlights();
         } catch (error) {
             console.error('Error deleting flight:', error);
-            showToast('Error', 'Failed to delete flight.', 'error');
+            const errorMessage = error.response?.data?.message || error.message || 'An unexpected error occurred';
+            showToast('Error', errorMessage, 'error');
         }
     };
 
