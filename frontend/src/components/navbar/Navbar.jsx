@@ -50,12 +50,41 @@ export default function Navbar() {
         navigate(path);
     };
 
+    // const scrollToSection = (id) => {
+    //     setIsMenuOpen(false);
+    //     setIsDropdownOpen(false);
+    //     navigate(`/#${id}`);
+    // };
+
     const scrollToSection = (id) => {
         setIsMenuOpen(false);
         setIsDropdownOpen(false);
-        navigate(`/#${id}`);
+    
+        if (window.location.pathname !== '/') {
+            navigate(`/#${id}`);
+            // Delay the scroll to let the navigation complete
+            setTimeout(() => {
+                const element = document.getElementById(id);
+                if (element) {
+                    element.scrollIntoView({
+                        behavior: 'smooth',
+                        block: 'start',
+                        inline: 'nearest',
+                    });
+                }
+            }, 100);
+        } else {
+            const element = document.getElementById(id);
+            if (element) {
+                element.scrollIntoView({
+                    behavior: 'smooth',
+                    block: 'start',
+                    inline: 'nearest',
+                });
+            }
+        }
     };
-
+    
     useEffect(() => {
         const handleClickOutside = (event) => {
             if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
@@ -92,22 +121,22 @@ export default function Navbar() {
         };
     }, [isMenuOpen])
 
-    useEffect(() => {
-        const currentUrl = window.location.href;
-        if (currentUrl.includes('/#') || currentUrl.endsWith('/')) {
-            const hash = window.location.hash.replace('#', '');
-            if (hash) {
-                const element = document.getElementById(hash);
-                if (element) {
-                    element.scrollIntoView({
-                        behavior: 'smooth',
-                        block: 'start',
-                        inline: 'nearest',
-                    });
-                }
-            }
-        }
-    }, [window.location.hash]);
+    // useEffect(() => {
+    //     const currentUrl = window.location.href;
+    //     if (currentUrl.includes('/#') || currentUrl.endsWith('/')) {
+    //         const hash = window.location.hash.replace('#', '');
+    //         if (hash) {
+    //             const element = document.getElementById(hash);
+    //             if (element) {
+    //                 element.scrollIntoView({
+    //                     behavior: 'smooth',
+    //                     block: 'start',
+    //                     inline: 'nearest',
+    //                 });
+    //             }
+    //         }
+    //     }
+    // }, [window.location.hash]);
 
     if (isAdminLogin()) {
         return (
