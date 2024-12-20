@@ -573,17 +573,17 @@ export default function Flights() {
 
     const validPassengerCount = (count) => {
       if (isNaN(count) || count <= 0) {
-        return 1; 
+        return 1;
       }
       return Math.min(9, count);
     };
-    
+
     searchCriteria.passengerCount = validPassengerCount(searchCriteria.passengerCount);
 
     setLockedSearchCriteria(searchCriteria)
     setLockedReturnDate(returnDate)
     setLockedMultiCityFlights(multiCityFlights)
-    
+
     if (searchType === 'oneWay') {
       searchPromises = [searchFlights(searchCriteria)]
     } else if (searchType === 'roundTrip') {
@@ -618,7 +618,7 @@ export default function Flights() {
       }
     } catch (error) {
       console.error('Error searching flights:', error)
-      showToast( 'Error', 'An error occurred while searching for flights. Please try again.', 'error' );
+      showToast('Error', 'An error occurred while searching for flights. Please try again.', 'error');
       // alert('An error occurred while searching for flights. Please try again.')
     } finally {
       setIsLoading(false)
@@ -784,7 +784,7 @@ export default function Flights() {
         return updatedFlights;
       });
     }
-  
+
 
     if (currentStep === getTotalRoutes() - 1) {
       setDoneChoosing(true);
@@ -826,6 +826,23 @@ export default function Flights() {
     }, 0)
   }
 
+  const [sortCriteria, setSortCriteria] = useState('price');
+
+  const handleSortChange = (e) => {
+    setSortCriteria(e.target.value);
+  };
+
+  const sortFlights = (flights) => {
+    return flights.sort((a, b) => {
+      if (sortCriteria === 'price') {
+        return a.flightClass.economy.price - b.flightClass.economy.price;
+      } else if (sortCriteria === 'departureDate') {
+        return new Date(a.departureTime) - new Date(b.departureTime);
+      }
+      return 0;
+    });
+  };
+
   const renderFlightResults = (flights, routeIndex) => {
     const routeInfo = getRouteInfo(routeIndex);
 
@@ -840,9 +857,11 @@ export default function Flights() {
     //   return renderBookedFlights();
     // }
 
-    const filteredFlights = routeIndex > 0 && previousLegArrivalTime
+    const _filteredFlights = routeIndex > 0 && previousLegArrivalTime
       ? flights.filter(flight => new Date(flight.departureTime) > new Date(previousLegArrivalTime))
       : flights;
+
+    const filteredFlights = sortFlights(_filteredFlights);
 
     if (doneChoosing) {
       // if (Object.keys(selectedFlights).length === getTotalRoutes()) {
@@ -854,28 +873,46 @@ export default function Flights() {
     return ( // flights here
       <div className={FlightsStyle.flight_results}>
 
-        <h2 className={FlightsStyle.flight_results_title}>
-          {(() => {
-            const formatDate = (dateString) => {
-              const date = new Date(dateString);
-              return `${date.getDate()}/${date.getMonth() + 1}/${date.getFullYear()}`;
-            };
+        <div className={FlightsStyle.resultTitleAndDropdownContainer}>
+          <h2 className={FlightsStyle.flight_results_title}>
+            {(() => {
+              const formatDate = (dateString) => {
+                const date = new Date(dateString);
+                return `${date.getDate()}/${date.getMonth() + 1}/${date.getFullYear()}`;
+              };
 
-            if (searchType === 'oneWay') {
-              return `${filteredFlights.length} flights from ${lockedSearchCriteria.departureCity} to ${lockedSearchCriteria.destinationCity} on ${formatDate(lockedSearchCriteria.departureDate)}`;
-            } else if (searchType === 'roundTrip') {
-              if (currentStep === 0) {
+              if (searchType === 'oneWay') {
                 return `${filteredFlights.length} flights from ${lockedSearchCriteria.departureCity} to ${lockedSearchCriteria.destinationCity} on ${formatDate(lockedSearchCriteria.departureDate)}`;
-              } else {
-                return `${filteredFlights.length} return flights from ${lockedSearchCriteria.destinationCity} to ${lockedSearchCriteria.departureCity} on ${formatDate(lockedReturnDate)}`;
+              } else if (searchType === 'roundTrip') {
+                if (currentStep === 0) {
+                  return `${filteredFlights.length} flights from ${lockedSearchCriteria.departureCity} to ${lockedSearchCriteria.destinationCity} on ${formatDate(lockedSearchCriteria.departureDate)}`;
+                } else {
+                  return `${filteredFlights.length} return flights from ${lockedSearchCriteria.destinationCity} to ${lockedSearchCriteria.departureCity} on ${formatDate(lockedReturnDate)}`;
+                }
+              } else if (searchType === 'multiCity') {
+                const currentFlight = lockedMultiCityFlights[currentStep];
+                return `${filteredFlights.length} flights from ${currentFlight.departureCity} to ${currentFlight.destinationCity} on ${formatDate(currentFlight.departureDate)}`;
               }
-            } else if (searchType === 'multiCity') {
-              const currentFlight = lockedMultiCityFlights[currentStep];
-              return `${filteredFlights.length} flights from ${currentFlight.departureCity} to ${currentFlight.destinationCity} on ${formatDate(currentFlight.departureDate)}`;
-            }
-            return '';
-          })()}
-        </h2>
+              return '';
+            })()}
+          </h2>
+
+
+          <div className={FlightsStyle.sortDropdownContainer}>
+            <select
+              className={FlightsStyle.sortDropdown}
+              onChange={handleSortChange}
+              value={sortCriteria}
+            >
+              <option value="price">Sort by Price</option>
+              <option value="departureDate">Sort by Departure Date</option>
+            </select>
+          </div>
+
+        </div>
+
+
+
 
         {/* {filteredFlights.length > 0 ? `${filteredFlights.length} Flights found` : 'No flights found'} for {filteredFlights[0].departureAirportDetails.city} to {filteredFlights[0].arrivalAirportDetails.city}, {`${new Date(filteredFlights[0].departureTime).getDate()}/${new Date(filteredFlights[0].departureTime).getMonth() + 1}/${new Date(filteredFlights[0].departureTime).getFullYear()}`} */}
 
@@ -1281,7 +1318,7 @@ export default function Flights() {
 
       // Display user-friendly error
       // alert(error.message || 'An unexpected error occurred while confirming your booking. Please try again.');
-      showToast('Error', error.message || 'An unexpected error occurred while confirming your booking. Please try again.', 'error' );
+      showToast('Error', error.message || 'An unexpected error occurred while confirming your booking. Please try again.', 'error');
     } finally {
       setIsLoadingConfirmBooking(false);
       // setBookingConfirmed(true);
@@ -1375,6 +1412,8 @@ export default function Flights() {
         }
       }}
     >
+
+
 
       {/* <div className={`${FlightsStyle.search_area} ${isFlightsPage() === true ? '' : FlightsStyle.not_in_flights}`}> */}
       <div className={FlightsStyle.tabs}>
@@ -1490,7 +1529,7 @@ export default function Flights() {
                         className={FlightsStyle.input}
                         type="number"
                         value={searchCriteria.passengerCount}
-                        onChange={(e) => setSearchCriteria({ ...searchCriteria, passengerCount: Math.min(9, parseInt(e.target.value))})}
+                        onChange={(e) => setSearchCriteria({ ...searchCriteria, passengerCount: Math.min(9, parseInt(e.target.value)) })}
                         min={1}
                         max={9}
                       />
