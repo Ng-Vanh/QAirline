@@ -246,7 +246,8 @@ input:checked+.slider:before {
     margin-bottom: 1rem;
 }
 
-.form_group label {
+.form_group label,
+.form_group span {
     display: block;
     margin-bottom: 0.5rem;
     color: var(--secondary);
@@ -271,8 +272,7 @@ input:checked+.slider:before {
 }
 
 .file_input_wrapper input[type="file"] {
-    /* position: absolute; */
-    /* left: -9999px; */
+
     background-color: var(--primary);
     color: #000;
 

@@ -331,7 +331,7 @@ export default function CMSPage() {
                                 />
                             </div>
                             <div className={cmsStyle.form_group}>
-                                <label htmlFor="image">Upload Image</label>
+                                <span>Upload Image</span>
                                 <div className={cmsStyle.file_input_wrapper}>
                                     <input
                                         type="file"
