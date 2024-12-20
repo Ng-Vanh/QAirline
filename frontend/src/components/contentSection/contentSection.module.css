@@ -146,7 +146,6 @@
 
     .newsContent {
         max-width: 300px;
-        /* Điều chỉnh kích thước theo ý muốn */
         white-space: nowrap;
         overflow: hidden;
         text-overflow: ellipsis;
@@ -154,7 +153,6 @@
 
     .newsTitle {
         font-size: 0.9rem;
-        /* Thu nhỏ font một chút để phù hợp */
     }
 }
 
@@ -232,6 +230,7 @@
 }
 
 .sessionOneLayout {
+    max-width: 1400px;
     display: flex;
     width: 100%;
     gap: 20px;

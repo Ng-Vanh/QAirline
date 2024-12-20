@@ -9,11 +9,9 @@
 
 }
 
-/* Phần bài viết mới nhất (chiếm 20%) */
 .recentPosts {
     flex: 0 0 20%;
     max-width: 250px;
-    /* Giới hạn chiều rộng tối đa */
     display: flex;
     flex-direction: column;
     gap: 1rem;
@@ -40,7 +38,6 @@
     padding: 0.5rem;
     border-radius: 4px;
     max-width: 100%;
-    /* Đảm bảo item không vượt quá recentPosts */
 }
 
 .recentImage {
@@ -49,7 +46,6 @@
     object-fit: cover;
     border-radius: 4px;
     flex-shrink: 0;
-    /* Đảm bảo ảnh không bị co lại */
 }
 
 .recentContent {
@@ -57,7 +53,6 @@
     flex-direction: column;
     flex: 1;
     max-width: calc(100% - 70px);
-    /* Giới hạn chiều rộng cho nội dung, trừ đi kích thước ảnh và khoảng cách */
 }
 
 .recentTitle {
@@ -81,7 +76,6 @@
 }
 
 
-/* Phần chi tiết chính (chiếm 80%) */
 .detailContainer {
     flex: 0 0 80%;
     padding: 1rem;

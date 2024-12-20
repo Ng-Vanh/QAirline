@@ -155,11 +155,9 @@
     display: none;
 }
 
-/* ------------ Responsive Styles ------------ */
 @media (max-width: 900px) {
     .navItemsContainer {
         display: none;
-        /* Ẩn menu chính */
     }
 
     .mobileMenuButton {
@@ -226,7 +224,6 @@
         color: #171e25;
     }
 
-    /* Ẩn loginButton hoặc userSection mặc định, đặt chúng trong mobileNavItems */
     .userSection {
         display: none;
     }

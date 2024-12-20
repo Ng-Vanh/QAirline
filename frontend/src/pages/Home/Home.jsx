@@ -19,7 +19,6 @@ export default function Home() {
                         </div>
                     </div>
 
-
                 </section>
                 {/* <hr style={{ width: '50%', margin: '0 auto', border: '2px solid #4cc1e1', borderRadius: '6px', boxShadow: '0px 3px 4px #4cc1e1' }} /> */}
                 <section id="news" className={styles.contentSection}>

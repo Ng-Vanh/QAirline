@@ -72,7 +72,6 @@ body {
 .airport_header {
     display: flex;
     align-items: center;
-    /* Căn giữa icon và văn bản */
     gap: 1rem;
     margin-bottom: 1rem;
 }
@@ -284,7 +283,6 @@ body {
     }
 }
 
-/* Toast Container */
 .toast {
     background-color: #fff;
     color: #333;
@@ -300,33 +298,26 @@ body {
     border-left: 4px solid;
 }
 
-/* Success Toast */
 .success {
     border-left-color: #4caf50;
-    /* Green */
 }
 
-/* Error Toast */
 .error {
     border-left-color: #f44336;
-    /* Red */
 }
 
-/* Toast Title */
 .toastTitle {
     font-size: 16px;
     font-weight: bold;
     margin: 0;
 }
 
-/* Toast Description */
 .toastDescription {
     font-size: 14px;
     margin: 0;
     color: #666;
 }
 
-/* Toast Viewport */
 .toastViewport {
     position: fixed;
     top: 20px;
@@ -339,7 +330,6 @@ body {
     outline: none;
 }
 
-/* Animations */
 @keyframes fadeIn {
     from {
         opacity: 0;

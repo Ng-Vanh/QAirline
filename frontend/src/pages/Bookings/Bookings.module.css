@@ -159,7 +159,6 @@
   text-transform: uppercase;
   z-index: 2;
   border: 1px, solid, white;
-  /* margin-right: 0rem; */
   box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
 }
 
@@ -324,7 +323,7 @@
   background-color: var(--red_color);
   color: #ffffff;
   border-radius: 0;
-  border-radius: 0 0 12px 12px ;
+  border-radius: 0 0 12px 12px;
 }
 
 .button_danger:hover {
@@ -565,7 +564,6 @@
   font-size: 0.8rem;
 }
 
-/* Toast Container */
 .toast {
   background-color: #fff;
   color: #333;
