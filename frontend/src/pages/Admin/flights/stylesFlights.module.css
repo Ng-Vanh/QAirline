@@ -121,24 +121,24 @@ body {
 }
 
 .status_scheduled {
-    background-color: #ffd700;
-    color: #333;
-}
+    background-color: var(--scheduled_bg_color);
+    color: var(--scheduled_text_color);
+  }
 
-.status_delayed {
-    background-color: #ff6b6b;
+  .status_delayed {
+    background-color: var(--red_color);
     color: white;
-}
+  }
 
-.status_in_air {
-    background-color: #4ecdc4;
-    color: white;
-}
+.status_on_time {
+    background-color: var(--on_time_bg_color);
+    color: white
+  }
 
-.status_landed {
-    background-color: #45b649;
+  .status_landed {
+    background-color: var(--landed_bg_color);
     color: white;
-}
+  }
 
 .status_in_flight {
     background-color: var(--in_flight_bg_color);

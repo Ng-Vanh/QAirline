@@ -179,7 +179,7 @@
 }
 
 .status_landed {
-  background-color: #9b59b6;
+  background-color: var(--landed_bg_color);
   color: white;
 }
 
