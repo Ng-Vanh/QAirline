@@ -151,14 +151,43 @@ export default function CMSPage() {
     const handleToggleActive = async (item) => {
         try {
             const updatedItem = { ...item, isActive: !item.isActive };
+
+            // Gửi request cập nhật trạng thái
             await axios.put(`${apiBaseUrl}/api/content/${item._id}`, updatedItem);
-            fetchContent();
+
+            // Cập nhật trực tiếp vào state tương ứng
+            switch (item.contentType) {
+                case 'Introduction':
+                    setIntroduction((prev) =>
+                        prev.map((el) => (el._id === item._id ? updatedItem : el))
+                    );
+                    break;
+                case 'Promotions':
+                    setPromotions((prev) =>
+                        prev.map((el) => (el._id === item._id ? updatedItem : el))
+                    );
+                    break;
+                case 'News':
+                    setNews((prev) =>
+                        prev.map((el) => (el._id === item._id ? updatedItem : el))
+                    );
+                    break;
+                case 'Alerts':
+                    setAlerts((prev) =>
+                        prev.map((el) => (el._id === item._id ? updatedItem : el))
+                    );
+                    break;
+                default:
+                    break;
+            }
+
             showToast('Status Updated', 'The content status has been updated.', 'success');
         } catch (error) {
             console.error('Error updating status:', error);
             showToast('Error', 'Failed to update status.', 'error');
         }
     };
+
 
     const renderTable = (items) => (
         <table className={cmsStyle.cms_table}>

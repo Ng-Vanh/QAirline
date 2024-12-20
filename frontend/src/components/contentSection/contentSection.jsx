@@ -162,7 +162,7 @@ export default function ContentSection({ type }) {
     //         </div>
     //     );
     // } 
-    if (!isSmallScreen && type === "Introduction" && visibleContent.length >= 3) {
+    if (!isSmallScreen && type === "Introduction" && visibleContent.length >= 1) {
         layoutContent = (
             <div className={styles.sessionOneLayout}>
                 <button className={`${styles.scrollButton} ${styles.scrollLeftButton}`} onClick={handlePrev} >
