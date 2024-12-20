@@ -15,7 +15,7 @@ import AdminAirportManagement from "./pages/Admin/airports/page";
 import DetailPage from "./pages/Detail/DetailPage";
 import AllNewsPage from "./pages/AllNewsPage/AllNewsPage";
 import Navbar from "./components/navbar/Navbar";
-import Footer from "./components/Footer";
+import Footer from "./components/footer/Footer";
 import AdminSidebar from "./components/AdminSidebar";
 import { useAuth } from "./components/contexts/AuthContext";
 
