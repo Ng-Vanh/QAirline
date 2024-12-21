@@ -89,8 +89,6 @@ export default function Flights() {
 
   const [emailErrors, setEmailErrors] = useState(Array(passengers.length).fill(''));
 
-  // const [listBookingResults, setListBookingResuls] = useState([])
-
   const isFlightsPage = () => {
     return window.location.pathname === '/flights'
   }
@@ -100,59 +98,6 @@ export default function Flights() {
     if (searchType === 'roundTrip') return 2
     return multiCityFlights.length
   }
-
-  // const retrieveUrlData = async () => {
-  //   const searchParams = new URLSearchParams(window.location.search)
-
-  //   const type = searchParams.get('searchType');
-  //   if (type) setSearchType(type);
-
-  //   const departureCityParam = searchParams.get('departureCity');
-  //   const destinationCityParam = searchParams.get('destinationCity');
-  //   const departureDateParam = searchParams.get('departureDate');
-  //   const passengerCountParam = searchParams.get('passengerCount');
-  //   const returnDateParam = searchParams.get('returnDate');
-  //   const multiCityFlightsParam = searchParams.get('multiCityFlights');
-
-  //   if (departureCityParam || destinationCityParam || departureDateParam || passengerCountParam) {
-  //     console.log("YES, url has data")
-  //     console.log(departureCityParam)
-  //     console.log(destinationCityParam)
-  //     console.log(departureDateParam)
-  //     console.log(passengerCountParam)
-  //     console.log({
-  //       departureCity: departureCityParam || '',
-  //       destinationCity: destinationCityParam || '',
-  //       departureDate: departureDateParam || '',
-  //       passengerCount: passengerCountParam ? parseInt(passengerCountParam) : 1,
-  //     });
-
-  //     setSearchCriteria({
-  //       departureCity: departureCityParam || '',
-  //       destinationCity: destinationCityParam || '',
-  //       departureDate: departureDateParam || '',
-  //       passengerCount: passengerCountParam ? parseInt(passengerCountParam) : 1,
-  //     });
-  //     console.log(searchCriteria)
-  //     console.log('-----------------------')
-  //   }
-
-  //   if (returnDateParam) setReturnDate(returnDateParam);
-
-  //   if (multiCityFlightsParam) {
-  //     try {
-  //       const parsedMultiCityFlights = JSON.parse(multiCityFlightsParam);
-  //       setMultiCityFlights(parsedMultiCityFlights);
-  //     } catch (error) {
-  //       console.error('Error parsing multiCityFlights:', error);
-  //     }
-  //   }
-
-  //   if (type) {
-  //     handleSearch()
-  //   }
-  // }
-
 
   const searchFlights = async (criteria) => {
     console.log('Searching flights with criteria:', criteria)
@@ -182,67 +127,8 @@ export default function Flights() {
     }
   }
 
-  // useEffect(() => {
-  //   retrieveUrlData()
-  // }, []);
-
-  // useEffect(() => {
-  //   if (isFlightsPage()) {
-  //     const searchParams = new URLSearchParams(window.location.search)
-
-  //     const type = searchParams.get('searchType');
-  //     if (type) setSearchType(type);
-
-  //     const departureCityParam = searchParams.get('departureCity');
-  //     const destinationCityParam = searchParams.get('destinationCity');
-  //     const departureDateParam = searchParams.get('departureDate');
-  //     const passengerCountParam = searchParams.get('passengerCount');
-  //     const returnDateParam = searchParams.get('returnDate');
-  //     const multiCityFlightsParam = searchParams.get('multiCityFlights');
-
-  //     if (departureCityParam || destinationCityParam || departureDateParam || passengerCountParam) {
-  //       console.log("YES, url has data")
-  //       console.log(departureCityParam)
-  //       console.log(destinationCityParam)
-  //       console.log(departureDateParam)
-  //       console.log(passengerCountParam)
-  //       console.log({
-  //         departureCity: departureCityParam || '',
-  //         destinationCity: destinationCityParam || '',
-  //         departureDate: departureDateParam || '',
-  //         passengerCount: passengerCountParam ? parseInt(passengerCountParam) : 1,
-  //       });
-
-  //       setSearchCriteria({
-  //         departureCity: departureCityParam || '',
-  //         destinationCity: destinationCityParam || '',
-  //         departureDate: departureDateParam || '',
-  //         passengerCount: passengerCountParam ? parseInt(passengerCountParam) : 1,
-  //       });
-  //       console.log(searchCriteria)
-  //       console.log('-----------------------')
-  //     }
-
-  //     if (returnDateParam) setReturnDate(returnDateParam);
-
-  //     if (multiCityFlightsParam) {
-  //       try {
-  //         const parsedMultiCityFlights = JSON.parse(multiCityFlightsParam);
-  //         setMultiCityFlights(parsedMultiCityFlights);
-  //       } catch (error) {
-  //         console.error('Error parsing multiCityFlights:', error);
-  //       }
-  //     }
-  //   }
-  // }, []);
-
-
   useEffect(() => {
     if (isFlightsPage()) {
-      // console.log("hello")
-      // const prevState2 = {searchType: 'oneWay', departureCity: 'x', destinationCity: 'x', departureDate: '', passengerCount: 1}
-      // console.log("Inside login.jsx, prevState is: ", prevState2);
-
       const searchParams = new URLSearchParams(window.location.search);
 
       const type = searchParams.get('searchType');
@@ -295,61 +181,6 @@ export default function Flights() {
       }
     }
   }, []);
-
-
-  // useEffect(() => {
-  //   const prevState = location.state?.prevState;
-  //   console.log("Entire prevState: ", prevState);
-  //   if (prevState) {
-  //     console.log("prevState exists", prevState)
-  //     const {
-  //       searchType: searchTypeState,
-  //       departureCity: departureCityState,
-  //       destinationCity: destinationCityState,
-  //       departureDate: departureDateState,
-  //       passengerCount: passengerCountState,
-  //       returnDate: returnDateState,
-  //       multiCityFlights: multiCityFlightsState,
-  //     } = prevState;
-
-  //     // Handle searchType
-  //     if (searchTypeState) setSearchType(searchTypeState);
-
-  //     // Check for other search criteria
-  //     if (departureCityState || destinationCityState || departureDateState || passengerCountState) {
-  //       console.log("YES, prevState has data");
-  //       console.log(departureCityState);
-  //       console.log(destinationCityState);
-  //       console.log(departureDateState);
-  //       console.log(passengerCountState);
-
-  //       const newSearchCriteria = {
-  //         departureCity: departureCityState || '',
-  //         destinationCity: destinationCityState || '',
-  //         departureDate: departureDateState || '',
-  //         passengerCount: passengerCountState ? parseInt(passengerCountState, 10) : 1,
-  //       };
-
-  //       setSearchCriteria(newSearchCriteria); // Update state
-  //       console.log('Setting search criteria:', newSearchCriteria); // Log what you are setting
-  //     }
-
-  //     // Handle returnDate
-  //     if (returnDateState) setReturnDate(returnDateState);
-
-  //     // Handle multiCityFlights
-  //     if (multiCityFlightsState) {
-  //       try {
-  //         console.log("This is multi-city flights");
-  //         const parsedMultiCityFlights = JSON.parse(multiCityFlightsState);
-  //         setMultiCityFlights(parsedMultiCityFlights);
-  //         console.log(parsedMultiCityFlights);
-  //       } catch (error) {
-  //         console.error('Error parsing multiCityFlights:', error);
-  //       }
-  //     }
-  //   }
-  // }, [location.state]);
 
   const scrollToTop = () => {
     window.scrollTo(0, 0);
@@ -428,7 +259,6 @@ export default function Flights() {
         }
       }
 
-      // Restore additional states
       // setSearchResults(searchResultsState || []);
 
       // setIsLoading(isLoadingState || false);
@@ -487,11 +317,6 @@ export default function Flights() {
     }
   }, [isAuthenticated, passengers]);
 
-  // useEffect(() => {
-  //   handleSearch()
-  //   console.log('Updated Search Criteria:', searchCriteria)
-  // }, [searchCriteria])  // This effect runs every time `searchCriteria` changes
-
   const resetState = () => {
     setSearchResults([])
     clearCart()
@@ -504,43 +329,12 @@ export default function Flights() {
 
   const handleSearch = async () => {
     if (!isFlightsPage()) {
-      // const params = new URLSearchParams()
-      // params.set('searchType', searchType)
-      // params.set('departureCity', searchCriteria.departureCity)
-      // params.set('destinationCity', searchCriteria.destinationCity)
-      // params.set('departureDate', searchCriteria.departureDate)
-      // params.set('passengerCount', searchCriteria.passengerCount.toString())
-      // if (searchType === 'roundTrip') {
-      //   params.set('returnDate', returnDate)
-      // } else if (searchType === 'multiCity') {
-      //   params.set('multiCityFlights', JSON.stringify(multiCityFlights))
-      // }
-
-      // window.location.href = `/flights?${params.toString()}`
-      // return
 
       setIsAutoSearch(true);
       console.log("Set is auto search: ", isAutoSearch);
       storePrevStateAndNavigate('/flights')
       // return;
     }
-
-    // if (!isAuthenticated) {
-    //   const prevState = {
-    //     searchType: searchType,
-    //     departureCity: searchCriteria.departureCity || '',
-    //     destinationCity: searchCriteria.destinationCity || '',
-    //     departureDate: searchCriteria.departureDate || '',
-    //     passengerCount: searchCriteria.passengerCount || 1,
-    //     ...(searchType === 'roundTrip' && { returnDate: returnDate }),
-    //     ...(searchType === 'multiCity' && { multiCityFlights: JSON.stringify(multiCityFlights) }),
-    //   };
-
-    //   console.log("Preparing data for navigation", prevState);
-    //   handleLoginRedirect(prevState);
-    // }
-
-
 
     console.log('Searching for:', searchType)
     setIsLoading(true)
@@ -893,29 +687,6 @@ export default function Flights() {
 
         </div>
 
-
-
-
-        {/* {filteredFlights.length > 0 ? `${filteredFlights.length} Flights found` : 'No flights found'} for {filteredFlights[0].departureAirportDetails.city} to {filteredFlights[0].arrivalAirportDetails.city}, {`${new Date(filteredFlights[0].departureTime).getDate()}/${new Date(filteredFlights[0].departureTime).getMonth() + 1}/${new Date(filteredFlights[0].departureTime).getFullYear()}`} */}
-
-        {/* {filteredFlights.length > 0 ? `${filteredFlights.length} Flights found` : 'No flights found'} for {searchCriteria.departureCity} to {searchCriteria.destinationCity}, {searchCriteria.departureDate} */}
-        {/* </h2> */}
-
-        {/* <div className={FlightsStyle.navigation_buttons_section}>
-
-          <button className={`${FlightsStyle.button} ${FlightsStyle.button_outline} ${FlightsStyle.navigation_buttons}`} onClick={handleBack} disabled={currentStep === 0}>
-            <ArrowLeft className={FlightsStyle.button_icon} />
-            Back
-          </button>
-
-          <button className={`${FlightsStyle.button} ${FlightsStyle.button_outline} ${FlightsStyle.navigation_buttons}`} onClick={handleNext} disabled={currentStep >= maxReachedStep || currentStep >= getTotalRoutes() - 1}>
-            Next
-            <ArrowRight className={FlightsStyle.button_icon} />
-          </button>
-
-        </div> */}
-
-        {/* filteredFlights.length > 0 &&  */}
         {searchType != 'oneWay' && (
           <div className={FlightsStyle.navigation_buttons_section}>
 
@@ -1077,16 +848,6 @@ export default function Flights() {
     <div className={FlightsStyle.booked_flights}>
       <h2 className={FlightsStyle.flight_results_title}>Here are your booked flights. Click on cart to proceed!</h2>
 
-      {/* <div className={FlightsStyle.navigation_buttons}>
-        <button
-          className={`${FlightsStyle.button} ${FlightsStyle.button_outline}`}
-          onClick={handlePreviousStep}
-        > 
-          <ArrowLeft className={FlightsStyle.button_icon} />
-          Back to Flight Selection
-        </button>
-      </div> */}
-
       <div className={FlightsStyle.navigation_buttons_section}>
         <button className={`${FlightsStyle.button} ${FlightsStyle.navigation_buttons}`} onClick={handlePreviousStep}>
           <ArrowLeft className={FlightsStyle.button_icon} />
@@ -1102,7 +863,6 @@ export default function Flights() {
                 <h3>{item.flight.flightCode}</h3>
                 <h4>{item.flight.aircraft}</h4>
               </div>
-              {/* <h3>{item.flight.flightCode}</h3> */}
               <span className={FlightsStyle.flight_duration}>{item.flight.flightDuration}</span>
             </div>
             <div className={FlightsStyle.flight_details}>
@@ -1226,7 +986,6 @@ export default function Flights() {
     }
     try {
       console.log("Doing creating passengers");
-      // Step 1: Create Passengers
       const createdPassengers = await Promise.all(
         passengers.map(async (passenger) => {
           const response = await fetch(`${apiBaseUrl}/api/passengers/`, {
@@ -1251,7 +1010,7 @@ export default function Flights() {
       console.log("Can come to passengers?");
 
       console.log("Selected flights: ", selectedFlights);
-      // Step 2: Create Bookings
+
       const bookingPromises = Object.values(selectedFlights).map(async (item) => {
         const response = await fetch(`${apiBaseUrl}/api/bookings/`, {
           method: 'POST',
@@ -1279,13 +1038,11 @@ export default function Flights() {
 
       console.log("Booking promises: ", bookingPromises);
 
-      // setListBookingResuls(bookingResults);
 
       console.log('Booking results:', bookingResults);
 
       console.log("Does it even reach this step?")
 
-      // Step 3: Update State on Success
       setBookingConfirmed(true);
       setSelectedFlights({});
       setCurrentStep(0);
@@ -1311,56 +1068,6 @@ export default function Flights() {
       // resetState();
     }
   };
-
-
-  // const handleConfirmBooking = async () => {
-  //   setIsLoadingConfirmBooking(true);
-  //   try {
-  //     const createdPassengers = await Promise.all(
-  //       passengers.map(passenger =>
-  //         fetch(`${apiBaseUrl}/api/passengers/`, {
-  //           method: 'POST',
-  //           headers: { 'Content-Type': 'application/json' },
-  //           body: JSON.stringify(passenger)
-  //         }).then(res => res.json())
-  //       )
-  //     );
-
-  //     const passengerIDs = createdPassengers.map(p => p.passenger._id);
-  //     console.log("Here are passenger ids: ", passengerIDs);
-
-  //     const bookingPromises = Object.values(selectedFlights).map(item =>
-  //       fetch(`${apiBaseUrl}/api/bookings/`, {
-  //         method: 'POST',
-  //         headers: { 'Content-Type': 'application/json' },
-  //         body: JSON.stringify({
-  //           userID: currentUser.userId,
-  //           flightID: item.flight._id,
-  //           flightClass: item.class,
-  //           passengerCount: item.passengers,
-  //           passengerIDs: passengerIDs,
-  //         })
-  //       }).then(res => res.json())
-  //     );
-
-  //     const bookingResults = await Promise.all(bookingPromises);
-
-  //     console.log('Booking results:', bookingResults);
-
-  //     setBookingConfirmed(true);
-  //     setSelectedFlights({});
-  //     setCurrentStep(0);
-  //     setMaxReachedStep(0);
-  //     setShowPassengerInfo(false);
-  //     setIsCartOpen(false);
-  //     resetState();
-  //   } catch (error) {
-  //     console.error('Error during booking process:', error);
-  //     alert('An error occurred while confirming your booking. Please try again.');
-  //   } finally {
-  //     setIsLoadingConfirmBooking(false);
-  //   }
-  // };
 
   const handleBack = () => {
     setDoneChoosing(false);
@@ -1394,7 +1101,6 @@ export default function Flights() {
       }}
     >
 
-      {/* <div className={`${FlightsStyle.search_area} ${isFlightsPage() === true ? '' : FlightsStyle.not_in_flights}`}> */}
       <div className={FlightsStyle.tabs}>
         <button
           className={`${FlightsStyle.tab} ${searchType === 'oneWay' ? FlightsStyle.active : ''}`}
@@ -1497,7 +1203,6 @@ export default function Flights() {
                     </div>
                   </div>
 
-                  {/* <div className={FlightsStyle.form_row}> */}
                   <div className={FlightsStyle.form_group}>
                     <label className={FlightsStyle.label} htmlFor="passengerCount">Passengers</label>
                     <div className={FlightsStyle.input_wrapper}>
@@ -1514,7 +1219,6 @@ export default function Flights() {
                       />
                     </div>
                   </div>
-                  {/* </div> */}
                 </div>
               </div>
 
@@ -1778,16 +1482,6 @@ export default function Flights() {
         </div>
       )}
 
-      {/* {currentStep === getTotalRoutes() - 1 && Object.keys(selectedFlights).length === getTotalRoutes() && (
-        <div className={FlightsStyle.booked_flights_container}>
-          {renderBookedFlights()}
-          <button className={`${FlightsStyle.button} ${FlightsStyle.button_outline}`} onClick={handlePreviousStep}>
-            <ArrowLeft className={FlightsStyle.button_icon} />
-            Back to Flight Selection
-          </button>
-        </div>
-      )} */}
-
       <button className={`${FlightsStyle.button} ${FlightsStyle.cart_button}`} onClick={() => setIsCartOpen(!isCartOpen)}>
         <ShoppingCart className={FlightsStyle.button_icon} />
         Cart ({Object.keys(selectedFlights).length})
@@ -1849,11 +1543,6 @@ export default function Flights() {
         <div className={FlightsStyle.modal}>
 
           <div ref={passengerModalRef} className={FlightsStyle.modal_content}>
-            {/* {1 && (
-            <div className={`${FlightsStyle.loader_container} ${FlightsStyle.loader_container_absolute}`}>
-              <div className={FlightsStyle.loader}></div>
-            </div>
-          )} */}
             <button className={FlightsStyle.close_button} onClick={() => setShowPassengerInfo(false)}>×</button>
             <h2 className={FlightsStyle.center_text}>Passenger Information</h2>
             <div className={FlightsStyle.passenger_form_container}>
@@ -1879,21 +1568,7 @@ export default function Flights() {
               ))}
             </div>
             <button className={`${FlightsStyle.button} ${FlightsStyle.bottom_button}`} onClick={handleConfirmBooking}>
-              {/* <h2 className={FlightsStyle.white_text}>Confirm Booking</h2> */}
-              {/* {isLoadingConfirmBooking && (
-                <div className={`${FlightsStyle.loader_container} ${FlightsStyle.loader_container_absolute}`}>
-                  <div className={FlightsStyle.loader}></div>
-                </div>
-              )} */}
-
               {isLoadingConfirmBooking ? <div className={FlightsStyle.loader}></div> : <h2 className={FlightsStyle.white_text}>Confirm Booking</h2>}
-              {/* <div className={FlightsStyle.loader}></div> */}
-
-              {/* {1 && (
-                <div className={`${FlightsStyle.loader_container} ${FlightsStyle.loader_container_absolute}`}>
-                  <div className={FlightsStyle.loader}></div>
-                </div>
-              )} */}
             </button>
           </div>
         </div>
