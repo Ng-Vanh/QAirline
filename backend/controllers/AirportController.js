@@ -14,7 +14,6 @@ exports.createAirport = async (req, res) => {
       return res.status(400).json({ message: `Airport with code ${code} already exists.` });
     }
 
-    // Create new airport
     const newAirport = new Airport({
       code,
       name,
@@ -37,7 +36,7 @@ exports.createAirport = async (req, res) => {
 exports.getAirportById = async (req, res) => {
   try {
     const { id } = req.params;
-    
+
     const airport = await Airport.findById(id);
     if (!airport) {
       return res.status(404).json({ message: 'Airport not found' });

@@ -5,7 +5,7 @@ const fileSchema = new mongoose.Schema({
   mimetype: { type: String, required: true },
   size: { type: Number, required: true },
   uploadDate: { type: Date, required: true },
-  metadata: { type: Object, default: {} }, // Optional: Custom metadata
+  metadata: { type: Object, default: {} },
 }, { timestamps: true });
 
 module.exports = mongoose.model('File', fileSchema);

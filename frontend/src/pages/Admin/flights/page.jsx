@@ -34,7 +34,6 @@ export default function ManageFlights() {
     const [isDialogOpen, setIsDialogOpen] = useState(false);
     const [loading, setLoading] = useState(true);
 
-    // Toast state
     const [toastMessage, setToastMessage] = useState({ title: '', description: '', type: '' });
     const [toastOpen, setToastOpen] = useState(false);
 

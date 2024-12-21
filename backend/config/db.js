@@ -3,13 +3,11 @@ const { startScheduler } = require('../controllers/SchedulerController');
 
 const dbURI = 'mongodb+srv://admin:admin@cluster0.33dyt9o.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0';
 
-let bucket; // Store the GridFSBucket
-let isConnected = false; // Track connection status
+let bucket;
+let isConnected = false;
 
-// Connect to MongoDB
 const connectDB = async () => {
   try {
-    // Use mongoose.connect for shared connection
     const conn = await mongoose.connect(dbURI, {
       useNewUrlParser: true,
       useUnifiedTopology: true,
@@ -17,13 +15,12 @@ const connectDB = async () => {
 
     console.log('Connected to MongoDB Atlas via shared config');
 
-    // Initialize GridFSBucket after successful connection
     bucket = new mongoose.mongo.GridFSBucket(conn.connection.db, {
       bucketName: 'uploads',
     });
 
     console.log('GridFSBucket initialized');
-    isConnected = true; 
+    isConnected = true;
 
     startScheduler();
 
@@ -38,7 +35,7 @@ const connectDB = async () => {
 // Get the GridFSBucket
 const getBucket = () => {
   if (!isConnected) {
-    throw new Error('MongoDB is not connected. Call `connectDB` first.');
+    throw new Error('MongoDB is not connected. Call connectDB first.');
   }
   return bucket;
 };

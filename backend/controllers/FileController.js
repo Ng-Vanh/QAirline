@@ -1,7 +1,7 @@
 const mongoose = require('mongoose');
-const { ObjectId } = require('mongodb'); // Import ObjectId for MongoDB
+const { ObjectId } = require('mongodb');
 const File = require('../models/FileModel');
-const { getBucket } = require('../config/db'); // Import initialized GridFSBucket
+const { getBucket } = require('../config/db');
 
 // Upload File
 exports.uploadFile = (req, res) => {
@@ -14,7 +14,7 @@ exports.uploadFile = (req, res) => {
     mimetype: req.file.mimetype,
     size: req.file.size,
     uploadDate: new Date(),
-    metadata: req.body.metadata || {}, // Optional metadata from request
+    metadata: req.body.metadata || {},
   };
 
   const file = new File(fileData);
@@ -96,7 +96,6 @@ exports.getImage = async (req, res) => {
       return res.status(404).json({ message: 'Image not found' });
     }
 
-    // Ensure the file is an image
     if (!file[0].contentType.startsWith('image/')) {
       return res.status(400).json({ message: 'File is not an image' });
     }

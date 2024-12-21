@@ -115,8 +115,8 @@ exports.searchFlights = async (req, res) => {
 };
 
 const formatFlightDuration = (durationInMinutes) => {
-  const hours = Math.floor(durationInMinutes / 60); // Get the number of hours
-  const minutes = durationInMinutes % 60; // Get the remaining minutes
+  const hours = Math.floor(durationInMinutes / 60);
+  const minutes = durationInMinutes % 60;
 
   let formattedDuration = '';
 
@@ -261,7 +261,7 @@ exports.getFlightByCode = async (req, res) => {
     if (!flightCode) {
       return res.status(400).json({ message: 'Flight code is required' });
     }
-    
+
     const sanitizedFlightCode = flightCode.replace(/\s+/g, '').toLowerCase();
 
     const flight = await Flight.findOne({ flightCode: new RegExp(sanitizedFlightCode, 'i') })

@@ -3,15 +3,15 @@ const multer = require('multer');
 const path = require('path');
 const fs = require('fs');
 const FileController = require('../controllers/FileController');
-const { getUpload } = require('../config/upload'); // Import upload configuration
-const { getBucket } = require('../config/db'); // Import GridFS bucket
+const { getUpload } = require('../config/upload');
+const { getBucket } = require('../config/db');
 
 const router = express.Router();
 
-// Upload File (Dynamic based on configuration)
+// Upload File
 router.post('/upload', async (req, res) => {
   try {
-    const uploadInstance = await getUpload(); // Dynamically get the upload instance
+    const uploadInstance = await getUpload();
     const multerMiddleware = uploadInstance.single('image');
 
     multerMiddleware(req, res, (err) => {
@@ -82,7 +82,6 @@ router.get('/image/:filename', async (req, res) => {
     const bucket = getBucket();
 
     if (bucket) {
-      // GridFS handling
       const file = await bucket.find({ filename: req.params.filename }).toArray();
 
       if (!file || file.length === 0) {
@@ -93,7 +92,7 @@ router.get('/image/:filename', async (req, res) => {
       res.set('Content-Type', file[0].contentType || 'application/octet-stream');
       return downloadStream.pipe(res);
     } else {
-      // Local filesystem handling
+      // Local filesystem
       const filePath = path.join(__dirname, '../uploads', req.params.filename);
       if (!fs.existsSync(filePath)) {
         return res.status(404).json({ message: 'File not found' });

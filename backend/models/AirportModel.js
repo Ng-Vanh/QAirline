@@ -1,17 +1,17 @@
 const mongoose = require("mongoose");
 
 const AirportSchema = new mongoose.Schema({
-  code: { 
-    type: String, 
-    required: true, 
-    unique: true 
+  code: {
+    type: String,
+    required: true,
+    unique: true
   },
-  name: { 
-    type: String, 
+  name: {
+    type: String,
     required: true,
   },
-  city: { 
-    type: String, 
+  city: {
+    type: String,
     required: true,
   }
 });

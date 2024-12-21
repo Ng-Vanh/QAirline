@@ -14,7 +14,6 @@ export default function Reports() {
     const [error, setError] = useState(null);
     const [cardWidth, setCardWidth] = useState('300px');
 
-    // Toast state
     const [toastMessage, setToastMessage] = useState({ title: '', description: '', type: '' });
     const [toastOpen, setToastOpen] = useState(false);
 

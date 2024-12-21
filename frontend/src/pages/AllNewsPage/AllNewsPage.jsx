@@ -34,7 +34,7 @@ export default function AllNewsPage() {
                 setIsLoading(false);
             }
         };
-        
+
         scrollToTop();
         fetchNews();
     }, []);

@@ -38,26 +38,6 @@ export default function Bookings() {
         setIsToastOpen(true);
     }
 
-    // const getCurrentUser = async () => {
-    //     const userData = localStorage.getItem('user');
-    //     if (userData) {
-    //         const user = JSON.parse(userData);
-    //         console.log("data: ", user)
-    //         if (user.userId) {
-    //             setCurrentUser(user);
-    //             console.log(`Current user: ${user.userId}`)
-    //         }
-    //     }
-    //     else {
-    //         console.log('User not in local storage.')
-    //     }
-    // }
-
-    // useEffect(() => {
-    //     getCurrentUser()
-    // }, []
-    // )
-
     const [activeTab, setActiveTab] = useState('upcoming')
     const [bookings, setBookings] = useState([])
     const [loading, setLoading] = useState(true)
@@ -149,10 +129,6 @@ export default function Bookings() {
             setLoading(false)
         }
     }
-
-    // useEffect(() => {
-    //     fetchBookings();
-    // }, [activeTab])
 
     const handleCancelBooking = async (bookingId) => {
         setIsLoadingCancelBooking(true);
@@ -328,16 +304,6 @@ export default function Bookings() {
                                                 </div>
                                             ) : 'Cancel Booking'}
 
-
-                                            {/* <div className={BookingsStyle.canceling_booking_container}>
-                                                <span>Canceling booking...  </span>
-                                                {1 && <div className={`${BookingsStyle.spinner} ${BookingsStyle.spinner_small}`}></div>}
-                                            </div> */}
-                                            {/* Cancel Booking */}
-                                            {/* <div className={BookingsStyle.spinner}></div> */}
-                                            {/* <div className={BookingsStyle.loading_spinner}>
-                                                <div className={BookingsStyle.spinner}></div>
-                                            </div> */}
                                         </button>
                                     </div>
                                 )}
