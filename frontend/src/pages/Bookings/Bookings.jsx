@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
-import { Plane, Users } from 'lucide-react'
+import { Plane, Users, Loader } from 'lucide-react'
 import BookingsStyle from './Bookings.module.css'
 import { useAuth } from '../../components/contexts/AuthContext';
 import { useLocation, useNavigate } from 'react-router-dom';
@@ -66,6 +66,7 @@ export default function Bookings() {
     const [showModal, setShowModal] = useState(false)
     const [sortBy, setSortBy] = useState('departureDate')
     const [countdowns, setCountdowns] = useState({});
+    const [isLoadingCancelBooking, setIsLoadingCancelBooking] = useState(false);
 
     useEffect(() => {
         const interval = setInterval(() => {
@@ -116,8 +117,12 @@ export default function Bookings() {
         }
     };
 
-    useEffect(() => {
+    const scrollToTop = () => {
         window.scrollTo(0, 0);
+    }
+
+    useEffect(() => {
+        scrollToTop();
     }, []);
 
     useEffect(() => {
@@ -150,17 +155,21 @@ export default function Bookings() {
     // }, [activeTab])
 
     const handleCancelBooking = async (bookingId) => {
+        setIsLoadingCancelBooking(true);
         try {
             const response = await fetch(`${apiBaseUrl}/api/bookings/${bookingId}`, { method: 'DELETE' })
             if (!response.ok) throw new Error('Failed to cancel booking')
             const data = await response.json()
             // alert(data.message)
             showToast('Booking Cancelled', 'Your booking has been successfully cancelled.', 'success');
-            fetchBookings()
+            setIsLoadingCancelBooking(false);
+            scrollToTop();
+            fetchBookings('upcoming')
         } catch (err) {
             // alert('An error occurred while cancelling the booking. Please try again.')
             showToast('Error', 'An error occurred while cancelling the booking. Please try again.', 'error');
         }
+        setIsLoadingCancelBooking(false);
     }
 
     const formatDate = (dateString) => {
@@ -310,7 +319,25 @@ export default function Bookings() {
                                             className={`${BookingsStyle.button} ${BookingsStyle.button_danger}`}
                                             onClick={() => handleCancelBooking(booking._id)}
                                         >
-                                            Cancel Booking
+
+
+                                            {1 ? (
+                                                <div className={BookingsStyle.save_button_container}>
+                                                    Cancelling
+                                                    <Loader className={`${BookingsStyle.spinner_2} ${BookingsStyle.spinner_2_save}`} />
+                                                </div>
+                                            ) : 'Cancel Booking'}
+
+
+                                            {/* <div className={BookingsStyle.canceling_booking_container}>
+                                                <span>Canceling booking...  </span>
+                                                {1 && <div className={`${BookingsStyle.spinner} ${BookingsStyle.spinner_small}`}></div>}
+                                            </div> */}
+                                            {/* Cancel Booking */}
+                                            {/* <div className={BookingsStyle.spinner}></div> */}
+                                            {/* <div className={BookingsStyle.loading_spinner}>
+                                                <div className={BookingsStyle.spinner}></div>
+                                            </div> */}
                                         </button>
                                     </div>
                                 )}

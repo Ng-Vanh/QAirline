@@ -447,6 +447,23 @@
   animation: spin 1s linear infinite;
 }
 
+.spinner_small {
+  border: 2px solid #f3f3f3;
+  border-top: 2px solid var(--main_color);
+  border-radius: 50%;
+  width: 20px;
+  height: 20px;
+  animation: spin 1s linear infinite;
+}
+
+.canceling_booking_container {
+  display: flex;
+  gap: 1rem;
+  justify-content: center;
+  align-items: center;
+  /* height: 200px; */
+}
+
 @keyframes spin {
   0% {
     transform: rotate(0deg);
@@ -626,4 +643,28 @@
   border-radius: 20px;
   background-color: #fff;
   color: #333;
+}
+
+.spinner_2 {
+  animation: spin 1s linear infinite;
+  color: var(--primary-color);
+}
+
+.spinner_2_save {
+  color: white;
+}
+
+.save_button_container {
+  display: flex;
+  gap: 0.65rem;
+}
+
+@keyframes spin {
+  0% {
+      transform: rotate(0deg);
+  }
+
+  100% {
+      transform: rotate(360deg);
+  }
 }
