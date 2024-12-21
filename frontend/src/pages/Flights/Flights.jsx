@@ -8,7 +8,6 @@ import { useLocation, useNavigate } from 'react-router-dom';
 import FlightsStyle from './Flights.module.css'
 import Config from '../../Config.js'
 import * as Toast from "@radix-ui/react-toast"
-import { set } from 'mongoose';
 
 export default function Flights() {
   const { isAuthenticated, name, userId } = useAuth();
