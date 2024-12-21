@@ -321,7 +321,7 @@ export default function Bookings() {
                                         >
 
 
-                                            {1 ? (
+                                            {isLoadingCancelBooking ? (
                                                 <div className={BookingsStyle.save_button_container}>
                                                     Cancelling
                                                     <Loader className={`${BookingsStyle.spinner_2} ${BookingsStyle.spinner_2_save}`} />
