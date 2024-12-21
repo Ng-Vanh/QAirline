@@ -33,7 +33,7 @@ const startScheduler = () => {
         console.log('Running flight status update task immediately on start...');
         updateFlightStatuses();
 
-        flightStatusUpdateTask = cron.schedule('0 * * * *', async () => {
+        flightStatusUpdateTask = cron.schedule('*/20 * * * *', async () => {
             console.log('Running flight status update task...');
             await updateFlightStatuses();
         });
