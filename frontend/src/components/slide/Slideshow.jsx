@@ -4,9 +4,9 @@ import { useState, useEffect } from 'react';
 import styles from './Slideshow.module.css';
 
 const images = [
+    '../../assets/bg4.png',
     '../../assets/bg1.jpg',
     '../../assets/bg2.jpg',
-    '../../assets/bg3.jpg',
 ];
 
 export default function Slideshow() {
