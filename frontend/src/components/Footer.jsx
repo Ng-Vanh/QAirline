@@ -29,13 +29,34 @@ export default function Footer() {
                                 Jobs with QAirlines
                             </Link>
                         </li>
+                        <li className={styles.listItem}>
+                            <Link to="/story" className={styles.link}>
+                                Brand Story
+                            </Link>
+                        </li>
+                        <li className={styles.listItem}>
+                            <Link to="/faq" className={styles.link}>
+                                Frequently Asked Questions
+                            </Link>
+                        </li>
                     </ul>
                 </div>
                 <div className={styles.column}>
                     <h3 className={styles.heading}>Quick Links</h3>
                     <ul className={styles.list}>
                         <li className={styles.listItem}>
-                            <Link to="/about" className={styles.link}>
+                            <Link to="/bookings" className={styles.link}>
+                                Booking and Travel
+                            </Link>
+                        </li>
+                        <li className={styles.listItem}>
+                            <Link to="/#" className={styles.link}>
+                                Special Services
+                            </Link>
+                        </li>
+
+                        <li className={styles.listItem}>
+                            <Link to="/#" className={styles.link}>
                                 About Us
                             </Link>
                         </li>
@@ -92,6 +113,23 @@ export default function Footer() {
                             <i className="fa-brands fa-tiktok"></i>
                         </a>
                     </div>
+                    <div className={styles.emailSection}>
+                        <h3 className={styles.heading}>Need Help?</h3>
+                        <form className={styles.helpForm}>
+                            <div className={styles.inputGroup}>
+                                <input
+                                    type="email"
+                                    placeholder="Enter your email"
+                                    className={styles.emailInput}
+                                    required
+                                />
+                                <button type="submit" className={styles.submitButton}>
+                                    Submit
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+
                 </div>
             </div>
             <div className={styles.textCenter}>
