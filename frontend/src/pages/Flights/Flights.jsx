@@ -27,16 +27,6 @@ export default function Flights() {
     setIsToastOpen(true);
   }
 
-  // const handleLoginRedirect = (thePrevState = {}) => {
-  //   console.log("Inside handle redirect, the prev state is: ", thePrevState);
-  //   navigate('/login', {
-  //     state: {
-  //       from: location.pathname,
-  //       prevState: thePrevState
-  //     },
-  //   });
-  // };
-
   const handleNavigationRedirect = (destination, thePrevState = {}) => {
     console.log("Inside handle redirect, the prev state is: ", thePrevState);
     navigate(destination, {
@@ -279,8 +269,8 @@ export default function Flights() {
           passengerCount: passengerCountParam ? parseInt(passengerCountParam) : 1,
         };
 
-        setSearchCriteria(newSearchCriteria); // Update state
-        console.log('Setting search criteria:', searchCriteria);  // Log what you are setting
+        setSearchCriteria(newSearchCriteria);
+        console.log('Setting search criteria:', searchCriteria);
       }
 
       if (returnDateParam) setReturnDate(returnDateParam);
@@ -295,8 +285,6 @@ export default function Flights() {
           console.error('Error parsing multiCityFlights:', error);
         }
       }
-
-
 
       if (type) {
         console.log("Seted auto search based on param");
@@ -377,7 +365,6 @@ export default function Flights() {
     if (prevState) {
       console.log("prevState exists", prevState);
 
-      // Destructure all properties from prevState
       const {
         searchType: searchTypeState,
         departureCity: departureCityState,
@@ -408,10 +395,8 @@ export default function Flights() {
         // suggestionRefs: suggestionRefsState,
       } = prevState;
 
-      // Handle searchType
       if (searchTypeState) setSearchType(searchTypeState);
 
-      // Check for other search criteria
       if (departureCityState || destinationCityState || departureDateState || passengerCountState) {
         console.log("YES, prevState has data");
         console.log(departureCityState);
@@ -426,14 +411,12 @@ export default function Flights() {
           passengerCount: passengerCountState ? parseInt(passengerCountState, 10) : 1,
         };
 
-        setSearchCriteria(newSearchCriteria); // Update state
-        console.log('Setting search criteria:', newSearchCriteria); // Log what you are setting
+        setSearchCriteria(newSearchCriteria);
+        console.log('Setting search criteria:', newSearchCriteria);
       }
 
-      // Handle returnDate
       if (returnDateState) setReturnDate(returnDateState);
 
-      // Handle multiCityFlights
       if (multiCityFlightsState) {
         try {
           console.log("This is multi-city flights");
@@ -469,7 +452,7 @@ export default function Flights() {
       // setAirports(airportsState || []);
       // setOpenSuggestions(openSuggestionsState || null);
 
-      // if (suggestionRefsState) suggestionRefs.current = suggestionRefsState; // Restore ref 
+      // if (suggestionRefsState) suggestionRefs.current = suggestionRefsState;  
 
       navigate(location.pathname, { replace: true, state: null });
 
@@ -1315,7 +1298,6 @@ export default function Flights() {
     } catch (error) {
       console.error('Error during booking process:', error);
 
-      // Display user-friendly error
       // alert(error.message || 'An unexpected error occurred while confirming your booking. Please try again.');
       showToast('Error', error.message || 'An unexpected error occurred while confirming your booking. Please try again.', 'error');
     } finally {
@@ -1407,12 +1389,10 @@ export default function Flights() {
         }`}
       onKeyDown={(e) => {
         if (e.key === 'Enter') {
-          handleSearch(); // Trigger the search when Enter is pressed
+          handleSearch();
         }
       }}
     >
-
-
 
       {/* <div className={`${FlightsStyle.search_area} ${isFlightsPage() === true ? '' : FlightsStyle.not_in_flights}`}> */}
       <div className={FlightsStyle.tabs}>
@@ -1985,6 +1965,5 @@ export default function Flights() {
     </div>
 
   )
-
 }
 

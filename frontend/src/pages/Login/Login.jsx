@@ -42,7 +42,7 @@ export default function Login() {
             setRegisterText("Register to QAirline");
             setIsAdminRoute(false);
             setRole('user');
-        }   
+        }
     }, []);
 
     const handleInputChange = (e) => {
@@ -58,7 +58,6 @@ export default function Login() {
         setLoading(true);
 
         try {
-            // Perform login or signup
             const result = isLogin
                 ? await login(formData.username, formData.password)
                 : await signup(formData.name, formData.username, formData.password, role);
@@ -71,7 +70,6 @@ export default function Login() {
                 });
                 setToastOpen(true);
 
-                // Redirect back to the saved path or home
                 const redirectTo = isAdminRoute ? '/admin' : (location.state?.from || '/');
                 const thePrevState = location.state?.prevState || {};
 

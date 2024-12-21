@@ -84,28 +84,6 @@ exports.getUserBookings = async (req, res) => {
       }
     }
 
-    /*xxxxxxxxxxxxxxxxxxxxxxx update status*/
-    // const userBookings = await Booking.find({ userID: userID });
-
-    // if (userBookings.length === 0) {
-    //   return res.status(404).json({ message: 'No bookings found for this user' });
-    // }
-
-    // const flightIDs = userBookings.map(booking => booking.flightID);
-
-    // const now = new Date();
-    // await Flight.updateMany(
-    //   {
-    //     _id: { $in: flightIDs },
-    //     arrivalTime: { $lt: now },
-    //     flightStatus: { $ne: "Landed" }
-    //   },
-    //   {
-    //     $set: { flightStatus: "Landed" }
-    //   }
-    // );
-
-    /*xxxxxxxxxxxxxxxxxxxxxxx*/
     const bookings = await Booking.aggregate([
       {
         $lookup: {
@@ -204,32 +182,6 @@ exports.getUserBookings = async (req, res) => {
     return res.status(500).json({ message: 'Server error' });
   }
 };
-
-
-// Controller for getting all bookings by userID
-// exports.getUserBookings = async (req, res) => {
-//   try {
-//     const userID = req.params.userID;
-
-//     const bookings = await Booking.find({ userID }).populate({
-//       path: 'flightID',
-//       select: 'departureAirport arrivalAirport aircraft',
-//       populate: {
-//         path: 'aircraft'
-
-//       }
-//     })
-
-//     if (!bookings || bookings.length === 0) {
-//       return res.status(404).json({ message: 'No bookings found for this user' });
-//     }
-
-//     return res.status(200).json(bookings);
-//   } catch (error) {
-//     console.error('Error fetching bookings:', error);
-//     return res.status(500).json({ message: 'Server error' });
-//   }
-// };
 
 // Controller for getting a booking by booking ID
 exports.getBookingById = async (req, res) => {

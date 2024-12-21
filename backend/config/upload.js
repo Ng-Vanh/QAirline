@@ -1,12 +1,11 @@
 const multer = require('multer');
 const { GridFsStorage } = require('multer-gridfs-storage');
-const { dbURI } = require('./db'); // Import database URI
+const { dbURI } = require('./db');
 
 let storage;
 
 async function getUpload() {
   if (!storage) {
-    // Initialize storage only once
     storage = new GridFsStorage({
       url: dbURI,
       options: {
@@ -16,14 +15,13 @@ async function getUpload() {
       file: (req, file) => {
         const fileInfo = {
           filename: `${Date.now()}-${file.originalname}`,
-          bucketName: 'uploads', // GridFS bucket name
+          bucketName: 'uploads',
         };
         console.log('Uploading File Info:', fileInfo);
         return fileInfo;
       },
     });
 
-    // Listen for connection and errors
     storage.on('connection', () => {
       console.log('GridFS storage connection successful');
     });
@@ -33,7 +31,6 @@ async function getUpload() {
     });
   }
 
-  // Return a multer upload instance
   return multer({ storage });
 }
 

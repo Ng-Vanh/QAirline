@@ -2,7 +2,7 @@ const mongoose = require('mongoose');
 const Schema = mongoose.Schema;
 
 const FlightSchema = new Schema({
-  flightCode: {type: String, required: true },
+  flightCode: { type: String, required: true },
   departureAirport: { type: Schema.Types.ObjectId, ref: 'Airport', required: true },
   arrivalAirport: { type: Schema.Types.ObjectId, ref: 'Airport', required: true },
   departureTime: { type: Date, required: true },
@@ -11,12 +11,12 @@ const FlightSchema = new Schema({
 
   flightClass: {
     economy: {
-      price: { type: Number, required: true },  
-      seatsAvailable: { type: Number, required: true }  
+      price: { type: Number, required: true },
+      seatsAvailable: { type: Number, required: true }
     },
     business: {
-      price: { type: Number, required: true },  
-      seatsAvailable: { type: Number, required: true }  
+      price: { type: Number, required: true },
+      seatsAvailable: { type: Number, required: true }
     }
   },
 
@@ -26,7 +26,7 @@ const FlightSchema = new Schema({
     type: String,
     enum: ['Scheduled', 'On time', 'Delayed', 'Landed', 'In flight'],
     required: true,
-    default: 'Scheduled' 
+    default: 'Scheduled'
   }
 
 });

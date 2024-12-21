@@ -21,7 +21,7 @@ exports.createContent = async (req, res) => {
       return res.status(400).json({ message: 'Title, description, and contentType are required.' });
     }
 
-    // Validate image field (expecting filename from previous upload)
+    // Validate image field
     if (!image) {
       return res.status(400).json({ message: 'Image filename is required.' });
     }
@@ -29,7 +29,7 @@ exports.createContent = async (req, res) => {
     const newContent = {
       title,
       description,
-      image, // Use the filename provided in the request body
+      image,
       isActive: isActive !== undefined ? isActive : true,
       contentType,
     };

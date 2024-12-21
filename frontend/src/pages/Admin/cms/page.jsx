@@ -10,29 +10,23 @@ import Config from '~/Config';
 export default function CMSPage() {
     const apiBaseUrl = Config.apiBaseUrl;
 
-    // State for content
     const [introduction, setIntroduction] = useState([]);
     const [promotions, setPromotions] = useState([]);
     const [news, setNews] = useState([]);
     const [alerts, setAlerts] = useState([]);
 
-    // State for UI interactions
     const [activeTab, setActiveTab] = useState('introduction');
     const [editingItem, setEditingItem] = useState(null);
     const [isDialogOpen, setIsDialogOpen] = useState(false);
     const [loading, setLoading] = useState(true);
 
-    // Toast state
     const [toastMessage, setToastMessage] = useState({ title: '', description: '', type: '' });
     const [toastOpen, setToastOpen] = useState(false);
 
-    // Loading for save operation
     const [isSaving, setIsSaving] = useState(false);
 
-    // Temporary image file for preview
     const [tempImageFile, setTempImageFile] = useState(null);
 
-    // Fetch content from backend
     const fetchContent = async () => {
         setLoading(true);
         try {
@@ -64,17 +58,17 @@ export default function CMSPage() {
         setEditingItem({
             title: '',
             description: '',
-            image: '', // No image initially
+            image: '',
             isActive: true,
             contentType: '',
         });
-        setTempImageFile(null); // Clear temporary file
+        setTempImageFile(null);
         setIsDialogOpen(true);
     };
 
     const handleEdit = (item) => {
-        setEditingItem({ ...item }); // Set existing content for editing
-        setTempImageFile(null); // Clear temporary file
+        setEditingItem({ ...item });
+        setTempImageFile(null);
         setIsDialogOpen(true);
     };
 
@@ -91,7 +85,7 @@ export default function CMSPage() {
 
     const handleSave = async (e) => {
         e.preventDefault();
-        setIsSaving(true); // Start the saving process
+        setIsSaving(true);
 
         try {
             if (!editingItem.title || !editingItem.description || !editingItem.contentType) {
@@ -102,7 +96,6 @@ export default function CMSPage() {
 
             let uploadedImageFilename = editingItem.image;
 
-            // Upload the new image if selected
             if (tempImageFile) {
                 const formData = new FormData();
                 formData.append('image', tempImageFile);
@@ -114,7 +107,6 @@ export default function CMSPage() {
                 uploadedImageFilename = uploadResponse.data.file.filename;
             }
 
-            // Prepare content data
             const contentData = {
                 ...editingItem,
                 image: uploadedImageFilename,
@@ -134,7 +126,7 @@ export default function CMSPage() {
             console.error('Error saving content:', error);
             showToast('Error', 'Failed to save changes.', 'error');
         } finally {
-            setIsSaving(false); // End the saving process
+            setIsSaving(false);
         }
     };
 
@@ -144,7 +136,7 @@ export default function CMSPage() {
             setTempImageFile(file);
             setEditingItem((prev) => ({
                 ...prev,
-                image: URL.createObjectURL(file), // Use URL for instant preview
+                image: URL.createObjectURL(file),
             }));
         }
     };
@@ -152,10 +144,8 @@ export default function CMSPage() {
         try {
             const updatedItem = { ...item, isActive: !item.isActive };
 
-            // Gửi request cập nhật trạng thái
             await axios.put(`${apiBaseUrl}/api/content/${item._id}`, updatedItem);
 
-            // Cập nhật trực tiếp vào state tương ứng
             switch (item.contentType) {
                 case 'Introduction':
                     setIntroduction((prev) =>
@@ -343,8 +333,8 @@ export default function CMSPage() {
                                         <img
                                             src={
                                                 tempImageFile
-                                                    ? editingItem.image // Temporary uploaded file
-                                                    : `${apiBaseUrl}/api/files/image/${editingItem.image}` // Fetched URL
+                                                    ? editingItem.image
+                                                    : `${apiBaseUrl}/api/files/image/${editingItem.image}`
                                             }
                                             alt="Preview"
                                             className={cmsStyle.image_preview}

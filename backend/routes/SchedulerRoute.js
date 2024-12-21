@@ -1,6 +1,5 @@
-// schedulerRoutes.js
 const express = require('express');
-const { startScheduler, stopScheduler, isSchedulerActive } = require('../controllers/SchedulerController'); // Adjust path
+const { startScheduler, stopScheduler, isSchedulerActive } = require('../controllers/SchedulerController');
 
 const router = express.Router();
 

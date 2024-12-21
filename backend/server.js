@@ -1,12 +1,9 @@
 const express = require('express');
-const mongoose = require('mongoose');
 const swaggerUi = require('swagger-ui-express');
 const swaggerJSDoc = require('swagger-jsdoc');
 const bodyParser = require('body-parser');
 const cors = require('cors');
 const { connectDB } = require('./config/db');
-// MongoDB Atlas Connection URI
-// const dbURI = 'mongodb+srv://admin:admin@cluster0.33dyt9o.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0';
 
 // Initialize Express
 const app = express();
@@ -23,12 +20,12 @@ const swaggerOptions = {
       description: 'API Documentation for Airport management system',
     },
   },
-  apis: ['./routes/**/*.js'], // Path to your route files
+  apis: ['./routes/**/*.js'],
 };
 const swaggerDocs = swaggerJSDoc(swaggerOptions);
 app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerDocs));
 
-// Import Routes
+// Routes
 const FlightRoute = require('./routes/FlightRoute');
 const AirportRoute = require('./routes/AirportRoute');
 const BookingRoutes = require('./routes/BookingRoute');
@@ -60,25 +57,8 @@ app.use((req, res, next) => {
   next();
 });
 
-// // Connect to MongoDB and Export Connection
-// const conn = mongoose.createConnection(dbURI, {
-//   useNewUrlParser: true,
-//   useUnifiedTopology: true,
-// });
-
-// conn.on('connected', () => {
-//   console.log('Connected to MongoDB Atlas');
-// });
-
-// conn.on('error', (err) => {
-//   console.error('Error connecting to MongoDB Atlas:', err);
-// });
-
 // Start Server
 const PORT = process.env.PORT || 5000;
 app.listen(PORT, () => {
   console.log(`Server is running on port ${PORT}`);
 });
-
-// // Export Connection
-// module.exports = { dbURI, conn };

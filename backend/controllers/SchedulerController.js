@@ -1,4 +1,3 @@
-// flightScheduler.js
 const cron = require('node-cron');
 const Flight = require('../models/FlightModel');
 

@@ -1,11 +1,10 @@
-const Aircraft = require('../models/AircraftModel');  // Import the Aircraft model
+const Aircraft = require('../models/AircraftModel');
 
 // Controller for creating a new aircraft
 exports.createAircraft = async (req, res) => {
   try {
     const { code, manufacturer, model, seats, type, range, cruiseSpeed, engineType, inService, lastMaintenance, nextMaintenance } = req.body;
 
-    // Validate input
     if (!code || !manufacturer || !model || !seats || !type || !range || !cruiseSpeed || !engineType || inService === undefined || !lastMaintenance || !nextMaintenance) {
       return res.status(400).json({ message: 'All fields are required' });
     }
@@ -24,7 +23,6 @@ exports.createAircraft = async (req, res) => {
       nextMaintenance
     });
 
-    // Save the new aircraft
     await newAircraft.save();
 
     return res.status(201).json({ message: 'Aircraft created successfully', aircraft: newAircraft });

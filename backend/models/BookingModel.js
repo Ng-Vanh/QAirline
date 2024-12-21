@@ -1,7 +1,6 @@
 const mongoose = require('mongoose');
 const Schema = mongoose.Schema;
 
-// Define Booking schema
 const bookingSchema = new Schema({
   userID: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true },
   flightID: { type: mongoose.Schema.Types.ObjectId, ref: 'Flight', required: true },
