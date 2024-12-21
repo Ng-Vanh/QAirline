@@ -4,7 +4,7 @@ import Slideshow from '../../components/slide/Slideshow';
 import SearchBar from '../Flights/Flights';
 import PopularFlights from '../../components/popular_flight/PopularFlights';
 import ContentSection from '../../components/contentSection/contentSection';
-import Footer from '../../components/Footer';
+import Footer from '../../components/footer/Footer';
 import styles from './home.module.css';
 
 export default function Home() {
